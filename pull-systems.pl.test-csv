@@ -1,0 +1,79 @@
+#!/usr/bin/perl
+use strict;
+
+#############################################################################
+
+my $path	= '~bones/elite';
+my @t		= localtime;
+my $date	= sprintf("%04u%02u%02u",$t[5]+1900,$t[4]+1,$t[3]);
+
+my $wget	= '/usr/bin/wget';
+my $mv		= '/usr/bin/mv';
+
+my $epochDay	= int(time / 86400);
+
+my %planets	= ();
+my %stars	= ();
+
+@{$planets{'Earth-like-worlds.csv'}} = ('Earth-like world');
+@{$planets{'Ammonia-worlds.csv'}} = ('Ammonia world');
+@{$planets{'Life-giants.csv'}} = ('Gas giant with ammonia-based life','Gas giant with water-based life');
+@{$planets{'Helium-giants.csv'}} = ('Helium-rich gas giant');
+@{$planets{'Water-giants.csv'}} = ('Water giant');
+
+@{$stars{'Carbon-stars.csv'}} = ('C Star','CJ Star','CN Star','S-type Star','MS-type Star');
+@{$stars{'Carbon-C-stars.csv'}} = ('C Star');
+
+#############################################################################
+
+print "Epoch Day: $epochDay\n";
+
+
+	foreach my $csv (sort keys %planets) {
+
+		my @list = ();
+		foreach my $n (sort @{$planets{$csv}}) {
+			push @list, "'$n'";
+		}
+
+		my $cmd = "cd ~bones/elite/scripts ; ./planet-list.pl ".join(' ',@list)." > $csv ; scp -P222 $csv www\@services:/www/edastro.com/mapcharts/files/";
+		print "# $cmd\n";
+		system($cmd);
+	}
+
+	foreach my $csv (sort keys %stars) {
+
+		my @list = ();
+		foreach my $n (sort @{$stars{$csv}}) {
+			push @list, "'$n'";
+		}
+
+		my $cmd = "cd ~bones/elite/scripts ; ./star-list.pl ".join(' ',@list)." > $csv ; scp -P222 $csv www\@services:/www/edastro.com/mapcharts/files/";
+		print "# $cmd\n";
+		system($cmd);
+	}
+
+	#system("ssh -p222 www\@services 'cd /www/edastro.com/mapcharts ; ./update-spreadsheets.pl'");
+
+
+exit;
+
+#############################################################################
+
+sub get_file {
+	my ($parse_now, $param, $url, $file) = @_;
+
+	system("cd $path ; rm -f $file ; $wget $url/$file");
+
+	if (!$parse_now) {
+		print "MV $file -> $date-$file\n";
+		system("$mv $path/$file $path/$date-$file");
+		#system("$path/parse-data.pl $param $path/$date-$file > $path/$date-$file.out 2>\&1") if ($parse_now);
+	} else {
+		system("$path/parse-data.pl $param $path/$file > $path/$file.out 2>\&1") if ($parse_now);
+	}
+}
+
+#############################################################################
+
+

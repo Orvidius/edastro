@@ -1,0 +1,167 @@
+
+! = Not available
+@ = Available when last checked
+< = Interesting
+
+
+########
+My alts:
+########
+
+Orvidius
+NecroBones
+AceBones
+
+
+######################
+Good, but seen before:
+######################
+
+@JetSolo		Tribes 2
+
+!StarFalcon		Elite
+!AstroPilot		Musician
+
+
+############
+Interesting:
+############
+
+Available:
+----------
+
+AlphaFlyer
+AstroBones	<	possible alt
+AstroCrash
+AstroFlight
+AstroFlyer
+AstroJet	<<
+AstroMage
+AstroNomad
+AstroRaptor
+AstroRaven
+AstroSolo	<<
+AstroSwift
+DeltaFlight
+DeltaPhoenix	<<
+DragonVoid
+HawkBones	<<<<  remeniscent of current name
+JetFalcon	<<
+JetHawk
+KnightPilot	<<
+LanceDragon	<<
+LanceFalcon	<<
+LanceHawk
+LancePilot
+NovaFlight	<
+SolarSwift	<<
+SwiftStorm
+VectorFalcon
+VectorHawk	<<<<
+VectorKnight	<<
+VoidBones		possible alt
+VoidFlyer	<<
+VoidGlider
+VoidPilot	<<
+VortexDragon
+ZenithStar
+ZenPilot	<	remeniscent of current name
+ZenRaven
+
+
+Already taken:
+--------------
+
+AstroFalcon
+AstroGeek
+AstroGlider
+AstroHawk
+AstroKnight
+AstroPhoenix
+AstroStorm
+AstroVoyager
+AstroWanderer
+BoneStar
+DarkAngel
+DarkAngle
+DeltaFlyer
+DeltaPilot
+DragonStar
+FreeStar
+JetFire
+JetRaven
+JetStar
+JetWing
+KnightFalcon
+KnightFlight
+KnightFlyer
+KnightHawk
+KnightShade
+KnightStar
+LanceKnight
+Launchpad
+LaserHawk
+LazerHawk
+NightFalcon
+NightFlight
+NightFlyer
+NightHawk
+NightStar
+NovaDawn
+NovaHawk
+NovaKnight
+NovaPilot
+NovaStar
+NovaStorm
+NovaWalker
+RavenStar
+RocketKnight
+RocketShade
+SkyNomad
+SkyTerror
+SolarFalcon
+SolarStorm
+SpaceBones
+SpaceFalcon
+SpaceHawk
+SpaceKnight
+SpacePilot
+SpaceRaven
+SpaceStorm
+StarBones
+StarCrash
+StarDragon
+StarGlider
+StarHawk
+StarFlight
+StarFlyer
+StarFox
+StarMage
+StarPilot
+StarRaven
+StarShot
+StarSolo
+StarStrider
+StarSwift
+StarVoyager
+StarryKnight
+StormFalcon
+StormHawk
+StormPilot
+StormRaven
+StormShot
+StormWing
+VictorVector
+VoidEagle
+VoidFalcon
+VoidHawk
+VoidRaven
+VoidStar
+VoidStorm
+VoidStrider
+VoidWalker
+VortexKnight
+Xenon
+Zapp		Zapp Brannigan
+
+

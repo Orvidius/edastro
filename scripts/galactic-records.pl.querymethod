@@ -1,0 +1,209 @@
+#!/usr/bin/perl
+use strict;
+
+############################################################################
+
+use lib "/home/bones/elite";
+use EDSM qw(log10);
+
+use lib "/home/bones/perl";
+use DB qw(db_mysql rows_mysql columns_mysql show_queries);
+use ATOMS qw(epoch2date date2epoch make_csv btrim);
+
+#############################################################################
+
+my $debug	= 1;
+my $do_rings	= 0;
+my $debug_size	= 1000000;
+my $chunk_size	= 10000;
+
+my %skipKey = ();
+$skipKey{bodyId} = 1;
+$skipKey{bodyId64} = 1;
+$skipKey{systemId} = 1;
+$skipKey{systemId64} = 1;
+$skipKey{id} = 1;
+$skipKey{planetID} = 1;
+$skipKey{starID} = 1;
+$skipKey{planet_id} = 1;
+$skipKey{parentStar} = 1;
+$skipKey{parentStarID} = 1;
+$skipKey{parentPlanet} = 1;
+$skipKey{parentPlanetID} = 1;
+$skipKey{orbitType} = 1;
+$skipKey{isLandable} = 1;
+$skipKey{isStar} = 1;
+$skipKey{edsmID} = 1;
+$skipKey{edsm_id} = 1;
+$skipKey{deletionState} = 1;
+$skipKey{suspicious} = 1;
+$skipKey{isMainStar} = 1;
+$skipKey{isPrimary} = 1;
+$skipKey{isScoopable} = 1;
+$skipKey{rotationalPeriodTidallyLocked} = 1;
+$skipKey{argOfPeriapsis} = 1;
+$skipKey{offset} = 1;
+$skipKey{orbitType} = 1;
+
+show_queries($debug);
+
+#############################################################################
+
+my %region_name = ();
+
+my @rows = db_mysql('elite',"select * from regions");
+foreach my $r (@rows) {
+	$region_name{$$r{id}} = $$r{name};
+}
+
+#############################################################################
+
+my %data = ();
+my @out = ();
+
+foreach my $table (qw(planets stars)) {
+	my $dotcount = 0;
+	my %cols = ();
+
+	my $idfield = 'planetID';
+	$idfield = 'starID' if ($table eq 'stars');
+
+	my @check = db_mysql('elite',"select max($idfield) as num from $table");
+	my $maxID = ${$check[0]}{num};
+
+	my @struct = db_mysql('elite',"describe $table");
+	foreach my $r (@struct) {
+		if ($$r{Type} =~ /int\(/ || $$r{Type} eq 'float') {
+			$cols{$$r{Field}} = 1 if (!$skipKey{$$r{Field}});
+		}
+	}
+
+	foreach my $isLandable (0,1) {
+		# isLandable:  0 == all,  1 == landables only
+
+		next if ($isLandable && $table ne 'planets');
+
+		my $landableCheck = '';
+		$landableCheck = 'isLandable=1 and' if ($isLandable);
+
+		#my @typerows = db_mysql('elite',"select distinct subType,count(*) as num from $table where $landableCheck deletionState=0 and suspicious=0 group by subType");
+		my @typerows = db_mysql('elite',"select distinct subType from $table");
+		my %types = ();
+		foreach my $r (@typerows) {
+			#$types{btrim($$r{subType})} = $$r{num} if (btrim($$r{subType}));
+			$types{btrim($$r{subType})} = 1 if (btrim($$r{subType}));
+		}
+
+		foreach my $subType ('',sort keys %types) {
+			my @params = ();
+			my $typecheck = '';
+
+			next if ($subType && !$types{$subType});
+
+			if ($subType) {
+				$typecheck = 'subType=? and';
+				@params = ($subType);
+			}
+
+			my $typename = $table;
+			$typename = $subType if ($subType);
+			$typename .= ' (landables)' if ($isLandable);
+
+			my $additional = '';
+
+			# Special "additional" rules here, per field
+
+			$additional .= ' and orbitalEccentricity<1' if ($cols{orbitalEccentricity});
+			$additional .= ' and surfacePressure<=1 and gravity<=20' if ($isLandable);
+
+			foreach my $nz (qw(gravity earthMasses radius orbitalPeriod rotationalPeriod semiMajorAxis solarMasses solarRadius surfaceTemperature)) {
+				$additional .= " and $nz>0" if ($cols{$nz});
+			}
+
+			my $where = "where $typecheck $landableCheck deletionState=0 and suspicious=0 $additional";
+			my $select = '';
+
+			#with t as (select name,axialTilt from planets where subType='Water giant' and deletionState=0 and suspicious=0 and axialTilt is not null) select (select name from t where axialTilt = (select max(axialTilt) from t) limit 1) as maxName, max(axialTilt) as maxVal, (select name from t where axialTilt = (select min(axialTilt) from t) limit 1) as minName, min(axialTilt) as minVal, avg(axialTilt) as avgVal, stddev(axialTilt) as stddevVal from t;
+
+			foreach my $field (sort keys %cols) {
+				$where .= " and $field is not null";
+				$select .= "(select name from t where $field = (select max($field) from t) limit 1) as maxName_$field, max($field) as max_$field, ".
+					"(select name from t where $field = (select min($field) from t) limit 1) as minName_$field, min($field) as min_$field, ".
+					"avg($field) as avg_$field, stddev($field) as std_$field,";
+			}
+			$select =~ s/,$//;
+
+			my $sql = "with t as (select name,".join(',',keys(%cols))." from planets $where) select $select from t";
+			my @rows = db_mysql('elite',$sql);
+
+			if (@rows) {
+				my $r = shift @rows;
+				foreach my $field (sort keys %cols) {
+
+					$data{$typename}{$field}{max} = $$r{"max_$field"};
+					$data{$typename}{$field}{maxName} = $$r{"maxName_$field"};
+					$data{$typename}{$field}{min} = $$r{"min_$field"};
+					$data{$typename}{$field}{minName} = $$r{"minName_$field"};
+					$data{$typename}{$field}{avg} = $$r{"avg_$field"};
+					$data{$typename}{$field}{std} = $$r{"std_$field"};
+
+					warn epoch2date(time)." [$typename/$field/$isLandable] $data{$typename}{$field}{max},$data{$typename}{$field}{maxName},".
+							"$data{$typename}{$field}{min},$data{$typename}{$field}{minName},".
+							"$data{$typename}{$field}{avg},$data{$typename}{$field}{std}\n" if ($debug);
+				}
+			}
+		}
+	}
+}
+	
+foreach my $type (sort keys %data) {
+	foreach my $key (sort keys %{$data{$type}}) {
+		my $line = make_csv($type,$key,$data{$type}{$key}{max},$data{$type}{$key}{maxName},
+					$data{$type}{$key}{min},$data{$type}{$key}{minName},$data{$type}{$key}{avg},$data{$type}{$key}{std});
+					
+
+		push @out, $line;
+		#warn "$line\n";
+	}
+}
+
+# Records output:
+
+open CSV, ">galactic-records.csv";
+print CSV make_csv('Type','Variable','Max Value','Max Body',
+		'Overall Min Value','Overall Min Body','Overall Average','Overall Standard Deviation',
+		'Non-Zero Min Value','Non-Zero Min Body','Non-Zero Average','Non-Zero Standard Deviation')."\r\n";
+
+foreach my $s (@out) {
+	print CSV "$s\r\n";
+	warn "$s\n";
+}
+
+close CSV;
+
+exit;
+
+
+#############################################################################
+
+sub name_lookup {
+	my ($table, $where, $pref, $minmax, $field) = @_;
+
+	return undef if ($minmax !~ /^(min|max)$/i);
+
+	my @rows = db_mysql('elite',"select name from $table where $field=(select $minmax($field) from $table $where)",$pref);
+	if (@rows) {
+		return ${$rows[0]}{name};
+	}
+	return undef;
+}
+
+sub commify {
+    my $text = reverse $_[0];
+    $text =~ s/(\d\d\d)(?=\d)(?!\d*\.)/$1,/g;
+    return scalar reverse $text
+}
+
+
+
+#############################################################################

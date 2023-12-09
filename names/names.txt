@@ -1,0 +1,87 @@
+jet
+solo
+rocket
+aero		0
+star
+stellar		0
+astro		0
+space
+freak		1
+geek		1
+man		1
+dork		1
+fox		1
+cat		1
+walker		1
+wanderer	1
+traveler	1
+navigator	1
+nomad		1
+ace
+arrow
+archer
+pilot		1
+speed
+swift
+air		0
+sky
+warrior		1
+bones		1
+zen
+flight
+flyer		1
+falcon
+eagle
+hawk
+raven
+bird
+void
+dusk
+dawn
+solar		0
+helio		0
+halo		1
+hyper		0
+looper		1
+comet
+dragon
+voyager		1
+voyage
+dark
+light
+nova
+storm
+apex
+alpha		0
+wing
+explorer	1
+orbital		0
+meteor
+glider		1
+celestial	0
+cosmic		0
+astronaut
+rider		1
+captain
+phoenix
+raptor
+soarer		1
+strider		1
+striker		1
+scout		1
+fire		1
+one		1
+spectre		1
+spectral	0
+night		0
+vortex
+knight
+sir		0
+skyward		0
+sorcerer	1
+wizard		1
+mage		1
+crash		
+free		
+ranger		1
+

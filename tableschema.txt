@@ -1,0 +1,1420 @@
+-- MySQL dump 10.13  Distrib 5.7.42, for Linux (x86_64)
+--
+-- Host: banshee    Database: elite
+-- ------------------------------------------------------
+-- Server version	5.5.5-10.5.19-MariaDB
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `POI`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `POI` (
+  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `edsm_id` bigint(20) DEFAULT NULL,
+  `gec_id` bigint(20) DEFAULT NULL,
+  `systemId64` bigint(20) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `type` varchar(255) DEFAULT NULL,
+  `updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `coord_x` float DEFAULT NULL,
+  `coord_y` float DEFAULT NULL,
+  `coord_z` float DEFAULT NULL,
+  `galMapSearch` varchar(255) DEFAULT NULL,
+  `galMapUrl` varchar(255) DEFAULT NULL,
+  `poiUrl` varchar(255) DEFAULT NULL,
+  `callsign` varchar(7) DEFAULT NULL,
+  `summary` varchar(255) DEFAULT NULL,
+  `descriptionHtml` text DEFAULT NULL,
+  `skip` tinyint(4) DEFAULT NULL,
+  `hidden` tinyint(4) NOT NULL DEFAULT 0,
+  `score` decimal(9,2) DEFAULT NULL,
+  `pinOverride` varchar(31) DEFAULT NULL,
+  `iconoverride` varchar(32) DEFAULT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `edsmKEY` (`edsm_id`),
+  KEY `Coordinates` (`coord_x`,`coord_y`,`coord_z`),
+  KEY `POIname` (`name`),
+  KEY `id64Key` (`systemId64`),
+  KEY `gecKey` (`gec_id`),
+  KEY `pinKey` (`pinOverride`)
+) ENGINE=InnoDB AUTO_INCREMENT=2293 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `atmospheres`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `atmospheres` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `planet_id` bigint(20) DEFAULT NULL,
+  `ammonia` float DEFAULT NULL,
+  `argon` float DEFAULT NULL,
+  `carbondioxide` float DEFAULT NULL,
+  `helium` float DEFAULT NULL,
+  `hydrogen` float DEFAULT NULL,
+  `iron` float DEFAULT NULL,
+  `methane` float DEFAULT NULL,
+  `neon` float DEFAULT NULL,
+  `nitrogen` float DEFAULT NULL,
+  `oxygen` float DEFAULT NULL,
+  `silicates` float DEFAULT NULL,
+  `sulphurdioxide` float DEFAULT NULL,
+  `water` float DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `planetKey` (`planet_id`),
+  KEY `heliumKey` (`helium`)
+) ENGINE=InnoDB AUTO_INCREMENT=172832539 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `barycenters`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `barycenters` (
+  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `edsmID` bigint(20) DEFAULT NULL,
+  `systemId64` bigint(20) DEFAULT NULL,
+  `systemId` bigint(20) DEFAULT NULL,
+  `bodyId64` bigint(20) DEFAULT NULL,
+  `bodyId` bigint(20) DEFAULT NULL,
+  `updateTime` datetime DEFAULT NULL,
+  `updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `edsm_date` datetime DEFAULT NULL,
+  `date_added` datetime DEFAULT NULL,
+  `eddn_date` datetime DEFAULT NULL,
+  `orbitalPeriod` decimal(36,12) DEFAULT NULL,
+  `orbitalEccentricity` decimal(18,15) DEFAULT NULL,
+  `orbitalInclination` decimal(36,12) DEFAULT NULL,
+  `argOfPeriapsis` decimal(18,12) DEFAULT NULL,
+  `semiMajorAxis` decimal(36,12) DEFAULT NULL,
+  `meanAnomaly` decimal(18,15) DEFAULT NULL,
+  `meanAnomalyDate` datetime DEFAULT NULL,
+  `ascendingNode` decimal(18,12) DEFAULT NULL,
+  `parents` varchar(255) DEFAULT NULL,
+  `parentID` bigint(20) DEFAULT NULL,
+  `parentType` tinyint(4) DEFAULT NULL,
+  `deletionState` tinyint(4) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`ID`),
+  KEY `systemID64` (`systemId64`),
+  KEY `delState` (`deletionState`),
+  KEY `edsmKey` (`edsmID`),
+  KEY `bodyKey` (`bodyId`),
+  KEY `bodyKey64` (`bodyId64`),
+  KEY `eddnDateKey` (`eddn_date`),
+  KEY `addedKey` (`date_added`),
+  KEY `updatedKey` (`updated`),
+  KEY `edsmDateKey` (`edsm_date`)
+) ENGINE=InnoDB AUTO_INCREMENT=6419695 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `belts`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `belts` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `planet_id` bigint(20) DEFAULT NULL,
+  `isStar` tinyint(4) DEFAULT 1,
+  `name` varchar(255) DEFAULT NULL,
+  `type` varchar(63) DEFAULT NULL,
+  `mass` bigint(20) DEFAULT NULL,
+  `innerRadius` bigint(20) DEFAULT NULL,
+  `outerRadius` bigint(20) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `planetKey` (`planet_id`),
+  KEY `typeKey` (`isStar`),
+  KEY `nameKey` (`name`),
+  KEY `areaKey` (`outerRadius`,`innerRadius`)
+) ENGINE=InnoDB AUTO_INCREMENT=31414684 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `carrierdockings`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `carrierdockings` (
+  `callsign` varchar(15) NOT NULL DEFAULT '',
+  `docked` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  PRIMARY KEY (`callsign`,`docked`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `carrierlog`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `carrierlog` (
+  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `callsign` varchar(15) DEFAULT NULL,
+  `logdate` datetime DEFAULT NULL,
+  `systemId64` bigint(20) DEFAULT NULL,
+  `systemName` varchar(63) DEFAULT NULL,
+  `body` varchar(63) DEFAULT NULL,
+  `coord_x` float DEFAULT NULL,
+  `coord_y` float DEFAULT NULL,
+  `coord_z` float DEFAULT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `idKey` (`callsign`),
+  KEY `id64Key` (`systemId64`),
+  KEY `systemNameKey` (`systemName`),
+  KEY `dateKey` (`logdate`)
+) ENGINE=InnoDB AUTO_INCREMENT=1804896 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `carriers`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `carriers` (
+  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
+  `marketID` bigint(20) DEFAULT NULL,
+  `callsign` varchar(15) DEFAULT NULL,
+  `callsign_old` varchar(15) DEFAULT NULL,
+  `created` datetime DEFAULT NULL,
+  `updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `lastEvent` datetime DEFAULT NULL,
+  `lastMoved` datetime DEFAULT NULL,
+  `FSSdate` datetime DEFAULT NULL,
+  `systemId64` bigint(20) DEFAULT NULL,
+  `systemName` varchar(63) DEFAULT NULL,
+  `distanceToArrival` bigint(20) DEFAULT NULL,
+  `PendingDecommission` tinyint(4) DEFAULT NULL,
+  `services` varchar(255) DEFAULT NULL,
+  `AllowNotorious` tinyint(4) DEFAULT NULL,
+  `DockingAccess` varchar(20) DEFAULT NULL,
+  `FuelLevel` int(11) DEFAULT NULL,
+  `CarrierBalance` bigint(20) DEFAULT NULL,
+  `TaxRate` float DEFAULT NULL,
+  `coord_x` float DEFAULT NULL,
+  `coord_y` float DEFAULT NULL,
+  `coord_z` float DEFAULT NULL,
+  `commander` varchar(255) DEFAULT NULL,
+  `isDSSA` tinyint(4) DEFAULT NULL,
+  `isIGAU` tinyint(4) DEFAULT NULL,
+  `wasDSSA` tinyint(4) DEFAULT NULL,
+  `converted` tinyint(4) DEFAULT NULL,
+  `invisible` tinyint(4) NOT NULL DEFAULT 0,
+  `note` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `idKey` (`marketID`),
+  KEY `callsignKey` (`callsign`),
+  KEY `nameKey` (`name`),
+  KEY `id64Key` (`systemId64`),
+  KEY `systemNameKey` (`systemName`),
+  KEY `DSSAkey` (`isDSSA`),
+  KEY `IGAUkey` (`isIGAU`),
+  KEY `lastMovedKey` (`lastMoved`),
+  KEY `lastEventKey` (`lastEvent`),
+  KEY `FSSkey` (`FSSdate`)
+) ENGINE=InnoDB AUTO_INCREMENT=120528 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `codex`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `codex` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `systemId64` bigint(20) DEFAULT NULL,
+  `regionID` tinyint(4) DEFAULT NULL,
+  `nameID` bigint(20) DEFAULT NULL,
+  `subcategoryID` bigint(20) DEFAULT NULL,
+  `categoryID` bigint(20) DEFAULT NULL,
+  `isBrainTree` tinyint(4) DEFAULT 0,
+  `reportedOn` datetime DEFAULT NULL,
+  `odyssey` tinyint(4) DEFAULT NULL,
+  `updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `deletionState` tinyint(4) DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `systemID64` (`systemId64`),
+  KEY `regionKey` (`regionID`),
+  KEY `brainTreeKey` (`isBrainTree`),
+  KEY `nameKey` (`nameID`),
+  KEY `categoryKey` (`categoryID`),
+  KEY `subcategoryKey` (`subcategoryID`)
+) ENGINE=InnoDB AUTO_INCREMENT=1725834 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `codex_edsm`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `codex_edsm` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `edsmID` bigint(20) DEFAULT NULL,
+  `systemId64` bigint(20) DEFAULT NULL,
+  `systemId` bigint(20) DEFAULT NULL,
+  `systemName` varchar(255) DEFAULT NULL,
+  `region` varchar(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `type` varchar(255) DEFAULT NULL,
+  `isBrainTree` tinyint(4) DEFAULT 0,
+  `reportedOn` datetime DEFAULT NULL,
+  `updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `deletionState` tinyint(4) DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `systemID` (`systemId`),
+  KEY `systemID64` (`systemId64`),
+  KEY `regionKey` (`region`),
+  KEY `typeKey` (`type`),
+  KEY `edsmKey` (`edsmID`),
+  KEY `brainTreeKey` (`isBrainTree`),
+  KEY `nameKey` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=12652510 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `codexcat`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `codexcat` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
+  `updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `date_added` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `nameKey` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `codexcat_local`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `codexcat_local` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `codexcatID` bigint(20) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `preferred` tinyint(4) NOT NULL DEFAULT 0,
+  `updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `date_added` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `codexcatKey` (`codexcatID`),
+  KEY `nameKey` (`name`),
+  KEY `prefKey` (`preferred`)
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `codexname`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `codexname` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
+  `updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `date_added` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `nameKey` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=1118 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `codexname_local`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `codexname_local` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `codexnameID` bigint(20) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `preferred` tinyint(4) NOT NULL DEFAULT 0,
+  `updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `date_added` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `codexnameKey` (`codexnameID`),
+  KEY `nameKey` (`name`),
+  KEY `prefKey` (`preferred`)
+) ENGINE=InnoDB AUTO_INCREMENT=2539 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `codexsubcat`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `codexsubcat` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
+  `updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `date_added` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `nameKey` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `codexsubcat_local`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `codexsubcat_local` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `codexsubcatID` bigint(20) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `preferred` tinyint(4) NOT NULL DEFAULT 0,
+  `updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `date_added` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `codexsubcatKey` (`codexsubcatID`),
+  KEY `nameKey` (`name`),
+  KEY `prefKey` (`preferred`)
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `commanders`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `commanders` (
+  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
+  `edsm_key` varchar(255) DEFAULT NULL,
+  `edsm_pull` datetime DEFAULT '2014-12-16 00:00:00',
+  `active` tinyint(4) DEFAULT 0,
+  `last_login` datetime NOT NULL DEFAULT '2014-12-16 00:00:00',
+  `carrierID` bigint(20) DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `dates_planets`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `dates_planets` (
+  `subDate` date NOT NULL DEFAULT '0000-00-00',
+  `maxID` bigint(20) DEFAULT NULL,
+  `modified` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`subDate`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `dates_stars`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `dates_stars` (
+  `subDate` date NOT NULL DEFAULT '0000-00-00',
+  `maxID` bigint(20) DEFAULT NULL,
+  `modified` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`subDate`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `dates_systems`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `dates_systems` (
+  `subDate` date NOT NULL DEFAULT '0000-00-00',
+  `maxID` bigint(20) DEFAULT NULL,
+  `modified` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`subDate`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `fakesectors`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `fakesectors` (
+  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(63) NOT NULL,
+  `sectorID` bigint(20) NOT NULL,
+  `avgX` float DEFAULT NULL,
+  `avgY` float DEFAULT NULL,
+  `avgZ` float DEFAULT NULL,
+  `created` datetime DEFAULT NULL,
+  `updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`ID`),
+  KEY `nameKey` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=422 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `genus`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `genus` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
+  `updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `date_added` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `nameKey` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=114 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `genus_local`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `genus_local` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `genusID` bigint(20) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `preferred` tinyint(4) NOT NULL DEFAULT 0,
+  `updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `date_added` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `genusKey` (`genusID`),
+  KEY `nameKey` (`name`),
+  KEY `prefKey` (`preferred`)
+) ENGINE=InnoDB AUTO_INCREMENT=73 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `journalfiles`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `journalfiles` (
+  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `filename` varchar(127) DEFAULT NULL,
+  `size` bigint(20) DEFAULT NULL,
+  `events` int(11) DEFAULT NULL,
+  `firstdate` datetime DEFAULT NULL,
+  `lastdate` datetime DEFAULT NULL,
+  `processed` datetime DEFAULT NULL,
+  `cmdrID` int(11) DEFAULT NULL,
+  `systemId64` bigint(20) DEFAULT NULL,
+  `systemName` varchar(127) DEFAULT NULL,
+  `coord_x` decimal(12,6) DEFAULT NULL,
+  `coord_y` decimal(12,6) DEFAULT NULL,
+  `coord_z` decimal(12,6) DEFAULT NULL,
+  `jetcone` tinyint(4) DEFAULT 0,
+  PRIMARY KEY (`ID`),
+  KEY `cmdrKEY` (`cmdrID`),
+  KEY `dateKey` (`processed`)
+) ENGINE=InnoDB AUTO_INCREMENT=3360 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `journals`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `journals` (
+  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `systemId64` bigint(20) DEFAULT NULL,
+  `systemName` varchar(127) DEFAULT NULL,
+  `cmdrID` int(11) DEFAULT NULL,
+  `eventtype` varchar(15) DEFAULT NULL,
+  `eventdate` datetime DEFAULT NULL,
+  `distance` decimal(12,6) DEFAULT NULL,
+  `calcdistance` decimal(12,6) DEFAULT NULL,
+  `jetcone` tinyint(4) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`ID`),
+  KEY `id64Key` (`systemId64`),
+  KEY `cmdrKEY` (`cmdrID`),
+  KEY `dateKEY` (`eventdate`)
+) ENGINE=InnoDB AUTO_INCREMENT=74112 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `legacycarrierlog`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `legacycarrierlog` (
+  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `callsign` varchar(15) DEFAULT NULL,
+  `logdate` datetime DEFAULT NULL,
+  `systemId64` bigint(20) DEFAULT NULL,
+  `systemName` varchar(63) DEFAULT NULL,
+  `body` varchar(63) DEFAULT NULL,
+  `coord_x` float DEFAULT NULL,
+  `coord_y` float DEFAULT NULL,
+  `coord_z` float DEFAULT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `idKey` (`callsign`),
+  KEY `id64Key` (`systemId64`),
+  KEY `systemNameKey` (`systemName`),
+  KEY `dateKey` (`logdate`)
+) ENGINE=InnoDB AUTO_INCREMENT=1233141 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `legacycarriers`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `legacycarriers` (
+  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
+  `marketID` bigint(20) DEFAULT NULL,
+  `callsign` varchar(15) DEFAULT NULL,
+  `callsign_old` varchar(15) DEFAULT NULL,
+  `created` datetime DEFAULT NULL,
+  `updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `lastEvent` datetime DEFAULT NULL,
+  `lastMoved` datetime DEFAULT NULL,
+  `FSSdate` datetime DEFAULT NULL,
+  `systemId64` bigint(20) DEFAULT NULL,
+  `systemName` varchar(63) DEFAULT NULL,
+  `distanceToArrival` bigint(20) DEFAULT NULL,
+  `PendingDecommission` tinyint(4) DEFAULT NULL,
+  `services` varchar(255) DEFAULT NULL,
+  `AllowNotorious` tinyint(4) DEFAULT NULL,
+  `DockingAccess` varchar(20) DEFAULT NULL,
+  `FuelLevel` int(11) DEFAULT NULL,
+  `CarrierBalance` bigint(20) DEFAULT NULL,
+  `TaxRate` float DEFAULT NULL,
+  `coord_x` float DEFAULT NULL,
+  `coord_y` float DEFAULT NULL,
+  `coord_z` float DEFAULT NULL,
+  `commander` varchar(255) DEFAULT NULL,
+  `isDSSA` tinyint(4) DEFAULT NULL,
+  `isIGAU` tinyint(4) DEFAULT NULL,
+  `wasDSSA` tinyint(4) DEFAULT NULL,
+  `converted` tinyint(4) DEFAULT NULL,
+  `invisible` tinyint(4) NOT NULL DEFAULT 0,
+  `note` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `idKey` (`marketID`),
+  KEY `callsignKey` (`callsign`),
+  KEY `nameKey` (`name`),
+  KEY `id64Key` (`systemId64`),
+  KEY `systemNameKey` (`systemName`),
+  KEY `DSSAkey` (`isDSSA`),
+  KEY `IGAUkey` (`isIGAU`),
+  KEY `lastMovedKey` (`lastMoved`),
+  KEY `lastEventKey` (`lastEvent`),
+  KEY `FSSkey` (`FSSdate`)
+) ENGINE=InnoDB AUTO_INCREMENT=97301 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `logs`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `logs` (
+  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `systemId` bigint(20) DEFAULT NULL,
+  `systemId64` bigint(20) DEFAULT NULL,
+  `system` varchar(255) DEFAULT NULL,
+  `cmdrID` int(11) DEFAULT NULL,
+  `shipId` int(11) DEFAULT NULL,
+  `firstDiscover` tinyint(4) DEFAULT NULL,
+  `date` datetime DEFAULT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `systemKEY` (`systemId`,`systemId64`),
+  KEY `cmdrKEY` (`cmdrID`,`shipId`,`date`),
+  KEY `idKey` (`systemId`),
+  KEY `id64Key` (`systemId64`)
+) ENGINE=InnoDB AUTO_INCREMENT=69548 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `materials`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `materials` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `planet_id` bigint(20) DEFAULT NULL,
+  `antimony` float DEFAULT NULL,
+  `arsenic` float DEFAULT NULL,
+  `cadmium` float DEFAULT NULL,
+  `carbon` float DEFAULT NULL,
+  `chromium` float DEFAULT NULL,
+  `germanium` float DEFAULT NULL,
+  `iron` float DEFAULT NULL,
+  `manganese` float DEFAULT NULL,
+  `mercury` float DEFAULT NULL,
+  `molybdenum` float DEFAULT NULL,
+  `nickel` float DEFAULT NULL,
+  `niobium` float DEFAULT NULL,
+  `phosphorus` float DEFAULT NULL,
+  `polonium` float DEFAULT NULL,
+  `ruthenium` float DEFAULT NULL,
+  `selenium` float DEFAULT NULL,
+  `sulphur` float DEFAULT NULL,
+  `technetium` float DEFAULT NULL,
+  `tellurium` float DEFAULT NULL,
+  `tin` float DEFAULT NULL,
+  `tungsten` float DEFAULT NULL,
+  `vanadium` float DEFAULT NULL,
+  `yttrium` float DEFAULT NULL,
+  `zinc` float DEFAULT NULL,
+  `zirconium` float DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `planetKey` (`planet_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=174972208 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `navsystems`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `navsystems` (
+  `id64` bigint(20) NOT NULL,
+  `id64sectorID` int(11) DEFAULT NULL,
+  `id64mass` tinyint(4) DEFAULT NULL,
+  `id64boxelID` int(11) DEFAULT NULL,
+  `id64boxelnum` int(11) DEFAULT NULL,
+  `name` varchar(63) NOT NULL,
+  `starclass` varchar(7) DEFAULT NULL,
+  `coord_x` decimal(15,9) DEFAULT NULL,
+  `coord_y` decimal(15,9) DEFAULT NULL,
+  `coord_z` decimal(15,9) DEFAULT NULL,
+  `updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `created` datetime DEFAULT NULL,
+  PRIMARY KEY (`id64`),
+  KEY `systemName` (`name`),
+  KEY `classKey` (`starclass`),
+  KEY `coordKey` (`coord_x`,`coord_y`,`coord_z`),
+  KEY `sectorKey` (`id64sectorID`),
+  KEY `boxID64key` (`id64boxelID`),
+  KEY `boxnum64key` (`id64boxelnum`),
+  KEY `box64key` (`id64mass`,`id64boxelID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `orbits`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `orbits` (
+  `orbitType` bigint(20) NOT NULL DEFAULT 0,
+  `orbitName` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`orbitType`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `organic`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `organic` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `systemId64` bigint(20) DEFAULT NULL,
+  `bodyId` int(11) DEFAULT NULL,
+  `genusID` bigint(20) DEFAULT NULL,
+  `speciesID` bigint(20) DEFAULT NULL,
+  `date_added` datetime DEFAULT NULL,
+  `firstReported` datetime DEFAULT NULL,
+  `lastSeen` datetime DEFAULT NULL,
+  `updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `genusKey` (`genusID`),
+  KEY `speciesKey` (`speciesID`),
+  KEY `systemKey` (`systemId64`),
+  KEY `reportedKey` (`firstReported`),
+  KEY `seenKey` (`lastSeen`),
+  KEY `addedKey` (`date_added`)
+) ENGINE=InnoDB AUTO_INCREMENT=388291 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `organicsignals`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `organicsignals` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `systemId64` bigint(20) DEFAULT NULL,
+  `bodyId` int(11) DEFAULT NULL,
+  `genusID` bigint(20) DEFAULT NULL,
+  `date_added` datetime DEFAULT NULL,
+  `firstReported` datetime DEFAULT NULL,
+  `lastSeen` datetime DEFAULT NULL,
+  `updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `genusKey` (`genusID`),
+  KEY `systemKey` (`systemId64`),
+  KEY `reportedKey` (`firstReported`),
+  KEY `seenKey` (`lastSeen`),
+  KEY `addedKey` (`date_added`)
+) ENGINE=InnoDB AUTO_INCREMENT=817109 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `parentTypes`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `parentTypes` (
+  `ptype` tinyint(4) DEFAULT NULL,
+  `pname` varchar(31) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `planets`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `planets` (
+  `planetID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `edsmID` bigint(20) DEFAULT NULL,
+  `systemId64` bigint(20) DEFAULT NULL,
+  `systemId` bigint(20) DEFAULT NULL,
+  `bodyId64` bigint(20) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `subType` varchar(255) DEFAULT NULL,
+  `isLandable` tinyint(4) DEFAULT NULL,
+  `updateTime` datetime DEFAULT NULL,
+  `updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `edsm_date` datetime DEFAULT NULL,
+  `date_added` datetime DEFAULT NULL,
+  `eddn_date` datetime DEFAULT NULL,
+  `offset` int(11) DEFAULT NULL,
+  `distanceToArrival` bigint(20) DEFAULT NULL,
+  `distanceToArrivalLS` float DEFAULT NULL,
+  `orbitType` tinyint(4) DEFAULT NULL,
+  `rotationalPeriodTidallyLocked` tinyint(4) DEFAULT NULL,
+  `rotationalPeriod` float DEFAULT NULL,
+  `axialTilt` float DEFAULT NULL,
+  `gravity` float DEFAULT NULL,
+  `surfaceTemperature` int(11) DEFAULT NULL,
+  `earthMasses` float DEFAULT NULL,
+  `radius` float DEFAULT NULL,
+  `orbitalInclination` float DEFAULT NULL,
+  `argOfPeriapsis` float DEFAULT NULL,
+  `semiMajorAxis` float DEFAULT NULL,
+  `orbitalEccentricity` float DEFAULT NULL,
+  `orbitalPeriod` float DEFAULT NULL,
+  `terraformingState` varchar(255) DEFAULT NULL,
+  `volcanismType` varchar(255) DEFAULT NULL,
+  `atmosphereType` varchar(255) DEFAULT NULL,
+  `surfacePressure` float DEFAULT NULL,
+  `bodyId` bigint(20) DEFAULT NULL,
+  `parents` varchar(255) DEFAULT NULL,
+  `parentID` bigint(20) DEFAULT NULL,
+  `parentType` tinyint(4) DEFAULT NULL,
+  `parentStar` bigint(20) DEFAULT NULL,
+  `parentStarID` bigint(20) DEFAULT NULL,
+  `parentPlanet` bigint(20) DEFAULT NULL,
+  `parentPlanetID` bigint(20) DEFAULT NULL,
+  `commanderName` varchar(255) DEFAULT NULL,
+  `discoveryDate` datetime DEFAULT NULL,
+  `deletionState` tinyint(4) NOT NULL DEFAULT 0,
+  `adj_date` datetime DEFAULT NULL,
+  `suspicious` tinyint(4) NOT NULL DEFAULT 0,
+  `gravityDec` decimal(36,12) DEFAULT NULL,
+  `earthMassesDec` decimal(36,12) DEFAULT NULL,
+  `radiusDec` decimal(36,12) DEFAULT NULL,
+  `axialTiltDec` decimal(18,12) DEFAULT NULL,
+  `rotationalPeriodDec` decimal(36,12) DEFAULT NULL,
+  `orbitalPeriodDec` decimal(36,12) DEFAULT NULL,
+  `orbitalEccentricityDec` decimal(18,15) DEFAULT NULL,
+  `orbitalInclinationDec` decimal(36,12) DEFAULT NULL,
+  `argOfPeriapsisDec` decimal(18,12) DEFAULT NULL,
+  `semiMajorAxisDec` decimal(36,12) DEFAULT NULL,
+  `surfacePressureDec` decimal(36,12) DEFAULT NULL,
+  `meanAnomaly` decimal(18,12) DEFAULT NULL,
+  `meanAnomalyDate` datetime DEFAULT NULL,
+  `ascendingNode` decimal(18,12) DEFAULT NULL,
+  `surfaceTemperatureDec` decimal(36,12) DEFAULT NULL,
+  PRIMARY KEY (`planetID`),
+  KEY `systemID` (`systemId`),
+  KEY `planetName` (`name`),
+  KEY `planetParents` (`parents`),
+  KEY `planetDates` (`updateTime`),
+  KEY `planetDisco` (`discoveryDate`),
+  KEY `delState` (`deletionState`),
+  KEY `pStar` (`parentStar`),
+  KEY `pPlanet` (`parentPlanet`),
+  KEY `gravityKey` (`gravity`),
+  KEY `landableKey` (`isLandable`),
+  KEY `arrivalKey` (`distanceToArrival`),
+  KEY `typeKey` (`subType`),
+  KEY `pressureKey` (`surfacePressure`),
+  KEY `AdjDateKey` (`adj_date`),
+  KEY `tempKey` (`surfaceTemperature`),
+  KEY `axisKey` (`semiMajorAxis`),
+  KEY `eccentricityKey` (`orbitalEccentricity`),
+  KEY `systemID64` (`systemId64`),
+  KEY `edsmKey` (`edsmID`),
+  KEY `atmoKey` (`atmosphereType`),
+  KEY `pStarID` (`parentStarID`),
+  KEY `pPlanetID` (`parentPlanetID`),
+  KEY `bodyKey` (`bodyId`),
+  KEY `bodyKey64` (`bodyId64`),
+  KEY `eddnDateKey` (`eddn_date`),
+  KEY `addedKey` (`date_added`),
+  KEY `suspiciousKey` (`suspicious`),
+  KEY `arrivalLSkey` (`distanceToArrivalLS`),
+  KEY `massKey` (`earthMasses`),
+  KEY `radiusKey` (`radius`),
+  KEY `updatedKey` (`updated`),
+  KEY `volcanismKey` (`volcanismType`),
+  KEY `edsmDateKey` (`edsm_date`),
+  KEY `earthMassesDecKey` (`earthMassesDec`),
+  KEY `gravityDecKey` (`gravityDec`),
+  KEY `radiusDecKey` (`radiusDec`),
+  KEY `orbitalEccentricityDecKey` (`orbitalEccentricityDec`),
+  KEY `semiMajorAxisDecKey` (`semiMajorAxisDec`),
+  KEY `surfacePressureDecKey` (`surfacePressureDec`),
+  KEY `rotationKey` (`rotationalPeriodDec`),
+  KEY `terraKey` (`terraformingState`),
+  KEY `temperatureKey` (`surfaceTemperatureDec`)
+) ENGINE=InnoDB AUTO_INCREMENT=338703622 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `projections`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `projections` (
+  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `view` varchar(15) DEFAULT NULL,
+  `coord_x` int(11) DEFAULT NULL,
+  `coord_y` int(11) DEFAULT NULL,
+  `systems` int(11) DEFAULT NULL,
+  `dwarfs` int(11) DEFAULT NULL,
+  `giants` int(11) DEFAULT NULL,
+  `supergiants` int(11) DEFAULT NULL,
+  `O` int(11) DEFAULT NULL,
+  `B` int(11) DEFAULT NULL,
+  `A` int(11) DEFAULT NULL,
+  `F` int(11) DEFAULT NULL,
+  `G` int(11) DEFAULT NULL,
+  `K` int(11) DEFAULT NULL,
+  `M` int(11) DEFAULT NULL,
+  `NS` int(11) DEFAULT NULL,
+  `BH` int(11) DEFAULT NULL,
+  `WD` int(11) DEFAULT NULL,
+  `BD` int(11) DEFAULT NULL,
+  `L` int(11) DEFAULT NULL,
+  `T` int(11) DEFAULT NULL,
+  `Y` int(11) DEFAULT NULL,
+  `WR` int(11) DEFAULT NULL,
+  `TT` int(11) DEFAULT NULL,
+  `HE` int(11) DEFAULT NULL,
+  `C` int(11) DEFAULT NULL,
+  `U` int(11) DEFAULT NULL,
+  `massA` int(11) DEFAULT NULL,
+  `massB` int(11) DEFAULT NULL,
+  `massC` int(11) DEFAULT NULL,
+  `massD` int(11) DEFAULT NULL,
+  `massE` int(11) DEFAULT NULL,
+  `massF` int(11) DEFAULT NULL,
+  `massG` int(11) DEFAULT NULL,
+  `CFT` int(11) DEFAULT NULL,
+  `AW` int(11) DEFAULT NULL,
+  `ELW` int(11) DEFAULT NULL,
+  `WW` int(11) DEFAULT NULL,
+  `WG` int(11) DEFAULT NULL,
+  `GG1` int(11) DEFAULT NULL,
+  `GG2` int(11) DEFAULT NULL,
+  `GG3` int(11) DEFAULT NULL,
+  `GG4` int(11) DEFAULT NULL,
+  `GG5` int(11) DEFAULT NULL,
+  `GGAL` int(11) DEFAULT NULL,
+  `GGWL` int(11) DEFAULT NULL,
+  `GGHE` int(11) DEFAULT NULL,
+  `GGHR` int(11) DEFAULT NULL,
+  `HMC` int(11) DEFAULT NULL,
+  `MR` int(11) DEFAULT NULL,
+  `ICY` int(11) DEFAULT NULL,
+  `ROCKY` int(11) DEFAULT NULL,
+  `ROCKYICE` int(11) DEFAULT NULL,
+  `age0` int(11) DEFAULT NULL,
+  `age1` int(11) DEFAULT NULL,
+  `age2` int(11) DEFAULT NULL,
+  `age3` int(11) DEFAULT NULL,
+  `age4` int(11) DEFAULT NULL,
+  `classmassF` int(11) DEFAULT NULL,
+  `classmassFD` int(11) DEFAULT NULL,
+  `classmassFE` int(11) DEFAULT NULL,
+  `classmassG` int(11) DEFAULT NULL,
+  `classmassGC` int(11) DEFAULT NULL,
+  `classmassGD` int(11) DEFAULT NULL,
+  `classmassK` int(11) DEFAULT NULL,
+  `classmassKC` int(11) DEFAULT NULL,
+  `classmassKD` int(11) DEFAULT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `KeyX` (`coord_x`),
+  KEY `KeyY` (`coord_y`),
+  KEY `ViewKey` (`view`)
+) ENGINE=InnoDB AUTO_INCREMENT=28983018 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `regionmap`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `regionmap` (
+  `coord_x` int(11) NOT NULL DEFAULT 0,
+  `coord_z` int(11) NOT NULL DEFAULT 0,
+  `region` tinyint(4) DEFAULT NULL,
+  PRIMARY KEY (`coord_x`,`coord_z`),
+  KEY `regionKey` (`region`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `regions`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `regions` (
+  `id` tinyint(4) NOT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `regionName` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `rings`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `rings` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `planet_id` bigint(20) DEFAULT NULL,
+  `isStar` tinyint(4) DEFAULT 0,
+  `name` varchar(255) DEFAULT NULL,
+  `type` varchar(63) DEFAULT NULL,
+  `mass` bigint(20) DEFAULT NULL,
+  `innerRadius` bigint(20) DEFAULT NULL,
+  `outerRadius` bigint(20) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `planetKey` (`planet_id`),
+  KEY `typeKey` (`isStar`),
+  KEY `nameKey` (`name`),
+  KEY `ringTypeKey` (`type`),
+  KEY `areaKey` (`outerRadius`,`innerRadius`)
+) ENGINE=InnoDB AUTO_INCREMENT=43365005 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `sectors`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sectors` (
+  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id64sectorID` int(11) DEFAULT NULL,
+  `name` varchar(63) NOT NULL,
+  `sector_x` int(11) DEFAULT NULL,
+  `sector_y` int(11) DEFAULT NULL,
+  `sector_z` int(11) DEFAULT NULL,
+  `created` datetime DEFAULT NULL,
+  `updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`ID`),
+  KEY `coordKey` (`sector_x`,`sector_y`,`sector_z`),
+  KEY `nameKey` (`name`),
+  KEY `id64sectorKey` (`id64sectorID`)
+) ENGINE=InnoDB AUTO_INCREMENT=11215 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `species`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `species` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
+  `updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `date_added` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `nameKey` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=209 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `species_local`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `species_local` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `speciesID` bigint(20) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `preferred` tinyint(4) NOT NULL DEFAULT 0,
+  `updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `date_added` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `speciesKey` (`speciesID`),
+  KEY `nameKey` (`name`),
+  KEY `prefKey` (`preferred`)
+) ENGINE=InnoDB AUTO_INCREMENT=315 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `stars`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `stars` (
+  `starID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `edsmID` bigint(20) DEFAULT NULL,
+  `systemId64` bigint(20) DEFAULT NULL,
+  `systemId` bigint(20) DEFAULT NULL,
+  `bodyId64` bigint(20) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `subType` varchar(255) DEFAULT NULL,
+  `spectralClass` varchar(15) DEFAULT NULL,
+  `isPrimary` tinyint(4) DEFAULT NULL,
+  `isMainStar` tinyint(4) DEFAULT NULL,
+  `isScoopable` tinyint(4) DEFAULT NULL,
+  `updateTime` datetime DEFAULT NULL,
+  `updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `edsm_date` datetime DEFAULT NULL,
+  `date_added` datetime DEFAULT NULL,
+  `eddn_date` datetime DEFAULT NULL,
+  `offset` int(11) DEFAULT NULL,
+  `distanceToArrival` bigint(20) DEFAULT NULL,
+  `distanceToArrivalLS` float DEFAULT NULL,
+  `orbitType` tinyint(4) DEFAULT NULL,
+  `rotationalPeriodTidallyLocked` tinyint(4) DEFAULT NULL,
+  `rotationalPeriod` float DEFAULT NULL,
+  `axialTilt` float DEFAULT NULL,
+  `age` bigint(20) DEFAULT NULL,
+  `absoluteMagnitude` float DEFAULT NULL,
+  `luminosity` varchar(63) DEFAULT NULL,
+  `surfaceTemperature` int(11) DEFAULT NULL,
+  `solarMasses` float DEFAULT NULL,
+  `solarRadius` float DEFAULT NULL,
+  `orbitalInclination` float DEFAULT NULL,
+  `argOfPeriapsis` float DEFAULT NULL,
+  `semiMajorAxis` float DEFAULT NULL,
+  `orbitalEccentricity` float DEFAULT NULL,
+  `orbitalPeriod` float DEFAULT NULL,
+  `bodyId` bigint(20) DEFAULT NULL,
+  `parents` varchar(255) DEFAULT NULL,
+  `parentID` bigint(20) DEFAULT NULL,
+  `parentType` tinyint(4) DEFAULT NULL,
+  `parentStar` bigint(20) DEFAULT NULL,
+  `parentStarID` bigint(20) DEFAULT NULL,
+  `parentPlanet` bigint(20) DEFAULT NULL,
+  `parentPlanetID` bigint(20) DEFAULT NULL,
+  `commanderName` varchar(255) DEFAULT NULL,
+  `discoveryDate` datetime DEFAULT NULL,
+  `deletionState` tinyint(4) NOT NULL DEFAULT 0,
+  `adj_date` datetime DEFAULT NULL,
+  `suspicious` tinyint(4) NOT NULL DEFAULT 0,
+  `absoluteMagnitudeDec` decimal(36,12) DEFAULT NULL,
+  `solarMassesDec` decimal(36,12) DEFAULT NULL,
+  `solarRadiusDec` decimal(36,12) DEFAULT NULL,
+  `axialTiltDec` decimal(18,12) DEFAULT NULL,
+  `rotationalPeriodDec` decimal(36,12) DEFAULT NULL,
+  `orbitalPeriodDec` decimal(36,12) DEFAULT NULL,
+  `orbitalEccentricityDec` decimal(18,15) DEFAULT NULL,
+  `orbitalInclinationDec` decimal(36,12) DEFAULT NULL,
+  `argOfPeriapsisDec` decimal(18,12) DEFAULT NULL,
+  `semiMajorAxisDec` decimal(36,12) DEFAULT NULL,
+  `meanAnomaly` decimal(18,12) DEFAULT NULL,
+  `meanAnomalyDate` datetime DEFAULT NULL,
+  `ascendingNode` decimal(18,12) DEFAULT NULL,
+  `surfaceTemperatureDec` decimal(36,12) DEFAULT NULL,
+  PRIMARY KEY (`starID`),
+  KEY `systemID` (`systemId`),
+  KEY `starName` (`name`),
+  KEY `starParents` (`parents`),
+  KEY `starDates` (`updateTime`),
+  KEY `starDisco` (`discoveryDate`),
+  KEY `delState` (`deletionState`),
+  KEY `pStar` (`parentStar`),
+  KEY `pPlanet` (`parentPlanet`),
+  KEY `typeKey` (`subType`),
+  KEY `AdjDateKey` (`adj_date`),
+  KEY `arrivalKey` (`distanceToArrival`),
+  KEY `tempKey` (`surfaceTemperature`),
+  KEY `massKey` (`solarMasses`),
+  KEY `radiusKey` (`solarRadius`),
+  KEY `systemID64` (`systemId64`),
+  KEY `edsmKey` (`edsmID`),
+  KEY `pStarID` (`parentStarID`),
+  KEY `pPlanetID` (`parentPlanetID`),
+  KEY `bodyKey` (`bodyId`),
+  KEY `bodyKey64` (`bodyId64`),
+  KEY `eddnDateKey` (`eddn_date`),
+  KEY `addedKey` (`date_added`),
+  KEY `suspiciousKey` (`suspicious`),
+  KEY `arrivalLSkey` (`distanceToArrivalLS`),
+  KEY `updatedKey` (`updated`),
+  KEY `edsmDateKey` (`edsm_date`),
+  KEY `spectralKey` (`spectralClass`),
+  KEY `solarMasDecKey` (`solarMassesDec`),
+  KEY `orbitalEccentricityDecKey` (`orbitalEccentricityDec`),
+  KEY `semiMajorAxisDecKey` (`semiMajorAxisDec`),
+  KEY `solarRadiusDecKey` (`solarRadiusDec`)
+) ENGINE=InnoDB AUTO_INCREMENT=110641023 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `stations`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `stations` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `edsmID` bigint(20) DEFAULT NULL,
+  `marketID` bigint(20) DEFAULT NULL,
+  `systemId64` bigint(20) DEFAULT NULL,
+  `systemId` bigint(20) DEFAULT NULL,
+  `systemName` varchar(255) DEFAULT NULL,
+  `bodyID` bigint(20) DEFAULT NULL,
+  `bodyName` varchar(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `type` varchar(255) DEFAULT NULL,
+  `padsS` tinyint(4) DEFAULT NULL,
+  `padsM` tinyint(4) DEFAULT NULL,
+  `padsL` tinyint(4) DEFAULT NULL,
+  `distanceToArrival` int(11) DEFAULT NULL,
+  `allegiance` varchar(255) DEFAULT NULL,
+  `government` varchar(255) DEFAULT NULL,
+  `economy` varchar(255) DEFAULT NULL,
+  `secondEconomy` varchar(255) DEFAULT NULL,
+  `haveMarket` tinyint(4) DEFAULT NULL,
+  `haveShipyard` tinyint(4) DEFAULT NULL,
+  `haveOutfitting` tinyint(4) DEFAULT NULL,
+  `updateTime` datetime DEFAULT NULL,
+  `eddnDate` datetime DEFAULT NULL,
+  `updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `deletionState` tinyint(4) DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `systemID` (`systemId`),
+  KEY `marketKey` (`marketID`),
+  KEY `largePadKey` (`padsL`)
+) ENGINE=InnoDB AUTO_INCREMENT=307368 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `submissions`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `submissions` (
+  `subDate` date NOT NULL,
+  `systems` bigint(20) DEFAULT NULL,
+  `stars` bigint(20) DEFAULT NULL,
+  `planets` bigint(20) DEFAULT NULL,
+  `nearestSolDist` float DEFAULT NULL,
+  `nearestSolId64` bigint(20) DEFAULT NULL,
+  `adjsystems` bigint(20) DEFAULT NULL,
+  PRIMARY KEY (`subDate`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `systems`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `systems` (
+  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `eddb_id` bigint(20) DEFAULT NULL,
+  `edsm_id` bigint(20) DEFAULT NULL,
+  `id64` bigint(20) DEFAULT NULL,
+  `id64sectorID` int(11) DEFAULT NULL,
+  `id64mass` tinyint(4) DEFAULT NULL,
+  `id64boxelID` int(11) DEFAULT NULL,
+  `id64boxelnum` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `updateTime` datetime DEFAULT NULL,
+  `edsm_date` datetime DEFAULT NULL,
+  `eddn_date` datetime DEFAULT NULL,
+  `eddn_updated` datetime DEFAULT NULL,
+  `day_added` date DEFAULT NULL,
+  `date_added` datetime DEFAULT NULL,
+  `eddb_date` datetime DEFAULT NULL,
+  `FSSdate` datetime DEFAULT NULL,
+  `updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `mainStarID` bigint(20) DEFAULT NULL,
+  `mainStarType` varchar(255) DEFAULT NULL,
+  `masscode` char(1) DEFAULT NULL,
+  `coord_x` float DEFAULT NULL,
+  `coord_y` float DEFAULT NULL,
+  `coord_z` float DEFAULT NULL,
+  `sol_dist` float DEFAULT NULL,
+  `sectorID` bigint(20) DEFAULT NULL,
+  `boxelID` bigint(20) DEFAULT NULL,
+  `region` tinyint(4) DEFAULT NULL,
+  `planetscore` decimal(6,2) DEFAULT NULL,
+  `complete` tinyint(4) DEFAULT NULL,
+  `FSSprogress` decimal(9,8) DEFAULT NULL,
+  `bodyCount` int(11) DEFAULT NULL,
+  `nonbodyCount` int(11) DEFAULT NULL,
+  `numStars` int(11) DEFAULT NULL,
+  `numPlanets` int(11) DEFAULT NULL,
+  `numTerra` int(11) DEFAULT NULL,
+  `numELW` int(11) DEFAULT NULL,
+  `numAW` int(11) DEFAULT NULL,
+  `numWW` int(11) DEFAULT NULL,
+  `deletionState` tinyint(4) NOT NULL DEFAULT 0,
+  `adj_date` datetime DEFAULT NULL,
+  `SystemGovernment` int(11) DEFAULT NULL,
+  `SystemSecurity` int(11) DEFAULT NULL,
+  `SystemEconomy` int(11) DEFAULT NULL,
+  `SystemSecondEconomy` int(11) DEFAULT NULL,
+  `SystemAllegiance` int(11) DEFAULT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `edsmKEY` (`edsm_id`),
+  KEY `edsmID64` (`id64`),
+  KEY `edsmDate` (`edsm_date`),
+  KEY `systemName` (`name`),
+  KEY `boxel` (`boxelID`),
+  KEY `updateKey` (`date_added`),
+  KEY `solKey` (`sol_dist`),
+  KEY `CoordX` (`coord_x`),
+  KEY `CoordY` (`coord_y`),
+  KEY `CoordZ` (`coord_z`),
+  KEY `delState` (`deletionState`),
+  KEY `starTypeKey` (`mainStarType`),
+  KEY `starIDkey` (`mainStarID`),
+  KEY `regionKey` (`region`),
+  KEY `AdjDateKey` (`adj_date`),
+  KEY `eddnDateKey` (`eddn_date`),
+  KEY `addedKey` (`date_added`),
+  KEY `dayKey` (`day_added`),
+  KEY `masscodeKey` (`masscode`),
+  KEY `eddnUpdateKey` (`eddn_updated`),
+  KEY `sectorKey` (`sectorID`),
+  KEY `updateTimeKey` (`updateTime`),
+  KEY `progressKey` (`FSSprogress`),
+  KEY `completeKey` (`complete`),
+  KEY `scoreKey` (`planetscore`),
+  KEY `bodyCountKey` (`bodyCount`),
+  KEY `SystemGovernmentKey` (`SystemGovernment`),
+  KEY `SystemSecurityKey` (`SystemSecurity`),
+  KEY `SystemEconomyKey` (`SystemEconomy`),
+  KEY `SystemSecondEconomyKey` (`SystemSecondEconomy`),
+  KEY `SystemAllegianceKey` (`SystemAllegiance`),
+  KEY `numStarsKey` (`numStars`),
+  KEY `numPlanetsKey` (`numPlanets`),
+  KEY `terraKey` (`numTerra`),
+  KEY `ELWkey` (`numELW`),
+  KEY `AWkey` (`numAW`),
+  KEY `WWkey` (`numWW`),
+  KEY `boxID64key` (`id64boxelID`),
+  KEY `boxnum64key` (`id64boxelnum`),
+  KEY `box64key` (`id64mass`,`id64boxelID`),
+  KEY `sector64Key` (`id64sectorID`)
+) ENGINE=InnoDB AUTO_INCREMENT=83069838 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `systemstrings`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `systemstrings` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `string` varchar(80) DEFAULT NULL,
+  `stringvalue` varchar(80) DEFAULT NULL,
+  `created` datetime DEFAULT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `stringKey` (`string`)
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `test`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `test` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `planet_id` bigint(20) DEFAULT NULL,
+  `useNewID` tinyint(4) NOT NULL DEFAULT 0,
+  `antimony` float DEFAULT NULL,
+  `arsenic` float DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `planetKey` (`planet_id`),
+  KEY `whichID` (`useNewID`)
+) ENGINE=InnoDB AUTO_INCREMENT=70727015 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2023-12-09  9:57:41

@@ -1,0 +1,101 @@
+
+	if ($line =~ /"event"\s*:\s*"ScanOrganic"/) {
+		my $jref = undef;
+		eval {
+			$jref = JSON->new->utf8->decode($line);
+		};
+
+		if ($jref && keys %$jref) {
+			my $speciesID = get_orgID('species',$$jref{Species},$$jref{Species_Localised});
+			my $genusID = get_orgID('genus',$$jref{Genus},$$jref{Genus_Localised});
+			my $date = $$jref{timestamp};
+			$date =~ s/T|Z/ /gs;
+			$date =~ s/\.\d+\s*$//s;
+
+			if ($speciesID && $genusID) {
+				my @rows = db_mysql('elite',"select * from organic where systemId64=? and bodyId=? and genusID=? and speciesID=?",
+					[($$jref{SystemAddress},$$jref{Body},$genusID,$speciesID)]);
+
+				if (@rows) {
+					foreach my $r (@rows) {
+						my $first = $$r{firstReported};
+						$first = $date if ($date && $date gt '2021-04-01 00:00:00' && (!$$r{firstReported} || $date lt $$r{firstReported}));
+						my $last = $$r{lastSeen};
+						$last = $date if ($date && $date gt '2021-04-01 00:00:00' && (!$$r{lastSeen} || $date gt $$r{lastSeen}));
+
+						next if ($first eq $$r{firstReported} && $last eq $$r{lastSeen});
+
+						db_mysql('elite',"update organic set firstReported=?,lastSeen=? where id=?",[($first,$last,$$r{id})]);
+					}
+				} else {
+					db_mysql('elite',"insert into organic (systemId64,bodyId,genusID,speciesID,firstReported,lastSeen,date_added) values (?,?,?,?,?,?,NOW())",
+							[($$jref{SystemAddress},$$jref{Body},$genusID,$speciesID,$date,$date)]);
+				}
+			}
+		}
+	}
+
+	if ($line =~ /"event"\s*:\s*"FSSSignalDiscovered"/ && $line =~ /"IsStation"\s*:\s*true/ && $line =~ /"SignalName"\s*:\s*"([^"]+)\s+([A-Z0-9]{3}\-[A-Z0-9]{3})"/) {
+		my $name = btrim($1);
+		my $callsign = btrim($2);
+		my $timestamp = undef;
+		my $id64 = undef;
+
+		if ($line =~ /"SystemAddress"\s*:\s*(\d+)\D/) {
+			$id64 = $1+0;
+		}
+
+		if ($line =~ /"timestamp"\s*:\s*"(\d{4}-\d{2}-\d{2})[T\s]?(\d{2}:\d{2}:\d{2})(\.\d+)?Z?"/) {
+			$timestamp = "$1 $2";
+		}
+
+		if ($timestamp) {
+			my @rows = db_mysql('elite',"select ID,name,systemId64,FSSdate,lastMoved from carriers where callsign=?",[($callsign)]);
+	
+			if (@rows && (!${$rows[0]}{FSSdate} || $timestamp gt ${$rows[0]}{FSSdate})) {
+				my $r = $rows[0];
+
+				if (uc($name) ne uc($$r{name})) {
+					print "FSSSignalDiscovered: $name ($$r{name}) $callsign [$timestamp]\n";
+					db_mysql('elite',"update carriers set FSSdate=?,name=? where ID=?",[($timestamp,$name,$$r{ID})]);
+				} else {
+					print "FSSSignalDiscovered: $name $callsign [$timestamp]\n";
+					db_mysql('elite',"update carriers set FSSdate=? where ID=?",[($timestamp,$$r{ID})]);
+				}
+	
+				if ($id64 && $id64 != $$r{systemId64} && (!$$r{lastMoved} || $timestamp gt $$r{lastMoved})) {
+					my @lookup = db_mysql('elite',"select name,coord_x,coord_y,coord_z from systems where id64=? and deletionState=0",[($id64)]);
+					my ($sysname,$x,$y,$z) = (undef,undef,undef,undef);
+	
+					if (@lookup) {
+						my $s = shift @lookup;
+						$sysname = $$s{name};
+						$x = $$s{coord_x};
+						$y = $$s{coord_y};
+						$z = $$s{coord_z};
+					}
+
+					print "FSSSignalDiscovered: $name $callsign [$timestamp] $sysname, ($id64) $x, $y, $z\n";
+					db_mysql('elite',"update carriers set systemId64=?,systemName=?,coord_x=?,coord_y=?,coord_z=? where ID=? and systemId64!=?",
+						[($id64,$sysname,$x,$y,$z,$$r{ID},$id64)]);
+				}
+			}
+		}
+	}
+
+	if ($line =~ /"event"\s*:\s*"CodexEntry"/) {
+		my $jref = undef;
+		eval {
+			$jref = JSON->new->utf8->decode($line);
+		};
+
+		if ($@) {
+			print "JSON error: $@\n";
+		} elsif (!$jref || ref($jref) ne 'HASH') {
+			print "JSON invalid!\n";
+		} else {
+			codex_entry($jref);
+		}
+	}
+
+

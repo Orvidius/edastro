@@ -1,0 +1,149 @@
+<!--#include  virtual="/header.html" -->
+
+<div class="row">
+	<div class="col-3"></div>
+
+	<div class="col-6">
+	<H2>Custom Map Markers API</H2>
+	<p/>
+	<p/>
+	So you want to have a bunch of custom map markers on the interactive galaxy map? Perhaps locations 
+	of your squadron's fleet carriers? Or notable places of interest? Look no further! We've got you
+	covered. We currently offer two methods of getting your custom marker pins into the galmap. Both
+	will require crafting a custom JSON that contains your markers.
+	<p/>
+	<hr/>
+	<h2>Method #1: Internet-Hosted JSON Data</h2>
+	<p/>
+	This method requires web hosting in which you can enable CORS (Cross-Origin Resource Sharing),
+	such that "edastro.com" is a valid website permitted to access your file from a Javascript program.
+	Or you can use a site that already has open permissions (GitHub's "raw" user content, for instance).
+	<p>
+	Known to work:
+	<ul>
+		<li>raw.githubusercontent.com</li>
+	</ul>
+	<p/>
+	It's as simple as calling up the map, and providing it with a URL to a file containing JSON data
+	for your markers. Instead of calling the normal URL:
+	<p/>
+	<ul>
+		<li><b>https://edastro.com/galmap/</b></li>
+	</ul>
+	<p/>
+	You will add a parameter with the URL to your JSON data:
+	<p/>
+	<ul>
+		<li><b>https://edastro.com/galmap/?custom=URL</b></li>
+	</ul>
+	<p/>
+	Alternatively, if you wish to include multiple custom JSON sets, you can specify them with a
+	semicolon separator, thusly:
+	<p/>
+	<ul>
+		<li><b>https://edastro.com/galmap/?custom=URL1;URL2</b></li>
+	</ul>
+	<p/>
+	<hr/>
+	<h2>Method #2: Server Fetched JSON Data</h2>
+	<p/>
+	Nearly the same as the above method, however the server will pre-fetch your JSON data before
+	loading the map into your browser screen. This method is more reliable, but is slower to load.
+	The URL format is as follows:
+	<p/>
+	<ul>
+		<li><b>https://edastro.com/galmap/cgi/fetch?custom=URL</b></li>
+	</ul>
+	<p/>
+	Alternatively, if you wish to include multiple custom JSON sets, you can specify them with a
+	semicolon separator, thusly:
+	<p/>
+	<ul>
+		<li><b>https://edastro.com/galmap/cgi/fetch?custom=URL1;URL2</b></li>
+	</ul>
+	<p/>
+	<hr/>
+	<h2>JSON Data Format:</h2>
+	<p/>
+	The data in the referenced file(s) must be JSON, in this format:
+	<p/>
+	<blockquote><pre>
+{
+   "markers" : [
+      {
+         "pin" : "green",
+         "text" : "This is a sample marker!\nIt spans two lines of text.",
+         "x" : -104.625,
+         "y" : -0.8125,
+         "z" : -151.906
+      },
+      {
+         "pin" : "carrier",
+         "text" : "This is a sample marker too!",
+         "x" : -247.812,
+         "y" : -43.8438,
+         "z" : 64.0312
+      }
+   ]
+}
+	</pre></blockquote>
+	<p/>
+	In the above data, you will notice that the JSON contains a single array called "markers". Within this array, each
+	element will contain a "pin" designation, the mouse-over text to display, and coordinates. These coordinates are
+	actual galaxy locations from in-game. The coordinate numbers may be in either string or numeric context.
+	<p/>
+	Available marker pins, image and its associated name to use in the JSON:
+	<p/>
+	</div>
+
+	<div class="col-3"></div>
+</div>
+
+<div class="row">
+	<div class="col-3"></div>
+
+	<div class="col-2">
+	<table>
+	<tr><td><img src="icons/pin-blue.png" class="borderless noresize"></td><td>&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;</td><td>blue</td></tr>
+	<tr><td><img src="icons/pin-green.png" class="borderless noresize"></td><td>&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;</td><td>green</td></tr>
+	<tr><td><img src="icons/pin-cyan.png" class="borderless noresize"></td><td>&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;</td><td>cyan</td></tr>
+	<tr><td><img src="icons/pin-red.png" class="borderless noresize"></td><td>&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;</td><td>red</td></tr>
+	<tr><td><img src="icons/pin-purple.png" class="borderless noresize"></td><td>&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;</td><td>purple</td></tr>
+	<tr><td><img src="icons/pin-orange.png" class="borderless noresize"></td><td>&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;</td><td>orange, default</td></tr>
+	<tr><td><img src="icons/pin-yellow.png" class="borderless noresize"></td><td>&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;</td><td>yellow</td></tr>
+	<tr><td><img src="icons/pin-white.png" class="borderless noresize"></td><td>&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;</td><td>white</td></tr>
+	</table>
+	</div>
+
+	<div class="col-2">
+	<table>
+	<tr><td><img src="icons/pin-outpost.png" class="borderless noresize"></td><td>&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;</td><td>outpost</td></tr>
+	<tr><td><img src="icons/pin-orbis.png" class="borderless noresize"></td><td>&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;</td><td>orbis</td></tr>
+	<tr><td><img src="icons/pin-ocellus.png" class="borderless noresize"></td><td>&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;</td><td>ocellus</td></tr>
+	<tr><td><img src="icons/pin-coriolis.png" class="borderless noresize"></td><td>&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;</td><td>coriolis</td></tr>
+	<tr><td><img src="icons/pin-planetarybase.png" class="borderless noresize"></td><td>&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;</td><td>planetarybase</td></tr>
+	<tr><td><img src="icons/pin-asteroidbase.png" class="borderless noresize"></td><td>&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;</td><td>asteroidbase</td></tr>
+	<tr><td><img src="icons/pin-megaship.png" class="borderless noresize"></td><td>&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;</td><td>megaship</td></tr>
+	<tr><td><img src="icons/pin-NOT.png" class="borderless noresize"></td><td>&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;</td><td>not</td></tr>
+	</table>
+	</div>
+
+	<div class="col-2">
+	<table>
+	<tr><td><img src="icons/pin-carrier-blue.png" class="borderless noresize"></td><td>&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;</td><td>bluecarrier, carrierblue</td></tr>
+	<tr><td><img src="icons/pin-carrier-green.png" class="borderless noresize"></td><td>&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;</td><td>carrier, greencarrier, carriergreen</td></tr>
+	<tr><td><img src="icons/pin-carrier-cyan.png" class="borderless noresize"></td><td>&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;</td><td>cyancarrier, carriercyan</td></tr>
+	<tr><td><img src="icons/pin-carrier-red.png" class="borderless noresize"></td><td>&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;</td><td>redcarrier, carrierred</td></tr>
+	<tr><td><img src="icons/pin-carrier-magenta.png" class="borderless noresize"></td><td>&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;</td><td>magentacarrier, carriermagenta</td></tr>
+	<tr><td><img src="icons/pin-carrier-orange.png" class="borderless noresize"></td><td>&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;</td><td>orangecarrier, carrierorange</td></tr>
+	<tr><td><img src="icons/pin-carrier-yellow.png" class="borderless noresize"></td><td>&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;</td><td>yellowcarrier, carrieryellow</td></tr>
+	<tr><td><img src="icons/pin-carrier-white.png" class="borderless noresize"></td><td>&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;</td><td>whitecarrier, carrierwhite</td></tr>
+	</table>
+	</div>
+
+	<div class="col-3"></div>
+</div>
+
+
+
+<!--#include  virtual="/footer.html" -->

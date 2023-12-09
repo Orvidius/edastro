@@ -1,0 +1,99 @@
+#!/usr/bin/perl
+use strict;
+
+############################################################################
+# Copyright (C) 2018, Ed Toton (CMDR Orvidius), All Rights Reserved.
+
+use lib "/home/bones/perl";
+use DB qw(db_mysql rows_mysql columns_mysql show_queries);
+use ATOMS qw(epoch2date date2epoch make_csv);
+
+############################################################################
+
+my $path	= '/home/bones/elite/scripts';
+my $monthfile	= "$path/discovery-months.csv";
+my $datefile	= "$path/discovery-dates.csv";
+
+show_queries(0);
+
+my @list = (0,1);
+
+if (@ARGV) {
+	@list = @ARGV;
+}
+
+foreach my $adj (@list) {
+
+	my %yearmonthday = ();
+	my %yearmonth = ();
+	
+	foreach my $type (qw(systems planets stars)) {
+		my @rows = ();
+	
+		warn "Checking $type: \n";
+		if (!$adj) {
+			@rows = db_mysql('elite',"select date(edsm_date) date,count(*) count from systems group by date(edsm_date)") if ($type eq 'systems');
+			@rows = db_mysql('elite',"select date(updateTime) date,count(*) count from planets group by date(updateTime)") if ($type eq 'planets');
+			@rows = db_mysql('elite',"select date(updateTime) date,count(*) count from stars group by date(updateTime)") if ($type eq 'stars');
+		} else {
+			@rows = db_mysql('elite',"select date(adj_date) date,count(*) count from systems group by date(edsm_date)") if ($type eq 'systems');
+			@rows = db_mysql('elite',"select date(adj_date) date,count(*) count from planets group by date(updateTime)") if ($type eq 'planets');
+			@rows = db_mysql('elite',"select date(adj_date) date,count(*) count from stars group by date(updateTime)") if ($type eq 'stars');
+		}
+		warn int(@rows)." $type dates found.\n\n";
+	
+		foreach my $r (@rows) {
+			my $date = $$r{date};
+			my $month = '';
+			my $year = '';
+	
+			if ($date =~ /^((\d{4})\-\d{2})/) {
+				$month = $1;
+				$year = $2;
+			}
+	
+			next if ($year < 2015);
+	
+			$yearmonthday{$date}{$type} += $$r{count} if ($date);
+	
+			$yearmonth{$month}{$type} += $$r{count} if ($month);
+		}
+	}
+	
+	my $dfile = $datefile;
+	$dfile =~ s/\.csv$/-adj.csv/ if ($adj);
+	
+	open CSV, ">$dfile";
+	print CSV make_csv('Date','Systems','Stars','Planets','Average bodies per system','Average stars per system','Average planets per system')."\r\n";
+	foreach my $d (sort keys %yearmonthday) {
+		my $avg_bodies = 0;
+		$avg_bodies = sprintf("%.02f",($yearmonthday{$d}{stars}+$yearmonthday{$d}{planets})/$yearmonthday{$d}{systems}) if ($yearmonthday{$d}{systems});
+		my $avg_stars = 0;
+		$avg_stars = sprintf("%.02f",$yearmonthday{$d}{stars}/$yearmonthday{$d}{systems}) if ($yearmonthday{$d}{systems});
+		my $avg_planets = 0;
+		$avg_planets = sprintf("%.02f",$yearmonthday{$d}{planets}/$yearmonthday{$d}{systems}) if ($yearmonthday{$d}{systems});
+		print CSV make_csv($d,$yearmonthday{$d}{systems},$yearmonthday{$d}{stars},$yearmonthday{$d}{planets},$avg_bodies,$avg_stars,$avg_planets)."\r\n"
+	}
+	close CSV;
+	
+	my $mfile = $datefile;
+	$mfile =~ s/\.csv$/-adj.csv/ if ($adj);
+	
+	open CSV, ">$mfile";
+	print CSV make_csv('Date','Systems','Stars','Planets','Average bodies per system','Average stars per system','Average planets per system')."\r\n";
+	foreach my $d (sort keys %yearmonth) {
+		my $avg_bodies = 0;
+		$avg_bodies = sprintf("%.02f",($yearmonth{$d}{stars}+$yearmonth{$d}{planets})/$yearmonth{$d}{systems}) if ($yearmonth{$d}{systems});
+		my $avg_stars = 0;
+		$avg_stars = sprintf("%.02f",$yearmonth{$d}{stars}/$yearmonth{$d}{systems}) if ($yearmonth{$d}{systems});
+		my $avg_planets = 0;
+		$avg_planets = sprintf("%.02f",$yearmonth{$d}{planets}/$yearmonth{$d}{systems}) if ($yearmonth{$d}{systems});
+		print CSV make_csv($d,$yearmonth{$d}{systems},$yearmonth{$d}{stars},$yearmonth{$d}{planets},$avg_bodies,$avg_stars,$avg_planets)."\r\n"
+	}
+	close CSV;
+	
+}
+
+exit;
+
+

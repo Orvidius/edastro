@@ -1,0 +1,3 @@
+#!/bin/bash
+/usr/bin/scp -P222 /home/bones/www/elite/galactic-history/galactic-history-decay.mp4 www@services:/www/edastro.com/mapcharts/
+/usr/bin/scp -P222 /home/bones/elite/videoscratch-decay/img-003124.jpg www@services:/www/edastro.com/mapcharts/vid-heatmap-decay.jpg

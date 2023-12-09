@@ -1,0 +1,204 @@
+
+
+2 total waypoints, (0 lightyears total):
+
+#001 (0) Egnaix GW-V e2-0 == 0 lightyears, 0 total
+#002 (0) Egnaix GW-V e2-0 == 0 lightyears, 0 total
+
+MISSING: Screakou EW-N e6-5997 (La vie en Rose)
+MISSING: Cyoidai GH-U e3-3 (Sunny Side Down (Planetary Nebula) / Cyoidai GH-U Supernova Remnant)
+MISSING: Flyiedge RW-W d1-4
+MISSING: Pyroomeou GE-C c28-0
+MISSING: Thor's Eye
+MISSING: Dryooe Prou HH-C d267 (The Clover Nebula)
+MISSING: NGC 2244 CDZ 132
+MISSING: Eimbaisys JC-V e2-352
+MISSING: Eta Carina Sector JM-W d1-1
+MISSING: BD+66 1066
+MISSING: Trapezium Sector AF-Z c0 (Barnard's Loop)
+MISSING: Omega Sector PD-S b4-0 (Omega Nebula)
+MISSING: Juenae OX-U e2-8852 (Hengist Nebula)
+MISSING: Pheia Auscs AL-T c5-155 (Heavenly Mists)
+MISSING: Smootoae VE-R d4-134 (Shadow Earth)
+MISSING: Dryio Blue LJ-X d2-629 ('Trinus' Blue)
+MISSING: Clookia NK-M d8-431 (Ewoks Rest)
+MISSING: HD 49368 (Hades Edge)
+MISSING: GCRV 4925 (NGC 2371)
+MISSING: Preae Chruia AA-A h0 (Titans of Preae Chruia)
+MISSING: Screakoi WO-G c11-1 (Karmeliet)
+MISSING: Teqo EB-V c16-5 (Mt Fuji Nebula)
+MISSING: Pru Aescs UO-V b30-7
+MISSING: Bleethuia FF-A e1 (Proximity Rock)
+MISSING: Dryiquae OI-B d13-0
+MISSING: Monkey Head Sector QD-S b4-0
+MISSING: BD+50 886 (NGC 1491)
+MISSING: Circinus Pulsar (The Circinus Pulsar)
+MISSING: Greae Bluae YE-A g3 (Lights Of Alexandria)
+MISSING: Skaudai LC-V f2-10
+MISSING: Ellaid AA-A h5
+MISSING: Hyphokooe AA-A h62 (Gates Of Apzu / Lower Boreas Depot)
+MISSING: Corona Austr. Dark Region PD-S b4-3
+MISSING: Eullobs EL-Y e7 (Fireball Fumaroles)
+MISSING: Dryaa Prao PJ-G d11-89
+MISSING: Floasly TE-X d2-25 (Floasly Glowing Green Giant)
+MISSING: Eolls Graae PG-E b15-4 (Bendurion's Present)
+MISSING: Cone Sector GW-W c1-5
+MISSING: Vegneia BF-R e4-735 (Segnao Starburst (Segnao-2))
+MISSING: NGC 3199 Sector KX-T b3-0
+MISSING: Grea Hypae WU-O e6-4 (Enigma Depot)
+MISSING: Thuecheae MT-Q e5-8 (The Seldowitch Nebula)
+MISSING: HIP 38064 (Collinder 140 Open Cluster)
+MISSING: Spoihaae EW-V e2-670
+MISSING: Eactaisky IR-N e6-2 (Eactaisky Stellar Remnant)
+MISSING: Cl Pismis 16
+MISSING: Bya Freau SO-Z d13-5 (Seven Sages)
+MISSING: HIP 41908 (Baton's Plantation)
+MISSING: IC 4604 Sector FB-X c1-19
+MISSING: Qauthoea WM-W d1-40 (Vendetta's Gate)
+MISSING: Floagh FI-B d13-1 (Looking Glass Nebula)
+MISSING: Wepooe AA-A h509 (Chief's Pride)
+MISSING: Mynoaw NY-K b37-55 (Mynoaw Nebula)
+MISSING: Skull and Crossbones Neb. Sector FG-Y e6
+MISSING: Flimbuae GY-P d6-7 (Roche Terminal)
+MISSING: Hypoea Flyiae CW-V e2-0 (Phorcys Black Hole)
+MISSING: Herschel 36 (Lagoon Nebula)
+MISSING: Gooreia WO-Z e131 (Our Lady's Modesty)
+MISSING: Cheia Eoq TJ-U b22-0 (Solitude-Silentium Canyons)
+MISSING: The Veil
+MISSING: Thraikoo PS-U e2-4 (Thracian Nebula)
+MISSING: Rhadia AA-A h59 (Hawking´s Dream)
+MISSING: Dryu Chraea FH-D d12-49 (Maledictus Luna)
+MISSING: NGC 6188 Sector HW-W c1-11
+MISSING: Eorm Phyloi OY-Z d37 (Aether Nebula)
+MISSING: Grie Prao LH-E b59-1 (Sacrebleu)
+MISSING: Hypiae Briae FR-N e6-3007
+MISSING: Veil East Sector DL-Y d54
+MISSING: Nervi (Mount Nerverest)
+MISSING: Dumbae SY-I d9-2339
+MISSING: Flimbuae CA-A e2 ('Eye of Horror')
+MISSING: Eok Bluae MU-V c16-2452
+MISSING: Eord Gree UU-X e1-1268
+MISSING: Oephaif GE-E b1-10 (Green Lantern Nebula)
+MISSING: Theau Pri FB-W e2-25 (Pink Marshmallow)
+MISSING: Witch Head Sector DL-Y d22
+MISSING: Phreia Flyou FG-V d3-116 (La Vita Nuova)
+MISSING: Pyriveae FK-C d14-72 (The Nest)
+MISSING: Greethia SS-U e2-48 (Lapislazuli Nebula)
+MISSING: Shrogea MH-V e2-1763 (Black in Green (Tourist Installation))
+MISSING: Blaa Phoe JX-T e3-26 (Helium Paradox)
+MISSING: Pha Scroi GS-I d10-64 (Minerva's Pyrope)
+MISSING: Byeia Free WR-W b56-0 (Misty Mountains of Byeia Free)
+MISSING: Striechooe HO-D c14-2 (Hula Hop)
+MISSING: HIP 17403
+MISSING: V1357 Cygni
+MISSING: Froarks JH-T d4-353
+MISSING: Spoihaae XE-X d2-9 (Monde de la Mort (World of Death))
+MISSING: 2MASS J02351897+6131236 (Fireflies)
+MISSING: Guenae SB-I b57-0 (Turqoise Fountain)
+MISSING: SHB2004 Trumpler 37 12-2113
+MISSING: Eord Bla HW-W f1-611
+MISSING: Boepp XA-D d13-1042 (Kaw Nebula)
+MISSING: Byoo Chraei AA-A f0 (Furthest Fireflies)
+MISSING: Crab Pulsar
+MISSING: Dryau Ausms KG-Y e3390 (The Dryau Awesomes)
+MISSING: Chamaeleon Sector PD-S b4-2
+MISSING: Froarks XJ-R e4-1363 (Froarks Planetary Nebula)
+MISSING: Croomaa RD-A d14-1524
+MISSING: Pyrivo HW-V e2-8 (Fly Trap Nebula)
+MISSING: Smasiae QT-Q d5-70 (The Smasiae Red Giant Binary Pair)
+MISSING: Phreia Flyou JT-P b22-2 (Valley of Vapour)
+MISSING: Pomeche
+MISSING: Rodentia
+MISSING: Epsilon Indi
+MISSING: Drooteou PW-I a36-4 (Derthek's Folly (also known as 'Counter Point'))
+MISSING: Trignai MT-Q e5-28 (Trignai Blend)
+MISSING: Flyoo Groa SO-Z e0 (Alastor)
+MISSING: HIP 31384
+MISSING: Vela Dark Region LC-V c2-29 (Vela Dark Region)
+MISSING: Dehoae FL-W d2-0 (Seashell Nebula)
+MISSING: Juemeou GN-S e4-18 (Odysseus's Rest)
+MISSING: Skaude AL-X e1-28 (Rusty Net)
+MISSING: Screake SJ-Y d1-265 (Pink Elephants)
+MISSING: Clookuia AR-U c16-2
+MISSING: Eol Groa UG-K d9-89 (Creme Brulee Geysers)
+MISSING: Vegnae YE-R e4-121 (Scroll Of Thoth)
+MISSING: Cloomaa YE-R e4-113 (Damselfly Nebula)
+MISSING: Iwhaind AA-A g1771 (Niteo Gigans)
+MISSING: Flyiedgai MX-E c26-10
+MISSING: Eictach ES-I d10-3 (Beauty and The Beast)
+MISSING: North America Sector GC-K a9-1
+MISSING: Zejoo WM-Q b52-2
+MISSING: Prieluia GH-B c27-16 (Prieluia's Furnace)
+MISSING: Flyai Flyuae XJ-A c2 ('Flying Flea' Nebula)
+MISSING: Truecha ZK-P e5-25 (Hypatia’s Lighthouse)
+MISSING: Byooe Thio AA-A g1 (Bary’s Wonderland)
+MISSING: Bleethue KR-A b15-0 (Beetle Nebula)
+MISSING: Juenoe EG-Y g1913 (Dance of Cerberus)
+MISSING: Veil West Sector DL-Y d68 (Funfair Geysers / Veil Nebula West)
+MISSING: BD+55 191 (NGC 281)
+MISSING: Musca Dark Region ZB-I a11-0
+MISSING: Dryooe Flyou YT-A e1844 (Bartender Nebula)
+MISSING: Phrooe Flyuae QE-Y d1-44 (Speculo System)
+MISSING: S171 29
+MISSING: HIP 14769
+MISSING: Prai Pruae CL-Y g0 (Minerva's Crown)
+MISSING: Orion Dark Region KC-V c2-0 (The Orion Dark Region Nebula)
+MISSING: Cocoon Sector EL-Y d19
+MISSING: Ophiuchus Dark Region B Sector PD-S b4-2
+MISSING: Rosette Sector GW-W d1-97
+MISSING: Trapezium Sector XO-Y b1-0 (Altered Hortensia)
+MISSING: Cat's Paw Sector PD-S b4-7
+MISSING: Eock Bluae TW-V c2-0
+MISSING: HD 148937
+MISSING: Ooctarbs CP-E c25-1 (Frozen Arcadia)
+MISSING: Egnaix XJ-Z e30 (Heliotropeia Monoceratos)
+MISSING: Crooki PX-V c17-5 (Lonely Lantern Nebula)
+MISSING: Plaa Ain KS-A b2-5
+MISSING: Phooe Auf HV-I c24-0 (Fountain of Starlight)
+MISSING: Hypiae Briae KM-W d1-2603
+MISSING: Eok Gree TO-Q e5-3167 (Green Crystal Stellar Remnant)
+MISSING: Fraufooe AA-A h8 (Angustia Trinity)
+MISSING: Colonia (Jaques Station / Animula Spires / The Mosta-Murdoch Raceway)
+MISSING: Scheau Flyi GH-U e3-3617 (Flos Nebula)
+MISSING: Hypuae Audst OF-E d12-978
+MISSING: Bloo Dryue ND-I d10-19 (Circulum)
+MISSING: Phooe Aob OU-V b7-0
+MISSING: Myoangooe AA-A h1 (Throne Of Marduk)
+MISSING: Ovomly PD-R d5-3 (Ovomly Rings)
+MISSING: Bubble Sector PD-S b4-4 (Bubble Nebula)
+MISSING: Eufarb UT-Z d13-37 (Shadow Geysers)
+MISSING: Trifid Sector DH-K a9-6 (Trifid Nebula)
+MISSING: Umbaists XJ-A e6237 (Allium Nebula)
+MISSING: R Monocerotis (Hubble's Variable Nebula)
+MISSING: Aries Dark Region GW-W d1-34
+MISSING: Phroea Gree PU-D d13-3163 (Starfish Nebula)
+MISSING: Myoangooe KD-S e4-2 (Winds Of Enlil)
+MISSING: Dumbaa XJ-R e4-5596 (Blue Lilies Nebula)
+MISSING: Trapezium Sector AF-Z c5 (Flame Nebula)
+MISSING: Phreia Flyou UB-A b32-0 (Blessed Nebula)
+MISSING: Scheau Byoe XJ-P d6-1080
+MISSING: Tyroerts AA-A g2 (Will-o'-Wisp)
+MISSING: Cave Sector FB-X c1-5 (Cave Nebula)
+MISSING: Leamuae SI-T e3-4236
+MISSING: Crescent Sector GW-W c1-8 (Medusa's Rock)
+MISSING: Pueliae SH-P c20-0
+MISSING: Grea Hypooe ZZ-O d6-19
+MISSING: Iowhail WY-S e3-8736
+MISSING: Eagle Sector PD-S b4-5
+MISSING: Trapezium Sector CB-W c2-3
+MISSING: Soul Sector LC-V c2-16
+MISSING: Eeshorks SD-B d3065
+MISSING: BD-12 1172 (Spirograph Nebula)
+MISSING: Prua Phoe TS-B d126
+MISSING: Vegnue VK-E d12-1019
+MISSING: BD+22 3878 (Dumbbell Nebula)
+MISSING: Blae Hypue NH-V e2-9
+MISSING: Pha Flaae HT-H d10-56 (Trefoil)
+MISSING: Heart Sector NS-T b3-1
+MISSING: Greae Phio LS-L c23-797
+MISSING: NGC 1931 Sector HW-W c1-13
+MISSING: Qauthe ON-B d13-2 (Silent Raindrops)
+MISSING: Auphails AA-A h45
+MISSING: Dryaa Pruae GG-Y e5180 (The 'Neutron' Nebula)
+MISSING: Sluenoe CL-Y g4 (Nadir)
+MISSING: Hyiechou AI-J b36-0 (Sisyphos' Rock)

@@ -1,0 +1,30 @@
+#!/usr/bin/perl
+use strict;
+$|=1;
+use Mediafire::Api;
+
+my $mediafire = Mediafire::Api->new();
+
+my $fn = $ARGV[0];
+
+die "Usage: <path/to/filename>\n" if (!$fn);
+die "Not found: $fn\n" if (!-e $fn);
+ 
+# Login on service
+$mediafire->login(
+    -login          => 'necrobones@necrobones.com',
+    -password       => 'mF39061$^',
+);
+
+# Upload file to server
+my $remote_dir  = 'EDSM';            # Directory name on server
+my $filename = $fn;    # Full file path to upload
+ 
+# Upload file on server. Return Mediafire::Api::UploadFile object
+my $mediafire_file = $mediafire->uploadFile(
+    -file           => $filename,
+    -path           => $remote_dir,
+);
+# Get uploaded file key
+#print "Uploaded file key: " . $mediafire_file->getDouploadKey() . "\n";
+

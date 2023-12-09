@@ -1,0 +1,200 @@
+#1 	Egnaix GW-V e2-0 	6124.28125 / 2296.15625 / 22529.3125 		
+#2 	Egnaix XJ-Z e30 (Heliotropeia Monoceratos) 	6005.9375 / 2226.5625 / 22287.1875 	278.34 Ly 		
+#3 	Mynoaw NY-K b37-55 (Mynoaw Nebula) 	4690.6875 / -934.875 / 18940.34375 	4,788.10 Ly 		
+#4 	Eeshorks SD-B d3065 	1562.34375 / -779.53125 / 16905.5 	3,735.14 Ly 		
+#5 	Greae Phio LS-L c23-797 	1354.03125 / -487.15625 / 16593.125 	475.87 Ly 		
+#6 	Boepp XA-D d13-1042 (Kaw Nebula) 	-446.53125 / -534.625 / 16697.59375 	1,804.22 Ly 		
+#7 	Iowhail WY-S e3-8736 	-1649.5625 / 109.71875 / 16333.875 	1,412.36 Ly 		
+#8 	Froarks XJ-R e4-1363 (Froarks Planetary Nebula) 	-481.8125 / 198.03125 / 15101.1875 	1,700.28 Ly 	
+#9 	Froarks JH-T d4-353 	-400.40625 / 890.65625 / 14710.9375 	799.16 Ly 		
+#10 	Blae Hypue NH-V e2-9 	1196.40625 / -691.5 / 12301.65625 	3,295.10 Ly 		
+#11 	Clookuia AR-U c16-2 	2915.09375 / -1214.65625 / 12491 	1,806.50 Ly 		
+#12 	Circinus Pulsar (The Circinus Pulsar) 	10852.09375 / -344.6875 / 13081 	8,006.30 Ly 		
+#13 	Phrooe Flyuae QE-Y d1-44 (Speculo System) 	17916.40625 / -578.59375 / 23444.875 	12,544.68 Ly 		
+#14 	Pueliae SH-P c20-0 	18017.8125 / 416.875 / 13897.28125 	9,599.88 Ly 		
+#15 	Rhadia AA-A h59 (Hawking´s Dream) 	21392.21875 / -913.59375 / 12392.8125 	3,926.86 Ly 		
+#16 	NGC 3199 Sector KX-T b3-0 	14574.15625 / -259.625 / 3511.90625 	11,215.35 Ly 		
+#17 	Eta Carina Sector JM-W d1-1 	8561.71875 / -199.1875 / 2714.40625 	6,065.40 Ly 		
+#18 	Skull and Crossbones Neb. Sector FG-Y e6 	13384.3125 / 109.1875 / -6763.71875 	10,638.96 Ly 		
+#19 	NGC 2244 CDZ 132 	2400.59375 / -189.78125 / -4834.71875 	11,155.83 Ly 		
+#20 	Rosette Sector GW-W d1-97 	2345.21875 / -173.09375 / -4741.25 	109.91 Ly 		
+#21 	GCRV 4925 (NGC 2371) 	661.46875 / 1497.65625 / -4084.0625 	2,461.36 Ly 		
+#22 	Monkey Head Sector QD-S b4-0 	1135.09375 / 42.3125 / -6296.5625 	2,690.26 Ly 		
+#23 	Cyoidai GH-U e3-3 (Sunny Side Down (Planetary Nebula) / Cyoidai GH-U Supernova Remnant) 	663.1875 / -160.9375 / -6773.4375 	701.01 Ly 		
+#24 	Crab Pulsar 	558.5 / -707.40625 / -6941.75 	581.31 Ly 		
+#25 	NGC 1931 Sector HW-W c1-13 	-742.8125 / 30.40625 / -6960.78125 	1,496.04 Ly 		
+#26 	BD+50 886 (NGC 1491) 	-4907.96875 / -164.53125 / -8711.21875 	4,522.23 Ly 		
+#27 	Soul Sector LC-V c2-16 	-5099.3125 / 116.3125 / -5497.8125 	3,231.33 Ly 		
+#28 	2MASS J02351897+6131236 (Fireflies) 	-4192.71875 / 114.5 / -4190.625 	1,590.80 Ly 		
+#29 	Heart Sector NS-T b3-1 	-5319.25 / 112.34375 / -5287.15625 	1,572.09 Ly 		
+#30 	BD+55 191 (NGC 281) 	-6660.25 / -870.0625 / -4345.59375 	1,910.48 Ly 		
+#31 	Bubble Sector PD-S b4-4 (Bubble Nebula) 	-6570.5 / 29.84375 / -2680.28125 	1,895.03 Ly 		
+#32 	S171 29 	-2443.5625 / 301.4375 / -1333.5 	4,349.62 Ly 		
+#33 	Cave Sector FB-X c1-5 (Cave Nebula) 	-2244.84375 / 110.125 / -825.78125 	577.81 Ly 		
+#34 	SHB2004 Trumpler 37 12-2113 	-2657.4375 / 176.84375 / -431.25 	574.75 Ly 		
+#35 	BD+66 1066 	-2842.375 / 1645 / -323.875 	1,483.65 Ly 		
+#36 	Cocoon Sector EL-Y d19 	-3175.21875 / -308.625 / -244.96875 	1,983.35 Ly 		
+#37 	Crescent Sector GW-W c1-8 (Medusa's Rock) 	-4842.1875 / 210.8125 / 1252.21875 	2,300.04 Ly 		
+#38 	V1357 Cygni 	-7095.375 / 401.25 / 2396.8125 	2,534.41 Ly 	
+#39 	North America Sector GC-K a9-1 	-1891.03125 / -35.71875 / 149.65625 	5,685.58 Ly 		
+#40 	Veil East Sector DL-Y d54 	-1916.34375 / -299.8125 / 490.375 	431.83 Ly 		
+#41 	Veil West Sector DL-Y d68 (Funfair Geysers / Veil Nebula West) 	-1398.25 / -193.5625 / 418.90625 	533.68 Ly 		
+#42 	BD+22 3878 (Dumbbell Nebula) 	-958.21875 / -71 / 535.5 	471.43 Ly 		
+#43 	HIP 14769 	-330.96875 / -74.09375 / -481.28125 	1,194.70 Ly 	
+#44 	HIP 17403 	-93.6875 / -158.96875 / -367.625 	276.45 Ly 	
+#45 	Aries Dark Region GW-W d1-34 	-56.0625 / -124.59375 / -247.1875 	130.78 Ly 	
+#46 	Nervi (Mount Nerverest) 	-74.75 / -72.71875 / 35.84375 	288.35 Ly 	
+#47 	Epsilon Indi 	3.125 / -8.875 / 7.125 	104.72 Ly 	
+#48 	Pomeche 	56.65625 / 82.09375 / 3.09375 	105.63 Ly 	
+#49 	Witch Head Sector DL-Y d22 	378.21875 / -407.65625 / -722.90625 	932.92 Ly 		
+#50 	HIP 31384 	513.09375 / -144.3125 / -439.8125 	409.49 Ly 	
+#51 	BD-12 1172 (Spirograph Nebula) 	577.875 / -452.6875 / -819.25 	493.22 Ly 		
+#52 	The Veil 	593.3125 / -433.25 / -1071.125 	253.10 Ly 		
+#53 	Trapezium Sector CB-W c2-3 	538.53125 / -321.5 / -1139.25 	141.88 Ly 		
+#54 	Trapezium Sector AF-Z c5 (Flame Nebula) 	625.75 / -401.53125 / -1198.53125 	132.39 Ly 		
+#55 	Trapezium Sector XO-Y b1-0 (Altered Hortensia) 	619.75 / -400.96875 / -1224.3125 	26.48 Ly 	
+#56 	Trapezium Sector AF-Z c0 (Barnard's Loop) 	617.03125 / -421.625 / -1224.5625 	20.84 Ly 		
+#57 	Orion Dark Region KC-V c2-0 (The Orion Dark Region Nebula) 	603.3125 / -312.15625 / -1337.6875 	158.02 Ly 		
+#58 	HD 49368 (Hades Edge) 	757.46875 / 67.84375 / -1424.375 	419.14 Ly 	
+#59 	Cone Sector GW-W c1-5 	854.71875 / 83.875 / -2025.75 	609.40 Ly 		
+#60 	R Monocerotis (Hubble's Variable Nebula) 	1210.3125 / 68.03125 / -2744.1875 	801.78 Ly 		
+#61 	HIP 38064 (Collinder 140 Open Cluster) 	1152.9375 / -60.6875 / -478.25 	2,270.32 Ly 		
+#62 	Vela Dark Region LC-V c2-29 (Vela Dark Region) 	991.0625 / -123.53125 / -48.96875 	463.07 Ly 		
+#63 	HIP 41908 (Baton's Plantation) 	843.9375 / -34.875 / -108.375 	181.75 Ly 		
+#64 	Chamaeleon Sector PD-S b4-2 	482.875 / -149.65625 / 307.90625 	562.88 Ly 		
+#65 	Musca Dark Region ZB-I a11-0 	425.90625 / -3.75 / 267.5 	161.76 Ly 		
+#66 	Corona Austr. Dark Region PD-S b4-3 	-9.4375 / -178.9375 / 490.1875 	519.43 Ly 		
+#67 	Ophiuchus Dark Region B Sector PD-S b4-2 	-44.40625 / 170 / 487.625 	350.69 Ly 		
+#68 	IC 4604 Sector FB-X c1-19 	64.03125 / 179.28125 / 565.65625 	133.92 Ly 		
+#69 	HD 148937 	548.6875 / -18.03125 / 1274.71875 	881.25 Ly 	
+#70 	NGC 6188 Sector HW-W c1-11 	1705.75 / -86.84375 / 4054 	3,011.30 Ly 		
+#71 	Cat's Paw Sector PD-S b4-7 	852 / 59 / 5426.75 	1,623.15 Ly 		
+#72 	Thor's Eye 	-439.84375 / -86.625 / 4205.15625 	1,783.92 Ly 		
+#73 	Herschel 36 (Lagoon Nebula) 	-468 / -92.1875 / 4474.625 	270.99 Ly 		
+#74 	Trifid Sector DH-K a9-6 (Trifid Nebula) 	-637.65625 / -26.375 / 5161.90625 	710.96 Ly 		
+#75 	Omega Sector PD-S b4-0 (Omega Nebula) 	-1432.0625 / -75.46875 / 5308.125 	809.24 Ly 		
+#76 	Eagle Sector PD-S b4-5 	-2046.75 / 101.8125 / 6689.28125 	1,522.12 Ly 		
+#77 	Cl Pismis 16 	965.1875 / 142.28125 / 8094.40625 	3,323.82 Ly 		
+#78 	Prieluia GH-B c27-16 (Prieluia's Furnace) 	899.59375 / 71.3125 / 9060.8125 	971.23 Ly 		
+#79 	Plaa Ain KS-A b2-5 	869.5625 / 420.875 / 9219.5 	385.07 Ly 		
+#80 	Pru Aescs UO-V b30-7 	-3170.625 / 164 / 8561.28125 	4,101.51 Ly 	
+#81 	Flyiedge RW-W d1-4 	-4102.125 / -1131.625 / 8064.6875 	1,671.21 Ly 	
+#82 	Flyiedgai MX-E c26-10 	-6369.15625 / -794.53125 / 9035.65625 	2,489.15 Ly 		
+#83 	Skaude AL-X e1-28 (Rusty Net) 	-4708.625 / -381.3125 / 9571.75 	1,793.18 Ly 	
+#84 	Skaudai LC-V f2-10 	-5398.25 / -569.21875 / 10401.65625 	1,095.28 Ly 		
+#85 	Prua Phoe TS-B d126 	-5539.65625 / -540.875 / 10481.15625 	164.68 Ly 		
+#86 	Clookia NK-M d8-431 (Ewoks Rest) 	-3745.8125 / -305.9375 / 12472.125 	2,690.17 Ly 		
+#87 	Blaa Phoe JX-T e3-26 (Helium Paradox) 	-5899.96875 / -463.625 / 15074.65625 	3,382.07 Ly 		
+#88 	Dryooe Flyou YT-A e1844 (Bartender Nebula) 	-9191.59375 / -620.96875 / 18282.125 	4,598.63 Ly 		
+#89 	Spoihaae XE-X d2-9 (Monde de la Mort (World of Death)) 	-9346.125 / -1472.09375 / 19659.0625 	1,626.12 Ly 		
+#90 	Rodentia 	-9530.53125 / -907.25 / 19787.375 	607.88 Ly 	
+#91 	Colonia (Jaques Station / Animula Spires / The Mosta-Murdoch Raceway) 	-9530.5 / -910.28125 / 19808.125 	20.97 Ly 		
+#92 	Spoihaae EW-V e2-670 	-9526.96875 / -1620.90625 / 19910.96875 	718.04 Ly 	
+#93 	Dryooe Prou HH-C d267 (The Clover Nebula) 	-9875.8125 / -333.375 / 20760.25 	1,581.36 Ly 		
+#94 	Screake SJ-Y d1-265 (Pink Elephants) 	-9955.75 / 842.6875 / 20872.71875 	1,184.13 Ly 	
+#95 	Oephaif GE-E b1-10 (Green Lantern Nebula) 	-10807.4375 / 596.8125 / 16889.3125 	4,080.85 Ly 		
+#96 	Grea Hypooe ZZ-O d6-19 	-11952.75 / -721.125 / 13590.53125 	3,732.38 Ly 		
+#97 	Ellaid AA-A h5 	-9506.8125 / 679.9375 / 9935.0625 	4,616.06 Ly 	
+#98 	Zejoo WM-Q b52-2 	-15778.1875 / -111.96875 / 11586.21875 	6,533.27 Ly 		
+#99 	Dehoae FL-W d2-0 (Seashell Nebula) 	-15796.75 / -533.8125 / 9459.46875 	2,168.26 Ly 		
+#100 	Bloo Dryue ND-I d10-19 (Circulum) 	-17091.5 / -604.96875 / 4942.25 	4,699.65 Ly 		
+#101 	Eullobs EL-Y e7 (Fireball Fumaroles) 	-18821.375 / 229.71875 / 4326.96875 	2,016.86 Ly 		
+#102 	Fraufooe AA-A h8 (Angustia Trinity) 	-25665.65625 / -1217.375 / 1732.34375 	7,461.26 Ly 		
+#103 	Byooe Thio AA-A g1 (Bary’s Wonderland) 	-25253.0625 / 371.21875 / 3364.34375 	2,314.58 Ly 		
+#104 	Ovomly PD-R d5-3 (Ovomly Rings) 	-19778.21875 / -562.3125 / 7113.1875 	6,700.69 Ly 		
+#105 	Thraikoo PS-U e2-4 (Thracian Nebula) 	-18646 / -6.0625 / 7135.9375 	1,261.69 Ly 		
+#106 	Crooki PX-V c17-5 (Lonely Lantern Nebula) 	-23057.3125 / 696.125 / 12528.84375 	7,002.58 Ly 		
+#107 	Grea Hypae WU-O e6-4 (Enigma Depot) 	-19434.09375 / -325.96875 / 14144.78125 	4,096.78 Ly 		
+#108 	Floasly TE-X d2-25 (Floasly Glowing Green Giant) 	-17387.15625 / -219.5 / 14558 	2,090.94 Ly 		
+#109 	Floagh FI-B d13-1 (Looking Glass Nebula) 	-20463.84375 / -1294.8125 / 15481.1875 	3,387.41 Ly 		
+#110 	Screakoi WO-G c11-1 (Karmeliet) 	-22379.4375 / 339.4375 / 21178.1875 	6,228.65 Ly 	
+#111 	Hypoea Flyiae CW-V e2-0 (Phorcys Black Hole) 	-26612 / -337.28125 / 22475.34375 	4,478.30 Ly 		
+#112 	Pha Flaae HT-H d10-56 (Trefoil) 	-22980.9375 / 499.1875 / 24145.34375 	4,083.28 Ly 		
+#113 	Dryu Chraea FH-D d12-49 (Maledictus Luna) 	-23799.71875 / 71.125 / 29480.125 	5,414.20 Ly 		
+#114 	Eol Groa UG-K d9-89 (Creme Brulee Geysers) 	-20477.21875 / -470.53125 / 30527.28125 	3,525.47 Ly 		
+#115 	Eolls Graae PG-E b15-4 (Bendurion's Present) 	-18874.84375 / -613.625 / 29977.375 	1,700.14 Ly 		
+#116 	Juemeou GN-S e4-18 (Odysseus's Rest) 	-19204.5 / -154.5625 / 26659.84375 	3,365.33 Ly 		
+#117 	Phooe Auf HV-I c24-0 (Fountain of Starlight) 	-15057.25 / 1832.875 / 26889.65625 	4,604.61 Ly 		
+#118 	Guenae SB-I b57-0 (Turqoise Fountain) 	-14382.6875 / -1362.34375 / 27041 	3,269.15 Ly 		
+#119 	Pyroomeou GE-C c28-0 	-15793.3125 / 1900.5 / 25757.375 	3,779.38 Ly 	
+#120 	Phreia Flyou JT-P b22-2 (Valley of Vapour) 	-15357.0625 / -660.78125 / 23746.90625 	3,285.19 Ly 		
+#121 	Phooe Aob OU-V b7-0 	-14739.96875 / 1018.03125 / 23417.65625 	1,818.69 Ly 		
+#122 	Phreia Flyou FG-V d3-116 (La Vita Nuova) 	-14327 / -328.21875 / 23596.875 	1,419.53 Ly 	
+#123 	Phreia Flyou UB-A b32-0 (Blessed Nebula) 	-14503.84375 / -458.4375 / 23947.90625 	414.07 Ly 		
+#124 	Juenoe EG-Y g1913 (Dance of Cerberus) 	-8931.1875 / -838.71875 / 26846.46875 	6,292.91 Ly 		
+#125 	Eord Gree UU-X e1-1268 	-7631.8125 / -82.96875 / 30067.40625 	3,554.43 Ly 	
+#126 	Eimbaisys JC-V e2-352 	-4968 / 1642.53125 / 30248.8125 	3,179.02 Ly 		
+#127 	Pha Scroi GS-I d10-64 (Minerva's Pyrope) 	-9453.84375 / 2207.25 / 24186.96875 	7,562.25 Ly 		
+#128 	Screakou EW-N e6-5997 (La vie en Rose) 	-5743.78125 / 234.25 / 21914.25 	4,777.29 Ly 		
+#129 	Scheau Flyi GH-U e3-3617 (Flos Nebula) 	-5783.40625 / -141.53125 / 22683.90625 	857.41 Ly 		
+#130 	Wepooe AA-A h509 (Chief's Pride) 	-4809.34375 / -634.90625 / 24133 	1,814.41 Ly 		
+#131 	Dumbaa XJ-R e4-5596 (Blue Lilies Nebula) 	-4252.625 / 196.09375 / 22780.84375 	1,681.91 Ly 		
+#132 	Theau Pri FB-W e2-25 (Pink Marshmallow) 	-3979.625 / -2591.125 / 20042.75 	3,916.67 Ly 		
+#133 	Dryaa Pruae GG-Y e5180 (The 'Neutron' Nebula) 	-2197.53125 / -1186.40625 / 20979.34375 	2,454.85 Ly 		
+#134 	Dryau Ausms KG-Y e3390 (The Dryau Awesomes) 	-1523.75 / 1340.6875 / 20976.59375 	2,615.38 Ly 		
+#135 	Leamuae SI-T e3-4236 	945.28125 / -877.375 / 20129.25 	3,425.48 Ly 	
+#136 	Shrogea MH-V e2-1763 (Black in Green (Tourist Installation)) 	971.03125 / 613.21875 / 21307.3125 	1,900.10 Ly 		
+#137 	Dumbae SY-I d9-2339 	-542.71875 / 250.90625 / 22837.96875 	2,183.03 Ly 		
+#138 	Hypuae Audst OF-E d12-978 	-26.125 / 1775.4375 / 25627.53125 	3,220.67 Ly 	
+#139 	Croomaa RD-A d14-1524 	-79.6875 / 1569.65625 / 25810.375 	280.44 Ly 	
+#140 	Juenae OX-U e2-8852 (Hengist Nebula) 	652.46875 / -1056.5 / 26400.375 	2,789.42 Ly 		
+#141 	Eok Bluae MU-V c16-2452 	292.46875 / -968.96875 / 27839.71875 	1,486.26 Ly 	
+#142 	Eok Gree TO-Q e5-3167 (Green Crystal Stellar Remnant) 	-1502.9375 / -329.46875 / 30671.1875 	3,413.16 Ly 		
+#143 	Iwhaind AA-A g1771 (Niteo Gigans) 	-3602.40625 / -1178.28125 / 32338.25 	2,812.00 Ly 		
+#144 	Scheau Byoe XJ-P d6-1080 	-5380.5 / -576.5 / 35360.09375 	3,557.43 Ly 		
+#145 	Hypiae Briae KM-W d1-2603 	-6270.125 / 10.25 / 34975.375 	1,133.01 Ly 	
+#146 	Hypiae Briae FR-N e6-3007 	-5975.3125 / -6.53125 / 36014.90625 	1,080.66 Ly 	
+#147 	Vegnue VK-E d12-1019 	-5684.34375 / 588.90625 / 37168.5 	1,330.41 Ly 		
+#148 	Gooreia WO-Z e131 (Our Lady's Modesty) 	-5436.84375 / -155.8125 / 38817.3125 	1,826.05 Ly 		
+#149 	Dryiquae OI-B d13-0 	-4353.15625 / -1284.1875 / 41088.4375 	2,757.83 Ly 	
+#150 	Bleethue KR-A b15-0 (Beetle Nebula) 	-7171.15625 / -992.84375 / 37657.8125 	4,449.18 Ly 		
+#151 	Phroea Gree PU-D d13-3163 (Starfish Nebula) 	-6833.40625 / -259.40625 / 37191.21875 	932.59 Ly 		
+#152 	Teqo EB-V c16-5 (Mt Fuji Nebula) 	-8294.625 / -1143 / 36797.53125 	1,752.39 Ly 		
+#153 	Vegnae YE-R e4-121 (Scroll Of Thoth) 	-10916.96875 / 128.34375 / 36858.625 	2,914.92 Ly 		
+#154 	Vegneia BF-R e4-735 (Segnao Starburst (Segnao-2)) 	-11623.40625 / 110.75 / 36943.6875 	711.76 Ly 		
+#155 	Greethia SS-U e2-48 (Lapislazuli Nebula) 	-11818.75 / 60.1875 / 37864.3125 	942.48 Ly 		
+#156 	Myoangooe KD-S e4-2 (Winds Of Enlil) 	-11535.96875 / 839.15625 / 42045.90625 	4,262.92 Ly 		
+#157 	Myoangooe AA-A h1 (Throne Of Marduk) 	-11484.4375 / 809.125 / 42231.96875 	195.39 Ly 		
+#158 	Hyphokooe AA-A h62 (Gates Of Apzu / Lower Boreas Depot) 	-10969.90625 / -1094.71875 / 44395.5 	2,927.50 Ly 		
+#159 	Trignai MT-Q e5-28 (Trignai Blend) 	-16355.875 / -70.25 / 40895.34375 	6,504.56 Ly 		
+#160 	Eactaisky IR-N e6-2 (Eactaisky Stellar Remnant) 	-19483.84375 / 8 / 43610.375 	4,142.67 Ly 		
+#161 	Flyoo Groa SO-Z e0 (Alastor) 	-26482.4375 / -78.78125 / 50335.125 	9,706.19 Ly 		
+#162 	Eufarb UT-Z d13-37 (Shadow Geysers) 	-20650.3125 / 111.3125 / 53916.8125 	6,846.77 Ly 	
+#163 	Bya Freau SO-Z d13-5 (Seven Sages) 	-9463.53125 / -23.28125 / 47512.46875 	12,891.00 Ly 		
+#164 	Truecha ZK-P e5-25 (Hypatia’s Lighthouse) 	-7584.78125 / -2.0625 / 53765.46875 	6,529.18 Ly 		
+#165 	Greae Bluae YE-A g3 (Lights Of Alexandria) 	-5905.03125 / -35.21875 / 54076 	1,708.53 Ly 		
+#166 	Pyriveae FK-C d14-72 (The Nest) 	-1235.5625 / -64.59375 / 55221.65625 	4,808.05 Ly 		
+#167 	Pyrivo HW-V e2-8 (Fly Trap Nebula) 	-1498.25 / -285.78125 / 54503 	796.49 Ly 		
+#168 	Thuecheae MT-Q e5-8 (The Seldowitch Nebula) 	-2270.5 / -62.9375 / 53714.3125 	1,126.08 Ly 		
+#169 	Tyroerts AA-A g2 (Will-o'-Wisp) 	-2085.75 / 94.9375 / 50391.0625 	3,332.12 Ly 		
+#170 	Byeia Free WR-W b56-0 (Misty Mountains of Byeia Free) 	-1821.96875 / 0.78125 / 47520.34375 	2,884.35 Ly 		
+#171 	Striechooe HO-D c14-2 (Hula Hop) 	-709.40625 / -450.25 / 48207.5 	1,383.26 Ly 		
+#172 	Smootoae VE-R d4-134 (Shadow Earth) 	38.96875 / -24.90625 / 51819.53125 	3,713.19 Ly 		
+#173 	Drooteou PW-I a36-4 (Derthek's Folly (also known as 'Counter Point')) 	51.5625 / -40.53125 / 51800.53125 	27.64 Ly 		
+#174 	Preae Chruia AA-A h0 (Titans of Preae Chruia) 	2647.5625 / 637.78125 / 49355 	3,630.42 Ly 		
+#175 	Auphails AA-A h45 	2605.21875 / -874.09375 / 50753.625 	2,060.03 Ly 		
+#176 	Qauthoea WM-W d1-40 (Vendetta's Gate) 	3668.21875 / 32.84375 / 55440.625 	4,890.86 Ly 		
+#177 	Ooctarbs CP-E c25-1 (Frozen Arcadia) 	11459.53125 / 51.71875 / 60177.4375 	9,118.24 Ly 	
+#178 	Eictach ES-I d10-3 (Beauty and The Beast) 	8299.75 / -397.625 / 60046.9375 	3,194.24 Ly 		
+#179 	Cheia Eoq TJ-U b22-0 (Solitude-Silentium Canyons) 	11402.09375 / -174.4375 / 58302.875 	3,565.96 Ly 		
+#180 	Qauthe ON-B d13-2 (Silent Raindrops) 	17571.5 / 105.0625 / 56444.375 	6,449.32 Ly 		
+#181 	Byoo Chraei AA-A f0 (Furthest Fireflies) 	16586.625 / 236.625 / 54280.4375 	2,381.16 Ly 	
+#182 	Hyiechou AI-J b36-0 (Sisyphos' Rock) 	20185.46875 / -16.28125 / 48362.71875 	6,930.73 Ly 		
+#183 	Grie Prao LH-E b59-1 (Sacrebleu) 	21885.3125 / -96.90625 / 47567.75 	1,878.28 Ly 	
+#184 	Prai Pruae CL-Y g0 (Minerva's Crown) 	17879.09375 / -28.8125 / 42374.53125 	6,559.26 Ly 		
+#185 	Flyai Flyuae XJ-A c2 ('Flying Flea' Nebula) 	17926.28125 / -1201 / 37360.59375 	5,149.35 Ly 		
+#186 	Bleethuia FF-A e1 (Proximity Rock) 	17817.40625 / -1032.375 / 37388.84375 	202.70 Ly 		
+#187 	Flimbuae GY-P d6-7 (Roche Terminal) 	18057.875 / 1013.9375 / 27718.15625 	9,887.74 Ly 		
+#188 	Flimbuae CA-A e2 ('Eye of Horror') 	18265.09375 / 31.40625 / 27124.125 	1,166.70 Ly 	
+#189 	Eock Bluae TW-V c2-0 	16058.75 / -1061.875 / 27219.8125 	2,464.22 Ly 	
+#190 	Cloomaa YE-R e4-113 (Damselfly Nebula) 	9578.8125 / 12.8125 / 25449.125 	6,802.93 Ly 		
+#191 	Pheia Auscs AL-T c5-155 (Heavenly Mists) 	8340.25 / 823.28125 / 26071.59375 	1,605.73 Ly 		
+#192 	Eorm Phyloi OY-Z d37 (Aether Nebula) 	6548.3125 / 2042.625 / 27246.28125 	2,465.31 Ly 		
+#193 	Umbaists XJ-A e6237 (Allium Nebula) 	5231.59375 / -832.40625 / 29802.03125 	4,065.88 Ly 		
+#194 	Smasiae QT-Q d5-70 (The Smasiae Red Giant Binary Pair) 	4260.0625 / -1965.6875 / 32717.5 	3,275.39 Ly 		
+#195 	Dryio Blue LJ-X d2-629 ('Trinus' Blue) 	3920.5625 / -1429.84375 / 28683.6875 	4,083.38 Ly 		
+#196 	Eord Bla HW-W f1-611 	3621.59375 / -1934.53125 / 27999.34375 	901.34 Ly 		
+#197 	Sluenoe CL-Y g4 (Nadir) 	5168.4375 / -3219.46875 / 26556.09375 	2,475.23 Ly 		
+#198 	Dryaa Prao PJ-G d11-89 	8361.90625 / -650.84375 / 21723.28125 	6,336.57 Ly 	
+#199 	Egnaix GW-V e2-0 	6124.28125 / 2296.15625 / 22529.3125 	3,787.01 Ly 		
+

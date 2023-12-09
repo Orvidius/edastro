@@ -1,0 +1,77 @@
+<!--#include  virtual="/header.html" -->
+
+
+<style>
+.canvasContainer {
+	width: 490px;
+	margin: auto;
+}
+#myCanvas {
+	border: solid 1px #fff;
+}
+</style>
+
+
+<div class="row">
+	<div class="col-1"></div>
+
+	<div class="col-6" align="center">
+		<div class="sectorNav">
+		<table class="sectorNavTable">
+		<tr><td></td><td><center><!!UP!!></center></td><td></td></tr>
+		<tr><td></td><td><center><!!NORTH!!></center></td><td></td></tr>
+		<tr><td valign="center"><!!WEST!!></td>
+			<td valign="center" width=720 height=600><!!IMAGE!!></td>
+			<td valign="center"><!!EAST!!></td></tr>
+		<tr><td></td><td><center><!!SOUTH!!></center></td><td></td></tr>
+		<tr><td></td><td><center><!!DOWN!!></center></td><td></td></tr>
+		</table>
+		</div>
+	</div>
+
+	<div class="col-4" align="center" valign="center">
+		<h1><!!SECTORNAME!!><!!MAPLINK!!></h1>
+		<div class="galaxyContainer">
+			<div class="galaxyGrid">
+<!!GALAXYTOP!!>
+			</div>
+			<div class="gsSpacer"></div>
+			<div class="galaxyGrid">
+<!!GALAXYSIDE!!>
+			</div>
+		</div>
+
+		<div class="sectorSliderContainer">
+		<br/>
+		<br/>
+		<input type="range" min="0" max="<!!MAXPERIOD!!>" value="<!!MAXPERIOD!!>" class="sectorSlider" id="sectorSlider">
+		<br/>
+		<br/>
+		Sector Date: <span id="sectordate"><!!SECTORDATE!!></span>
+		</div>
+
+	</div>
+
+	<div class="col-1"></div>
+</div>
+
+<!--#include  virtual="/sector/form.html" -->
+
+<script>
+document.title = 'Sector: <!!SECTORNAME!!>';
+	
+window.onload = function() {
+	var image  = document.getElementById("sectorimage");
+	var slider = document.getElementById("sectorSlider");
+	var output = document.getElementById("sectordate");
+
+	// Update the current slider value (each time you drag the slider handle)
+	slider.oninput = function() {
+		var period = <!!SECTORPERIOD!!> + parseInt(this.value,10) - <!!MAXPERIOD!!>;
+		image.src = period + '.png';
+<!!PERIODDATES!!>
+	} 
+}
+</script>
+
+<!--#include  virtual="/footer.html" -->
