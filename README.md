@@ -7,5 +7,7 @@ NOTE: This code was never meant for human eyes. Attempt to understand it at your
 seriously. Most of this code was written quickly in spare time, and grew organically beyond its original scope.
 Having said that, it's highly variable quality. Some parts are well organized, and others are spaghetti code.
 
+This repo also contains scripts that were never completed, or were rendered obsolete. Not all of the code is in a functional state. Good luck figuring that all out. :)
+
 
 
