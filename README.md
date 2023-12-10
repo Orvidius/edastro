@@ -4,8 +4,7 @@ Code for the EDAstro.com website. All map and spreadsheet scripts, EDDN tracker,
 
 This repo exists as a backup in case anything ever happens to Orvidius, thus making it at least possible to restore EDAstro functionality somewhere else in the future.
 
-Contained here you will find all of the scripting that drives the EDAstro.com maps, spreadsheets, data dumps, sector viewer, and galactic records. What it doesn't
-contain are the services that run on the webserver, such as the GEC (it has its own repo here) or the travel-history video creator, or the ship name generator. 
+Contained here you will find all of the scripting that drives the EDAstro.com maps, spreadsheets, data dumps, sector viewer (but not the viewer itself), and galactic records. What it doesn't contain are the services that run on the webserver, such as the GEC (it has its own repo here) or the travel-history video creator, or the ship name generator. 
 
 ### Important notes:
 
