@@ -75,12 +75,16 @@ daemonize() if (!$debug && $daemonizing);
 
 my %schemas = ();
 
+my $schemadata = '';
+
 open TXT, "<$schemafile";
 while (<TXT>) {
+	$schemadata .= $_;
 	chomp;
 	if ($_) {
 		my @v = split("\t",$_);
 		my $s = shift @v;
+		$schemas{$s} = {};
 		foreach my $e (@v) {
 			$schemas{$s}{$e} = 1;
 		}
@@ -265,7 +269,7 @@ sub do_json {
 	eddn_json($json,$logging) if (!$debug);
 	print "------\n" if ($verbose);
 
-	if (!exists($schemas{$schema})) {
+	if ($schema && !exists($schemas{$schema})) {
 		add_schema($schema);
 	}
 }
@@ -274,18 +278,23 @@ sub do_json {
 sub add_schema {
 	my $schema = shift;
 	my $event = shift;
+	my $out = '';
 
 	$schemas{$schema}{$event} = 1 if ($event);
 	%{$schemas{$schema}} = () if (!$event && !exists($schemas{$schema}));
 
-	open SCHEMA, ">$schemafile";
 	foreach my $s (sort keys %schemas) {
 		my @list = ($s);
 		push @list, sort keys %{$schemas{$s}} if (keys %{$schemas{$s}});
 		
-		print SCHEMA join("\t",@list)."\n";
+		$out .= join("\t",@list)."\n";
 	}
-	close SCHEMA;
+
+	if ($out ne $schemadata) {
+		open SCHEMA, ">$schemafile";
+		print SCHEMA $out;
+		close SCHEMA;
+	}
 }
 
 sub daemonize {
