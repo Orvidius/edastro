@@ -599,7 +599,7 @@ my $unknown_x = -45000;
 
 #"Timestamp","Cmdr Name","Email","Preferred communications","Fleet Carrier ID","Fleet Carrier Name","System Deployed","Cmdr Platform","UTC Time Zone","My FC Services","Maximum Available Car go (Tons)","Tritium Market Maximum (Tons)","Tritium Available in Market (Tons)","Email Address","Tritium Required","Buy Orders","Sell Orders"
 
-my @column_patterns = qw(CALLSIGN CARRIERNAME SYSTEM COLOUR URL TONNAGE PRICE);
+my @column_patterns = qw(CALLSIGN CARRIERNAME SYSTEM COLOUR URL TONNAGE PRICE UPDATE);
 my %col  = ();
 my $id = 0;
 my %carrier = ();
@@ -648,6 +648,10 @@ while (<CSV>) {
                 $carrier{$id}{url} = btrim($v[$col{URL}]);
                 $carrier{$id}{tonnage} = $v[$col{TONNAGE}];
                 $carrier{$id}{price} = $v[$col{PRICE}];
+
+		if ($v[$col{UPDATE}] =~ /(\d+)/) {
+			$carrier{$id}{updated} = epoch2date($1);
+		}
 
 		$carrier{$id}{tonnage} =~ s/,+//;
 		$carrier{$id}{price} =~ s/,+//;
@@ -705,6 +709,7 @@ foreach my $id (sort {$a <=> $b} keys %carrier) {
 
 	my $links = '';
 	$links .= "+|+Tonnage: $carrier{$id}{tonnage} (price: $carrier{$id}{price})" if ($carrier{$id}{tonnage} && $carrier{$id}{price});
+	$links .= "+|+Updated: $carrier{$id}{updated}" if ($carrier{$id}{updated});
 	$links .= "+|+(<a href=\"$carrier{$id}{url}\">Carrier info link</a>)" if ($carrier{$id}{url});
 
 	print join("\t|\t",$type,"STAR0$id",$displayName,$x,$y,$z,$n,undef,"$status$links")."\n";
