@@ -68,7 +68,17 @@ my %outlist = ();
 
 my $i = 0;
 foreach my $ref (@jsonlist) {
-	push @{$outlist{$i}}, $ref;
+	my $k = $i;
+
+	if (${$ref}[5] =~ /^STAR/) {
+		$k = 0;
+	}
+
+	if (${$ref}[5] =~ /^DSSA/) {
+		$k = 1;
+	}
+
+	push @{$outlist{$k}}, $ref;
 	$i++;
 	$i = 0 if ($i>=4);
 }
@@ -241,10 +251,10 @@ sub add_EDSM {
 			next;
 		}
 
-		if ($edsm_force{$hash{id}} || $hash{id}=~ /^GEC/ || $hash{type} =~ /^(GGG|nebula|planetaryNebula|deepSpaceOutpost|restrictedSectors|stellarRemnant|planetFeatures|surfacePOI|historicalLocation|minorPOI|carrier|DSSA|carrierseen|carrierunknown|carriertmp|carriersuspend|carrierundeploy|carrierIGAU|edastrocarrier|tritium|raxxla|canonn|megaship|megaship2|STARsell|STARbuy|STARcarrier|STARunknown|STARred|STARgreen|STARyellow|STARcyan|STARpurple|PIONEERcarrier|PIONEERtmp|PIONEERunknown|DSSAcarrier|DSSArefit|DSSAtmp|DSSAsuspend|DSSAseen|DSSAundeploy|DSSAunknown|guardian|IGAUcarrier)$/) {
+		if ($edsm_force{$hash{id}} || $hash{id}=~ /^GEC/ || $hash{type} =~ /^(GGG|nebula|planetaryNebula|deepSpaceOutpost|restrictedSectors|stellarRemnant|planetFeatures|surfacePOI|historicalLocation|minorPOI|carrier|DSSA|carrierseen|carrierunknown|carriertmp|carriersuspend|carrierundeploy|carrierIGAU|edastrocarrier|tritium|raxxla|canonn|megaship|megaship2|STARsell|STARbuy|STARcarrier|STARunknown|STARred|STARgreen|STARyellow|STARcyan|STARpurple|PIONEERcarrier|PIONEERtmp|PIONEERunknown|DSSAcarrier|DSSArefit|DSSAtmp|DSSAsuspend|DSSAseen|DSSAundeploy|DSSAunknown|guardian|IGAUcarrier|STARseen|STARtmp)$/) {
 			my $skip = 0;
 
-			if ($hash{type} !~ /^(edastrocarrier|carrier|DSSA|carrierseen|carrierunknown|carriertmp|carriersuspend|carrierundeploy|carrierIGAU|GGG|tritium|raxxla|canonn|megaship|megaship2|STARsell|STARbuy|STARcarrier|STARunknown|STARred|STARgreen|STARyellow|STARcyan|STARpurple|PIONEERcarrier|PIONEERtmp|PIONEERunknown|DSSAcarrier|DSSArefit|DSSAtmp|DSSAsuspend|DSSAseen|DSSAundeploy|DSSAunknown|guardian|IGAUcarrier)$/) { 
+			if ($hash{type} !~ /^(edastrocarrier|carrier|DSSA|carrierseen|carrierunknown|carriertmp|carriersuspend|carrierundeploy|carrierIGAU|GGG|tritium|raxxla|canonn|megaship|megaship2|STARsell|STARbuy|STARcarrier|STARunknown|STARred|STARgreen|STARyellow|STARcyan|STARpurple|PIONEERcarrier|PIONEERtmp|PIONEERunknown|DSSAcarrier|DSSArefit|DSSAtmp|DSSAsuspend|DSSAseen|DSSAundeploy|DSSAunknown|guardian|IGAUcarrier|STARseen|STARtmp)$/) { 
 					# && $hash{pin} !~ /^(DSSA|carriertmp|carrierIGAU|GGG)$/) {
 
 				my $namecheck = $hash{name};	$namecheck =~ s/([-\[\]\(\)\^\$\*\+\&])/\\$1/gs;
@@ -299,6 +309,8 @@ sub add_EDSM {
 			$pin = "'STARyellow'" if ($hash{type} =~ /STARyellow/i);
 			$pin = "'STARcyan'" if ($hash{type} =~ /STARcyan/i);
 			$pin = "'STARpurple'" if ($hash{type} =~ /STARpurple/i);
+			$pin = "'STARseen'" if ($hash{type} =~ /STARseen/i);
+			$pin = "'STARtmp'" if ($hash{type} =~ /STARtmp/i);
 			$pin = "'PIONEERcarrier'" if ($hash{type} =~ /PIONEERcarrier/i);
 			$pin = "'PIONEERunknown'" if ($hash{type} =~ /PIONEERunknown/i);
 			$pin = "'PIONEERtmp'" if ($hash{type} =~ /PIONEERtmp/i);
