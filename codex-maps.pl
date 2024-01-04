@@ -70,7 +70,7 @@ my %typecount  = ();
 $exact{codex_ent_tube} = 'Roseum Sinuous Tubers';
 $specific{'Roseum Sinuous Tubers'} = 1;
 
-map_set('molluscs','Bell Molluscs','Bulb Molluscs','Bullet Mollusc','Capsule Molluscs','Globe Molluscs','Gourd Molluscs','Reel Molluscs','Squid Molluscs','Torus Molluscs','Umbrella Molluscs');
+map_set('molluscs','Bell Molluscs','Bulb Molluscs','Bullet Molluscs','Capsule Molluscs','Globe Molluscs','Gourd Molluscs','Reel Molluscs','Squid Molluscs','Torus Molluscs','Umbrella Molluscs');
 if (!$debug) {
 map_set('pods', 'Aster Pods', 'Chalice Pods', 'Collared Pods', 'Gyre Pods', 'Octahedral Pods', 'Peduncle Pods', 'Quadripartite Pods', 'Rhizome Pods', 'Stolon Pods');
 map_set('trees', 'Aster Trees', 'Peduncle Trees', 'Gyre Trees', 'Void Hearts', 'Stolon Trees' ,'Brain Trees');
