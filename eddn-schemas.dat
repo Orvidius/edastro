@@ -9,6 +9,7 @@ https://eddn.edcd.io/schemas/fssbodysignals/1
 https://eddn.edcd.io/schemas/fssdiscoveryscan/1
 https://eddn.edcd.io/schemas/fsssignaldiscovered/1
 https://eddn.edcd.io/schemas/journal/1	CarrierJump	Docked	FSDJump	Location	SAASignalsFound	Scan
+https://eddn.edcd.io/schemas/journal/1/test
 https://eddn.edcd.io/schemas/navbeaconscan/1
 https://eddn.edcd.io/schemas/navroute/1
 https://eddn.edcd.io/schemas/outfitting/2
