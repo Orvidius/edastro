@@ -115,7 +115,7 @@ if ((!keys(%action) && ($epochDay % 4 == 1 || $epochDay % 4 == 3)) || $action{bo
 	get_file(1,'-u','https://www.edsm.net/dump','bodies7days.json') if (!$edsm_down);
 }
 if ((!keys(%action) && $t[6] == 1) || $action{data}) {
-	get_file(1,'-u2','https://www.edsm.net/dump','codex.json',1) if (!$edsm_down);
+	get_file(1,'-u8','https://www.edsm.net/dump','codex.json',1) if (!$edsm_down);
 }
 
 my_system("cd ~bones/elite ; ./update-boxels.pl ");
@@ -458,8 +458,9 @@ sub my_system {
 sub date_print {
 	my $d = epoch2date(time,-5,1);
 	foreach my $s (@_) {
-		chomp $s;
-		print "[$d] $s\n";
+		my $ss = $s;
+		chomp $ss;
+		print "[$d] $ss\n";
 	}
 }
 
