@@ -60,6 +60,8 @@ my $author		= "By CMDR Orvidius (edastro.com) - CC BY-NC-SA 3.0 - Data from EDDN
 my $outputgroup		= 0;
 $outputgroup = $ARGV[0] if ($ARGV[0]);
 
+$maxChildren = $ARGV[1]+0 if ($ARGV[1] =~ /^\d+$/ && $ARGV[1] > 0);
+
 my %file = ();
 
 
