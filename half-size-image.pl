@@ -9,24 +9,31 @@ use File::Path;
 use lib "/home/bones/perl";
 use ATOMS qw(epoch2date date2epoch btrim ltrim rtrim sec2string);
 
-my $debug	= 0;
+my $hostname = `/usr/bin/hostname -s`; chomp $hostname;
 
-my $convert	= '/usr/bin/convert';
+my $debug		= 0;
+
+my $convert		= '/usr/bin/convert';
+
+my $override_PNG	= 'tif';
+$override_PNG = '' if ($hostname =~ /ghoul/);
 
 #########################################################################
 
 foreach my $fn (@ARGV) {
-	my $tga = $fn;
-	$tga =~ s/\.(jpg|png|bmp)$/\.tga/;
+	my $temp = $fn;
+	$temp =~ s/\.(jpg|png|bmp)$/\.$override_PNG/ if ($override_PNG);
 
 	my $newfile = $fn;
 	$newfile =~ s/^(.+)\.(jpg|png|bmp)$/$1-resized\.$2/ if ($debug);
 
-	print "$fn -> $tga\n";
-	system("$convert $fn $tga");
+	if ($temp ne $fn) {
+		print "$fn -> $temp\n";
+		system("$convert $fn $temp");
+	}
 
 	my $image = Image::Magick->new;
-	$image->Read($tga);
+	$image->Read($temp);
 
 	my $old = $image->Clone();
 

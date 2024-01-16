@@ -20,23 +20,26 @@ show_queries(0);
 $0 =~ s/^.*\///s;
 my $progname = $0;
 
+my $hostname = `/usr/bin/hostname -s`; chomp $hostname;
+
 my $debug		= 0;
 my $skip_all		= 0;
 my $skip_alternates	= 0;
 my $verbose		= 0;
 my $allow_scp		= 1;
 
-my $maxChildren		= 8;
+my $maxChildren		= 4;
 my $fork_verbose	= 0;
 
 my $id_add		= 10**12;
 
 my $override_PNG	= 'tga'; #'';
+$override_PNG = '' if ($hostname =~ /ghoul/);
 
 my $FSSdate		= '2018-12-11 00:00:00';
 my $FSSepoch		= date2epoch($FSSdate);
 
-my $chunk_size		= 50000;
+my $chunk_size		= 100000;
 my $debug_stars		= 100000;
 my $debug_and		= " and edsm_date>='$FSSdate'" if ($debug);
 my $debug_limit		= '';
@@ -46,6 +49,10 @@ my $debug_limit		= '';
 #   $debug_limit		= " and abs(coord_x)<1000 and abs(coord_y)<1000 and abs(coord_z)<1000 order by id64" if ($debug);
    $debug_limit		= "limit $debug_stars" if ($debug);
 
+if (1) {
+	$debug_limit = '';
+	$debug_and = '';
+}
 
 my $remote_server	= 'www@services:/www/edastro.com/mapcharts/';
 my $filepath		= "/home/bones/www/elite";
@@ -75,7 +82,7 @@ my %file = ();
 
 $file{systems_heatmin2}	= "$filepath/visited-systems-heatmap-minimum2.png" if (!$outputgroup || $outputgroup==1);
 
-if (!$debug && !$skip_all) {
+#if (!$debug && !$skip_all) {
 $file{systems_recent}	= "$filepath/systems_recent.png" if (!$outputgroup || $outputgroup==2);
 $file{averagebodies}	= "$filepath/averagebodies.png" if (!$outputgroup || $outputgroup==1);
 $file{systems_heat}	= "$filepath/visited-systems-heatmap.png" if (!$outputgroup || $outputgroup==1);
@@ -126,7 +133,7 @@ $file{wolfrayet1}	= "$filepath/wolfrayet1.png" if (!$outputgroup || $outputgroup
 $file{wolfrayet2}	= "$filepath/wolfrayet2.png" if (!$outputgroup || $outputgroup==2);
 $file{wolfrayet3}	= "$filepath/wolfrayet3.png" if (!$outputgroup || $outputgroup==2);
 $file{wolfrayet4}	= "$filepath/wolfrayet4.png" if (!$outputgroup || $outputgroup==2);
-}
+#}
 
 my %mapstyle = ();
 $mapstyle{systems_mono} = 'mono';
@@ -965,6 +972,15 @@ exit;
 ############################################################################
 # $image->SetPixel( x => $x, y => $y, color => [($r,$g,$b)] );
 
+sub no_kids {
+	my $ref = shift;
+
+	foreach my $kid (@$ref) {
+		return 0 if (defined($kid));
+	}
+
+	return 1;
+}
 
 sub create_maps {
 
@@ -1008,204 +1024,217 @@ sub create_maps {
 
 	my $recentDate = epoch2date(time - (7*86400));
 
-	while (!$no_more_data) {
+	my @kids = ();
+	my @childpid = ();
+	while (!$no_more_data || !no_kids(\@kids)) {
 
-		last if ($no_more_data);
+		last if ($no_more_data && no_kids(\@kids));
 
-		my @kids = ();
-		my @childpid = ();
 		foreach my $childNum (0..$maxChildren-1) {
 
-			last if ($no_more_data);
+			last if ($no_more_data && no_kids(\@kids));
 
-			if ($chunk && $chunk % 1000000 == 0) {
-				print "(".commify($chunk).' - '.epoch2date(time).")\n";
-				$chunk_seconds = 0;
-				$body_seconds = 0;
-			} elsif ($chunk && $chunk % 10000 == 0) {
-				print ".";
-			}
-			$chunk += $chunk_size;
+			if ($kids[$childNum] && $childpid[$childNum]) {
+				my $fh = $kids[$childNum];
+				my @lines = <$fh>;
 	
-			my @ids = splice @{$$cols{ID}},0,$chunk_size;
-			if (!@ids) {
-				$no_more_data = 1;
-				last;
-			}
-			my $chunk_select = "$sql_select where ID in (".join(',',@ids).")";
-
-			# FORK START SETUP
-
-			my $pid = open $kids[$childNum] => "-|";
-			die "Failed to fork: $!" unless defined $pid;
-
-			if ($pid) {
-				# Parent.
-
-				$childpid[$childNum] = $pid;
-
-				#$0 =~ s/\s+\[(child|parent)\]\s+[\d,]+\s*$//is;
-				$0 = $progname.' [parent] '.commify($chunk);
-			} else {
-				# Child.
-
-				disconnect_all();	# Important to make our own DB connections as a child process.
-				my %out = ();
-
-				#$0 =~ s/\s+\[(child|parent)\]\s+[\d,]+\s*$//is;
-				$0 = $progname.' [child] '.commify($chunk);
-
-				sleep floor($childNum/3)+1 if ($childNum);
-		
-				# FORK END SETUP
-
-				my $starttime = time;
-				my $rows = rows_mysql('elite',$chunk_select);
-				$chunk_seconds += time-$starttime;
-		
-				if (ref($rows) eq 'ARRAY') { 
-					if (!@$rows) {
-						$no_more_data = 1;
-						last;
-					}
-					#$no_more_data = 1 if ($debug && $chunk+$chunk_size >= $debug_stars);
-		
-		
-					my @id_list = ();
-					foreach my $r (@$rows) {
-						push @id_list, $$r{id64} if ($$r{id64});
-					}
-		
-					my %systemBodies = ();
-					my $starttime = time;
-					get_bodies(\%systemBodies,@id_list);
-					$body_seconds += time-$starttime;
-		
-					while (@$rows) {
-			
-						my $r = shift @$rows;
-			
-						if (!defined($$r{coord_x}) && !defined($$r{coord_y}) && !defined($$r{coord_z})) {
-							print "$$r{id64} missing coordinates.\n" if ($debug);
-							next;
-						}
-		
-						if (0) {
-							if ($$r{name} =~ /^\s*(([\w\-\.]+\s+)+)\w\w\-\w\s+\w/) {
-								my $n = $1; 
-								$n =~ s/\s+$//s;
-			
-								my $x = floor(($$r{coord_x}-$sectorcenter_x)/1280)+$sector_radius;
-								my $z = floor(($$r{coord_z}-$sectorcenter_z)/1280)+$sector_radius;
-			
-								if ($x>=0 && $z>=0) {
-									$n =~ s/\s+$//s;
-									if (ref($sectorname[$x][$z]) ne 'HASH' or (!exists(${$sectorname[$x][$z]}{$n}) || $$r{coord_y}>${$sectorname[$x][$z]}{$n})) {
-										${$sectorname[$x][$z]}{$n} = $$r{coord_y};
-										$out{sectorname}{$x}{$z}{$n} = $$r{coord_y};
-									}
-								}
-							}
-						}
-		
+			        foreach my $line (@lines) {
+			                chomp $line;
+	
+					print "$line\n" if ($fork_verbose);
+	
+					my ($action,$data) = split /\|/, $line, 2;
+	
+					if ($action eq 'map') {		# Multi-channel
 						eval {
-							my @views = ();
-							my $maptype = 'systems';
-							if (ref($mapviews{$maptype}) eq 'ARRAY') { @views = @{$mapviews{$maptype}}; }
-							
-							my $ok = 0;
-							my $ok_recent = 0;
-			
-							foreach my $chartmap (@views) {
-								my $pixelscale = get_pixelscale($maptype,$chart{$chartmap}{zoom});
-								my ($x,$y,$in_range) = get_image_coords($maptype,$chartmap,$r,$pixelscale,1,undef,$systemBodies{$$r{id64}});
-		
-								if ($in_range) {
-									#${$map{$maptype}}[$x][$y] += $in_range;
-									#$brightest{$maptype}{$chartmap} = ${$map{$maptype}}[$x][$y] if (${$map{$maptype}}[$x][$y] > $brightest{$maptype}{$chartmap});
-									$out{map1}{$maptype}{$chartmap}{$x}{$y} += $in_range;
-									$out{map1}{bodies}{$chartmap}{$x}{$y} += int((keys %{$systemBodies{$$r{id64}}}));
-									$ok = 1;
-
-									if (($$r{date} && $$r{date} gt $recentDate) || ($$r{eddn_updated} && $$r{eddn_updated} gt $recentDate)) {
-										$out{map1}{recent}{$chartmap}{$x}{$y} += $in_range;
-										$ok_recent = 1;
-									}
-
-									if (date2epoch($$r{date}) >= $FSSepoch) {
-										my $stars = 0;
-										foreach my $bodyID (keys %{$systemBodies{$$r{id64}}}) {
-											my $bodyhash = $systemBodies{$$r{id64}}{$bodyID};
-											$stars++ if ($$bodyhash{star});
-										}
+							my ($maptype,$chartmap,$x,$y,$n,$c) = split /,/, $data;
+							${$map{$maptype}}[$x][$y][$n] += $c;
 	
-										$out{map1}{stars}{$chartmap}{$x}{$y} += $stars;
-										$out{map1}{starssystems}{$chartmap}{$x}{$y} += 1;
-#print "$$r{edsm_date}, $stars\n";
+							$brightest{$maptype}{$chartmap} = ${$map{$maptype}}[$x][$y][$n] 
+								if (${$map{$maptype}}[$x][$y][$n] > $brightest{$maptype}{$chartmap});
+						};
+	
+					} elsif ($action eq 'map1') {	# Single channel
+						eval {
+							my ($maptype,$chartmap,$x,$y,$c) = split /,/, $data;
+							${$map{$maptype}}[$x][$y] += $c;
+	
+							$brightest{$maptype}{$chartmap} = ${$map{$maptype}}[$x][$y] 
+								if (${$map{$maptype}}[$x][$y] > $brightest{$maptype}{$chartmap});
+						};
+	
+					} elsif ($action eq 'systemsplotted') {
+						my ($maptype,$n) = split /,/, $data;
+						$systemsplotted{$maptype} += $n;
+	
+					} elsif ($action eq 'starsplotted') {
+						my ($maptype,$n) = split /,/, $data;
+						$starsplotted{$maptype} += $n;
+	
+					} elsif ($action eq 'classplotted') {
+						my ($maptype,$starClass,$n) = split /,/, $data;
+						$classplotted{$maptype}{$starClass} += $n;
+	
+					} elsif ($action eq 'sectorname') {
+						my ($x,$z,$n,$coord_y) = split /,/, $data;
+						if (ref($sectorname[$x][$z]) ne 'HASH' or (!exists(${$sectorname[$x][$z]}{$n}) || $coord_y>${$sectorname[$x][$z]}{$n})) {
+							${$sectorname[$x][$z]}{$n} = $coord_y;
+						}
+	
+					} elsif ($action eq 'no_more_data') {
+						$no_more_data = 1;
+	
+					} else {
+						print "CHILD: $line\n";
+					}
+			        }
+
+				waitpid $childpid[$childNum], 0;
+
+				$kids[$childNum]	= undef;
+				$childpid[$childNum]	= undef;
+				
+			}
+
+			if (!$no_more_data) {
+				if ($chunk && $chunk % 1000000 == 0) {
+					print "(".commify($chunk).' - '.epoch2date(time).")\n";
+					$chunk_seconds = 0;
+					$body_seconds = 0;
+				} elsif ($chunk && $chunk % 10000 == 0) {
+					print ".";
+				}
+				$chunk += $chunk_size;
+		
+				my @ids = splice @{$$cols{ID}},0,$chunk_size;
+				if (!@ids) {
+					$no_more_data = 1;
+					last;
+				}
+				my $chunk_select = "$sql_select where ID in (".join(',',@ids).")";
+	
+				# FORK START SETUP
+	
+				my $pid = open $kids[$childNum] => "-|";
+				die "Failed to fork: $!" unless defined $pid;
+	
+				if ($pid) {
+					# Parent.
+	
+					$childpid[$childNum] = $pid;
+	
+					#$0 =~ s/\s+\[(child|parent)\]\s+[\d,]+\s*$//is;
+					$0 = $progname.' [parent] '.commify($chunk);
+				} else {
+					# Child.
+	
+					disconnect_all();	# Important to make our own DB connections as a child process.
+					my %out = ();
+	
+					#$0 =~ s/\s+\[(child|parent)\]\s+[\d,]+\s*$//is;
+					$0 = $progname.' [child] '.commify($chunk);
+	
+					sleep floor($childNum/3)+1 if ($childNum);
+			
+					# FORK END SETUP
+	
+					my $starttime = time;
+					my $rows = rows_mysql('elite',$chunk_select);
+					$chunk_seconds += time-$starttime;
+			
+					if (ref($rows) eq 'ARRAY') { 
+						if (!@$rows) {
+							$no_more_data = 1;
+							last;
+						}
+						#$no_more_data = 1 if ($debug && $chunk+$chunk_size >= $debug_stars);
+			
+			
+						my @id_list = ();
+						foreach my $r (@$rows) {
+							push @id_list, $$r{id64} if ($$r{id64});
+						}
+			
+						my %systemBodies = ();
+						my $starttime = time;
+						get_bodies(\%systemBodies,@id_list);
+						$body_seconds += time-$starttime;
+			
+						while (@$rows) {
+				
+							my $r = shift @$rows;
+				
+							if (!defined($$r{coord_x}) && !defined($$r{coord_y}) && !defined($$r{coord_z})) {
+								print "$$r{id64} missing coordinates.\n" if ($debug);
+								next;
+							}
+			
+							if (0) {
+								if ($$r{name} =~ /^\s*(([\w\-\.]+\s+)+)\w\w\-\w\s+\w/) {
+									my $n = $1; 
+									$n =~ s/\s+$//s;
+				
+									my $x = floor(($$r{coord_x}-$sectorcenter_x)/1280)+$sector_radius;
+									my $z = floor(($$r{coord_z}-$sectorcenter_z)/1280)+$sector_radius;
+				
+									if ($x>=0 && $z>=0) {
+										$n =~ s/\s+$//s;
+										if (ref($sectorname[$x][$z]) ne 'HASH' or (!exists(${$sectorname[$x][$z]}{$n}) || $$r{coord_y}>${$sectorname[$x][$z]}{$n})) {
+											${$sectorname[$x][$z]}{$n} = $$r{coord_y};
+											$out{sectorname}{$x}{$z}{$n} = $$r{coord_y};
+										}
 									}
 								}
 							}
-							#$systemsplotted{$maptype}++ if ($ok);
-							$out{systemsplotted}{$maptype}++ if ($ok);
-							$out{systemsplotted}{recent}++ if ($ok_recent);
-
-						};
-		
-						if ($$r{name} =~ /\w+\s+[a-zA-Z]{2}\-[a-zA-Z]\s+([a-hA-H])/) {
-							my $masscode = uc($1);
-							
-							foreach my $maptype ('masscode',"mass$masscode") {
-								next if (!$file{$maptype} || $maptype =~ /^systems/ || $maptype eq 'averagestars');
-								#$systemsplotted{$maptype}++;
-								$out{systemsplotted}{$maptype}++;
-		
+			
+							eval {
 								my @views = ();
+								my $maptype = 'systems';
 								if (ref($mapviews{$maptype}) eq 'ARRAY') { @views = @{$mapviews{$maptype}}; }
-					
+								
+								my $ok = 0;
+								my $ok_recent = 0;
+				
 								foreach my $chartmap (@views) {
 									my $pixelscale = get_pixelscale($maptype,$chart{$chartmap}{zoom});
+									my ($x,$y,$in_range) = get_image_coords($maptype,$chartmap,$r,$pixelscale,1,undef,$systemBodies{$$r{id64}});
 			
-									my ($x,$y,$in_range) = get_image_coords($maptype,$chartmap,$r,$pixelscale,1);
-				
-									next if (!$in_range);
+									if ($in_range) {
+										#${$map{$maptype}}[$x][$y] += $in_range;
+										#$brightest{$maptype}{$chartmap} = ${$map{$maptype}}[$x][$y] if (${$map{$maptype}}[$x][$y] > $brightest{$maptype}{$chartmap});
+										$out{map1}{$maptype}{$chartmap}{$x}{$y} += $in_range;
+										$out{map1}{bodies}{$chartmap}{$x}{$y} += int((keys %{$systemBodies{$$r{id64}}}));
+										$ok = 1;
+	
+										if (($$r{date} && $$r{date} gt $recentDate) || ($$r{eddn_updated} && $$r{eddn_updated} gt $recentDate)) {
+											$out{map1}{recent}{$chartmap}{$x}{$y} += $in_range;
+											$ok_recent = 1;
+										}
+	
+										if (date2epoch($$r{date}) >= $FSSepoch) {
+											my $stars = 0;
+											foreach my $bodyID (keys %{$systemBodies{$$r{id64}}}) {
+												my $bodyhash = $systemBodies{$$r{id64}}{$bodyID};
+												$stars++ if ($$bodyhash{star});
+											}
 		
-									for (my $n=0; $n<3; $n++) {
-										eval {
-											#${$map{$maptype}}[$x][$y][$n] += ${$masscolor{$masscode}}[$n];
-											#$brightest{$maptype}{$chartmap} = ${$map{$maptype}}[$x][$y][$n]
-											#	if (${$map{$maptype}}[$x][$y][$n]  > $brightest{$maptype}{$chartmap});
-											$out{map}{$maptype}{$chartmap}{$x}{$y}{$n} += ${$masscolor{$masscode}}[$n];
-										};
+											$out{map1}{stars}{$chartmap}{$x}{$y} += $stars;
+											$out{map1}{starssystems}{$chartmap}{$x}{$y} += 1;
+	#print "$$r{edsm_date}, $stars\n";
+										}
 									}
 								}
-							}
-		
-							# See if this system qualifies for the class-mass-distribution maps
-		
-							my $primaryclass = '';
-							my $primaryage = 0;
-
-							foreach my $bodyID (keys %{$systemBodies{$$r{id64}}}) {
-								if ($systemBodies{$$r{id64}}{$bodyID}{isPrimary}) {
-									$primaryclass = $systemBodies{$$r{id64}}{$bodyID}{subType};
-									$primaryage = $systemBodies{$$r{id64}}{$bodyID}{real_age};
-								}
-							}
-		
-							my @maplist = ('',"-$masscode");
-
-							foreach my $age_submap (keys %agelimit) {
-								if ($age_submap =~ /^classmass$primaryclass-$masscode(.+)/ && $primaryage>0 && $masscode && 
-									$primaryage>=$agelimit{$age_submap}{min} && $primaryage<$agelimit{$age_submap}{max}) {
+								#$systemsplotted{$maptype}++ if ($ok);
+								$out{systemsplotted}{$maptype}++ if ($ok);
+								$out{systemsplotted}{recent}++ if ($ok_recent);
+	
+							};
+			
+							if ($$r{name} =~ /\w+\s+[a-zA-Z]{2}\-[a-zA-Z]\s+([a-hA-H])/) {
+								my $masscode = uc($1);
 								
-									push @maplist, "-$masscode$1";
-								}
-							}
-		
-							foreach my $subMap (@maplist) {
-								my $maptype = "classmass$primaryclass$subMap";
-		
-								if ($file{"$maptype"}) {
+								foreach my $maptype ('masscode',"mass$masscode") {
+									next if (!$file{$maptype} || $maptype =~ /^systems/ || $maptype eq 'averagestars');
 									#$systemsplotted{$maptype}++;
 									$out{systemsplotted}{$maptype}++;
 			
@@ -1229,221 +1258,213 @@ sub create_maps {
 										}
 									}
 								}
-							}
-						}
-		
-		
-						#my $loop = 0;
-						my %loop = ();
-		
-						foreach my $bodyID (keys %{$systemBodies{$$r{id64}}}) {
-		
-							my $bodyhash = $systemBodies{$$r{id64}}{$bodyID};
-
-							if ($$bodyhash{subType} && $colorclass{$$bodyhash{subType}}) {
-								my $starAge = $$bodyhash{age};
-		
-								foreach my $maptype (keys %file) {
-									my $starClass = $$bodyhash{subType};
-
-									$starClass = $$bodyhash{starType} . '_' . $$bodyhash{subType} if ($maptype eq 'giantstars' && $$bodyhash{starType});
-									next if ($maptype eq 'giantstars' && $$bodyhash{starType} !~ /^(G|S)$/);
-		
-									next if (!$file{$maptype} || $maptype =~ /^systems/ || $maptype =~ /^averagebodies/);
-									next if ($maptype eq 'masscode' || $maptype =~ /^mass[A-Z]$/ || $maptype =~ /^classmass/ || $maptype eq 'averagestars');
-									next if ($maptype =~ /^age/ && !defined($starAge));
-									next if ($maptype eq 'hugestars' and $$bodyhash{rad}<10);
-
-									if ($maptype =~ /terraformables/i) {
-										next if ($$bodyhash{terraformingState} !~ /candidate/i);
+			
+								# See if this system qualifies for the class-mass-distribution maps
+			
+								my $primaryclass = '';
+								my $primaryage = 0;
+	
+								foreach my $bodyID (keys %{$systemBodies{$$r{id64}}}) {
+									if ($systemBodies{$$r{id64}}{$bodyID}{isPrimary}) {
+										$primaryclass = $systemBodies{$$r{id64}}{$bodyID}{subType};
+										$primaryage = $systemBodies{$$r{id64}}{$bodyID}{real_age};
 									}
+								}
+			
+								my @maplist = ('',"-$masscode");
+	
+								foreach my $age_submap (keys %agelimit) {
+									if ($age_submap =~ /^classmass$primaryclass-$masscode(.+)/ && $primaryage>0 && $masscode && 
+										$primaryage>=$agelimit{$age_submap}{min} && $primaryage<$agelimit{$age_submap}{max}) {
 									
-									if ($maptype =~ /^age(\d+)/) {
-										next if ("a$1" ne $starAge);
+										push @maplist, "-$masscode$1";
 									}
-		
-									if (ref($mapdata{$maptype}{bodies}) eq 'HASH' && $maptype !~ /terraformables/i) {
-										next if (!$mapdata{$maptype}{bodies}{$starClass});
-									}
-					
-									#$systemsplotted{$maptype}++ if (!$loop);
-									#$starsplotted{$maptype}++;
-									#$classplotted{$maptype}{$starClass}++;
-
-									$out{systemsplotted}{$maptype}++ if (!$loop{$maptype});
-									$out{starsplotted}{$maptype}++;
-									$out{classplotted}{$maptype}{$starClass}++;
-									$loop{$maptype}++;
+								}
+			
+								foreach my $subMap (@maplist) {
+									my $maptype = "classmass$primaryclass$subMap";
+			
+									if ($file{"$maptype"}) {
+										#$systemsplotted{$maptype}++;
+										$out{systemsplotted}{$maptype}++;
 				
-									my @calc_colors = ();
-									@calc_colors = star_radius_colors($$bodyhash{rad}) if ($maptype =~ /^hugestars$/);
-									#warn "Radius=$$bodyhash{rad}: $calc_colors[0],$calc_colors[1],$calc_colors[2]\n";
-
-									my @views = ();
-									if (ref($mapviews{$maptype}) eq 'ARRAY') { @views = @{$mapviews{$maptype}}; }
-						
-									foreach my $chartmap (@views) {
-		
-										my $pixelscale = get_pixelscale($maptype,$chart{$chartmap}{zoom});
-										#print "$starClass in $maptype.$chartmap\n" if ($maptype eq 'worlds');
+										my @views = ();
+										if (ref($mapviews{$maptype}) eq 'ARRAY') { @views = @{$mapviews{$maptype}}; }
+							
+										foreach my $chartmap (@views) {
+											my $pixelscale = get_pixelscale($maptype,$chart{$chartmap}{zoom});
 					
-										my ($x,$y,$in_range) = get_image_coords($maptype,$chartmap,$r,$pixelscale,0,$bodyhash);
-		
-										next if (!$in_range);
-
-										for (my $n=0; $n<3; $n++) {
-											my $ok = 0;
-											eval {
-												if ($maptype =~ /^hugestars$/) {
-													$out{map}{$maptype}{$chartmap}{$x}{$y}{$n} += $calc_colors[$n];
-												} elsif ($maptype =~ /terraformables/) {
-													$out{map}{$maptype}{$chartmap}{$x}{$y}{$n} += $TFCcolor[$n];
-												} elsif ($maptype =~ /^age/) {
-													#${$map{$maptype}}[$x][$y][$n] += ${$agecolor{$starAge}}[$n];
-													$out{map}{$maptype}{$chartmap}{$x}{$y}{$n} += ${$agecolor{$starAge}}[$n];
-												} elsif (exists($colorclassoverride{$maptype}{$starClass}) && 
-														ref($colorclassoverride{$maptype}{$starClass}) eq 'ARRAY') {
-													#${$map{$maptype}}[$x][$y][$n] += ${$colorclassoverride{$maptype}{$starClass}}[$n];
-													$out{map}{$maptype}{$chartmap}{$x}{$y}{$n} += ${$colorclassoverride{$maptype}{$starClass}}[$n];
-												} else {
-													#${$map{$maptype}}[$x][$y][$n] += ${$colorclass{$starClass}}[$n];
-													$out{map}{$maptype}{$chartmap}{$x}{$y}{$n} += ${$colorclass{$starClass}}[$n];
-												}
-												$ok = 1;
-											};
-											if (!$ok && ($verbose || $debug)) {
-												if (ref($colorclass{$starClass}) eq 'ARRAY') {
-													print "$chartmap: $x,$y,$n -- id64=$$r{id64}, bodyID=$bodyID, ".
-														"subType=$$bodyhash{subType}, colorclass=".join(',',@{$colorclass{$starClass}})."\n";
-												} else {
-													print "$chartmap: $x,$y,$n -- id64=$$r{id64}, bodyID=$bodyID, ".
-														"subType=$$bodyhash{subType}, colorclass=$colorclass{$starClass}\n";
-												}
+											my ($x,$y,$in_range) = get_image_coords($maptype,$chartmap,$r,$pixelscale,1);
+						
+											next if (!$in_range);
+				
+											for (my $n=0; $n<3; $n++) {
+												eval {
+													#${$map{$maptype}}[$x][$y][$n] += ${$masscolor{$masscode}}[$n];
+													#$brightest{$maptype}{$chartmap} = ${$map{$maptype}}[$x][$y][$n]
+													#	if (${$map{$maptype}}[$x][$y][$n]  > $brightest{$maptype}{$chartmap});
+													$out{map}{$maptype}{$chartmap}{$x}{$y}{$n} += ${$masscolor{$masscode}}[$n];
+												};
 											}
 										}
 									}
 								}
 							}
-							#$loop++;
-						}
-					}
+			
+			
+							#my $loop = 0;
+							my %loop = ();
+			
+							foreach my $bodyID (keys %{$systemBodies{$$r{id64}}}) {
+			
+								my $bodyhash = $systemBodies{$$r{id64}}{$bodyID};
 	
-					# Sector names:
+								if ($$bodyhash{subType} && $colorclass{$$bodyhash{subType}}) {
+									my $starAge = $$bodyhash{age};
+			
+									foreach my $maptype (keys %file) {
+										my $starClass = $$bodyhash{subType};
 	
-					if (0) {
-						foreach my $x (keys %{$out{sectorname}}) {
-							foreach my $z (keys %{$out{sectorname}{$x}}) {
-								foreach my $n (keys %{$out{sectorname}{$x}{$z}}) {
-									print "sectorname|$x,$z,$n,$out{sectorname}{$x}{$z}{$n}\n";
+										$starClass = $$bodyhash{starType} . '_' . $$bodyhash{subType} if ($maptype eq 'giantstars' && $$bodyhash{starType});
+										next if ($maptype eq 'giantstars' && $$bodyhash{starType} !~ /^(G|S)$/);
+			
+										next if (!$file{$maptype} || $maptype =~ /^systems/ || $maptype =~ /^averagebodies/);
+										next if ($maptype eq 'masscode' || $maptype =~ /^mass[A-Z]$/ || $maptype =~ /^classmass/ || $maptype eq 'averagestars');
+										next if ($maptype =~ /^age/ && !defined($starAge));
+										next if ($maptype eq 'hugestars' and $$bodyhash{rad}<10);
+	
+										if ($maptype =~ /terraformables/i) {
+											next if ($$bodyhash{terraformingState} !~ /candidate/i);
+										}
+										
+										if ($maptype =~ /^age(\d+)/) {
+											next if ("a$1" ne $starAge);
+										}
+			
+										if (ref($mapdata{$maptype}{bodies}) eq 'HASH' && $maptype !~ /terraformables/i) {
+											next if (!$mapdata{$maptype}{bodies}{$starClass});
+										}
+						
+										#$systemsplotted{$maptype}++ if (!$loop);
+										#$starsplotted{$maptype}++;
+										#$classplotted{$maptype}{$starClass}++;
+	
+										$out{systemsplotted}{$maptype}++ if (!$loop{$maptype});
+										$out{starsplotted}{$maptype}++;
+										$out{classplotted}{$maptype}{$starClass}++;
+										$loop{$maptype}++;
+					
+										my @calc_colors = ();
+										@calc_colors = star_radius_colors($$bodyhash{rad}) if ($maptype =~ /^hugestars$/);
+										#warn "Radius=$$bodyhash{rad}: $calc_colors[0],$calc_colors[1],$calc_colors[2]\n";
+	
+										my @views = ();
+										if (ref($mapviews{$maptype}) eq 'ARRAY') { @views = @{$mapviews{$maptype}}; }
+							
+										foreach my $chartmap (@views) {
+			
+											my $pixelscale = get_pixelscale($maptype,$chart{$chartmap}{zoom});
+											#print "$starClass in $maptype.$chartmap\n" if ($maptype eq 'worlds');
+						
+											my ($x,$y,$in_range) = get_image_coords($maptype,$chartmap,$r,$pixelscale,0,$bodyhash);
+			
+											next if (!$in_range);
+	
+											for (my $n=0; $n<3; $n++) {
+												my $ok = 0;
+												eval {
+													if ($maptype =~ /^hugestars$/) {
+														$out{map}{$maptype}{$chartmap}{$x}{$y}{$n} += $calc_colors[$n];
+													} elsif ($maptype =~ /terraformables/) {
+														$out{map}{$maptype}{$chartmap}{$x}{$y}{$n} += $TFCcolor[$n];
+													} elsif ($maptype =~ /^age/) {
+														#${$map{$maptype}}[$x][$y][$n] += ${$agecolor{$starAge}}[$n];
+														$out{map}{$maptype}{$chartmap}{$x}{$y}{$n} += ${$agecolor{$starAge}}[$n];
+													} elsif (exists($colorclassoverride{$maptype}{$starClass}) && 
+															ref($colorclassoverride{$maptype}{$starClass}) eq 'ARRAY') {
+														#${$map{$maptype}}[$x][$y][$n] += ${$colorclassoverride{$maptype}{$starClass}}[$n];
+														$out{map}{$maptype}{$chartmap}{$x}{$y}{$n} += ${$colorclassoverride{$maptype}{$starClass}}[$n];
+													} else {
+														#${$map{$maptype}}[$x][$y][$n] += ${$colorclass{$starClass}}[$n];
+														$out{map}{$maptype}{$chartmap}{$x}{$y}{$n} += ${$colorclass{$starClass}}[$n];
+													}
+													$ok = 1;
+												};
+												if (!$ok && ($verbose || $debug)) {
+													if (ref($colorclass{$starClass}) eq 'ARRAY') {
+														print "$chartmap: $x,$y,$n -- id64=$$r{id64}, bodyID=$bodyID, ".
+															"subType=$$bodyhash{subType}, colorclass=".join(',',@{$colorclass{$starClass}})."\n";
+													} else {
+														print "$chartmap: $x,$y,$n -- id64=$$r{id64}, bodyID=$bodyID, ".
+															"subType=$$bodyhash{subType}, colorclass=$colorclass{$starClass}\n";
+													}
+												}
+											}
+										}
+									}
 								}
+								#$loop++;
 							}
 						}
-					}
-	
-					# Maps:
-	
-					foreach my $maptype (keys %{$out{map}}) {
-						foreach my $chartmap (keys %{$out{map}{$maptype}}) {
-							foreach my $x (keys %{$out{map}{$maptype}{$chartmap}}) {
-								foreach my $y (keys %{$out{map}{$maptype}{$chartmap}{$x}}) {
-									foreach my $n (keys %{$out{map}{$maptype}{$chartmap}{$x}{$y}}) {
-										print "map|$maptype,$chartmap,$x,$y,$n,$out{map}{$maptype}{$chartmap}{$x}{$y}{$n}\n";
+		
+						# Sector names:
+		
+						if (0) {
+							foreach my $x (keys %{$out{sectorname}}) {
+								foreach my $z (keys %{$out{sectorname}{$x}}) {
+									foreach my $n (keys %{$out{sectorname}{$x}{$z}}) {
+										print "sectorname|$x,$z,$n,$out{sectorname}{$x}{$z}{$n}\n";
 									}
 								}
 							}
 						}
-					}
-					foreach my $maptype (keys %{$out{map1}}) {
-						foreach my $chartmap (keys %{$out{map1}{$maptype}}) {
-							foreach my $x (keys %{$out{map1}{$maptype}{$chartmap}}) {
-								foreach my $y (keys %{$out{map1}{$maptype}{$chartmap}{$x}}) {
-									print "map1|$maptype,$chartmap,$x,$y,$out{map1}{$maptype}{$chartmap}{$x}{$y}\n";
+		
+						# Maps:
+		
+						foreach my $maptype (keys %{$out{map}}) {
+							foreach my $chartmap (keys %{$out{map}{$maptype}}) {
+								foreach my $x (keys %{$out{map}{$maptype}{$chartmap}}) {
+									foreach my $y (keys %{$out{map}{$maptype}{$chartmap}{$x}}) {
+										foreach my $n (keys %{$out{map}{$maptype}{$chartmap}{$x}{$y}}) {
+											print "map|$maptype,$chartmap,$x,$y,$n,$out{map}{$maptype}{$chartmap}{$x}{$y}{$n}\n";
+										}
+									}
 								}
 							}
 						}
-					}
-
-					# Running totals:
-
-					foreach my $maptype (keys %{$out{systemsplotted}}) {
-						print "systemsplotted|$maptype,$out{systemsplotted}{$maptype}\n";
-					}
-					foreach my $maptype (keys %{$out{starsplotted}}) {
-						print "starsplotted|$maptype,$out{starsplotted}{$maptype}\n";
-					}
-					foreach my $maptype (keys %{$out{classplotted}}) {
-						foreach my $starClass (keys %{$out{classplotted}{$maptype}}) {
-							print "classplotted|$maptype,$starClass,$out{classplotted}{$maptype}{$starClass}\n";
+						foreach my $maptype (keys %{$out{map1}}) {
+							foreach my $chartmap (keys %{$out{map1}{$maptype}}) {
+								foreach my $x (keys %{$out{map1}{$maptype}{$chartmap}}) {
+									foreach my $y (keys %{$out{map1}{$maptype}{$chartmap}{$x}}) {
+										print "map1|$maptype,$chartmap,$x,$y,$out{map1}{$maptype}{$chartmap}{$x}{$y}\n";
+									}
+								}
+							}
 						}
+	
+						# Running totals:
+	
+						foreach my $maptype (keys %{$out{systemsplotted}}) {
+							print "systemsplotted|$maptype,$out{systemsplotted}{$maptype}\n";
+						}
+						foreach my $maptype (keys %{$out{starsplotted}}) {
+							print "starsplotted|$maptype,$out{starsplotted}{$maptype}\n";
+						}
+						foreach my $maptype (keys %{$out{classplotted}}) {
+							foreach my $starClass (keys %{$out{classplotted}{$maptype}}) {
+								print "classplotted|$maptype,$starClass,$out{classplotted}{$maptype}{$starClass}\n";
+							}
+						}
+						
+					} else {
+						print "no_more_data\n";
 					}
-					
-				} else {
-					print "no_more_data\n";
+	
+					exit if defined $pid;
 				}
-
-				exit if defined $pid;
 			}
 		}
 
-		my $cn = 0;
-		foreach my $fh (@kids) {
-		        my @lines = <$fh>;
-	
-		        foreach my $line (@lines) {
-		                chomp $line;
-
-				print "$line\n" if ($fork_verbose);
-
-				my ($action,$data) = split /\|/, $line, 2;
-
-				if ($action eq 'map') {		# Multi-channel
-					eval {
-						my ($maptype,$chartmap,$x,$y,$n,$c) = split /,/, $data;
-						${$map{$maptype}}[$x][$y][$n] += $c;
-
-						$brightest{$maptype}{$chartmap} = ${$map{$maptype}}[$x][$y][$n] 
-							if (${$map{$maptype}}[$x][$y][$n] > $brightest{$maptype}{$chartmap});
-					};
-
-				} elsif ($action eq 'map1') {	# Single channel
-					eval {
-						my ($maptype,$chartmap,$x,$y,$c) = split /,/, $data;
-						${$map{$maptype}}[$x][$y] += $c;
-
-						$brightest{$maptype}{$chartmap} = ${$map{$maptype}}[$x][$y] 
-							if (${$map{$maptype}}[$x][$y] > $brightest{$maptype}{$chartmap});
-					};
-
-				} elsif ($action eq 'systemsplotted') {
-					my ($maptype,$n) = split /,/, $data;
-					$systemsplotted{$maptype} += $n;
-
-				} elsif ($action eq 'starsplotted') {
-					my ($maptype,$n) = split /,/, $data;
-					$starsplotted{$maptype} += $n;
-
-				} elsif ($action eq 'classplotted') {
-					my ($maptype,$starClass,$n) = split /,/, $data;
-					$classplotted{$maptype}{$starClass} += $n;
-
-				} elsif ($action eq 'sectorname') {
-					my ($x,$z,$n,$coord_y) = split /,/, $data;
-					if (ref($sectorname[$x][$z]) ne 'HASH' or (!exists(${$sectorname[$x][$z]}{$n}) || $coord_y>${$sectorname[$x][$z]}{$n})) {
-						${$sectorname[$x][$z]}{$n} = $coord_y;
-					}
-
-				} elsif ($action eq 'no_more_data') {
-					$no_more_data = 1;
-
-				} else {
-					print "CHILD: $line\n";
-				}
-		        }
-
-			waitpid $childpid[$cn], 0;
-			$cn++;
-		}
-		#1 while -1 != wait;
 
 	}
 	print "\n";
@@ -2394,7 +2415,7 @@ sub push_images {
 	my $fn = shift;
 
 	my $png = $fn;
-	$png =~ s/\.(png|gif|bmp|jpg|tga|tif)$/.png/ if ($override_PNG);
+	$png =~ s/\.(png|gif|bmp|jpg|tga|tif)$/.png/;
 
 	my $thumb = $fn;
 	$thumb =~ s/\.(png|gif|bmp|jpg|tga|tif)$/-thumb.jpg/;
@@ -2407,7 +2428,7 @@ sub push_images {
 	my $jpg_size = '1200x1200';
 	$jpg_size = '600x600' if ($fn =~ /visited/);
 
-	my_system("$convert $fn -verbose $png") if ($override_PNG);
+	my_system("$convert $fn -verbose $png") if ($override_PNG || ($png ne $fn && $fn !~ /\.gif$/));
 	my_system("$convert $fn -verbose -resize $jpg_size -gamma 1.3 $jpg");
 	my_system("$convert $fn -verbose -resize 200x200 -gamma 1.3 $thumb");
 	my_system("$scp $png $jpg $thumb $remote_server") if (!$debug && $allow_scp);
