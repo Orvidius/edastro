@@ -23,6 +23,7 @@ my $progname = $0;
 my $hostname = `/usr/bin/hostname -s`; chomp $hostname;
 
 my $debug		= 0;
+my $debug_full		= 0;
 my $skip_all		= 0;
 my $skip_alternates	= 0;
 my $verbose		= 0;
@@ -49,7 +50,7 @@ my $debug_limit		= '';
 #   $debug_limit		= " and abs(coord_x)<1000 and abs(coord_y)<1000 and abs(coord_z)<1000 order by id64" if ($debug);
    $debug_limit		= "limit $debug_stars" if ($debug);
 
-if (1) {
+if ($debug && $debug_full) {
 	$debug_limit = '';
 	$debug_and = '';
 }
@@ -165,6 +166,8 @@ my $pi			= 3.1415926535;
 my $ssh			= '/usr/bin/ssh';
 my $scp			= '/usr/bin/scp -P222';
 my $convert		= '/usr/bin/convert';
+
+$scp .= " -O" if ($hostname =~ /ghoul/);
 
 my $logarithm_scale	= 0.2;	# Fraction to add to logarithms based on the largest (hottest) pixel element
 

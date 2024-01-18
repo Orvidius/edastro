@@ -22,6 +22,8 @@ use Time::HiRes q(usleep);
 
 $0 = basename($0);
 
+my $hostname = `/usr/bin/hostname -s`; chomp $hostname;
+
 my $debug		= 0;
 my $allow_scp           = 1;
 my $german_tank_problem	= 0;
@@ -85,7 +87,7 @@ my $debug_limit		= ' limit 50000' if ($debug);
 
 my $remote_server       = 'www@services:/www/edastro.com/mapcharts/';
 my $ssh                 = '/usr/bin/ssh';
-my $scp                 = '/usr/bin/scp -P222';
+my $scp                 = '/usr/bin/scp -P222';	$scp .= " -O" if ($hostname =~ /ghoul/);
 my $convert		= '/usr/bin/convert';
 my $filepath            = "/home/bones/www/elite";
 $filepath .= "/test" if ($debug);
