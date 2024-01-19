@@ -73,7 +73,7 @@ BEGIN { # Export functions first because of possible circular dependancies
 		id64_sectorcoords id64_subsector estimated_coordinates64 estimated_coords load_sectors letter_ord commify system_coordinates
 		id64_to_name get_id64_by_name init_regionmap findRegion $allow_bodyID_deletion key_findcreate_local key_findcreate codex_entry codex_ok 
 		reset_system_trackers load_mappings %atmo_map %volc_map %planet_map %star_map %terr_map logger $logname set_logname log_mysql
-		completion_report id64_sectorID update_systemcounts compress_send);
+		completion_report id64_sectorID update_systemcounts compress_send scp_options ssh_options);
 
 	%obj_exists	= ();
 
@@ -4032,6 +4032,34 @@ sub my_system {
 
         print "# $string\n" if ($verbose);
         system($string);
+}
+
+sub ssh_options {
+	my $fn = '/etc/ssh.opts';
+	
+	if (-e $fn) {
+		open SSHOPTS, "<$fn";
+		my $opts = <SSHOPTS>;
+		chomp $opts;
+		close SSHOPTS;
+		return ' '.$opts;
+	} else {
+		return '';
+	}
+}
+
+sub scp_options {
+	my $fn = '/etc/scp.opts';
+	
+	if (-e $fn) {
+		open SCPOPTS, "<$fn";
+		my $opts = <SCPOPTS>;
+		chomp $opts;
+		close SCPOPTS;
+		return ' '.$opts;
+	} else {
+		return '';
+	}
 }
 
 1;

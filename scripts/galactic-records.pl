@@ -47,7 +47,7 @@ my $runfile = '/home/bones/elite/pull-systems.pl.run';
 
 my $maxtops	= 10; 
 
-my $maxChildren	= 6;
+my $maxChildren	= 7;
 my $lowChildren	= 5;
 my $fork_verbose= 0;
 
@@ -240,8 +240,8 @@ foreach my $table (qw(planets stars systems)) {
 			my $numChildren = -e $runfile ? $lowChildren : $maxChildren;
 
 			$db_cpu = get_DB_CPU();
-			my $calc = int($maxChildren - (1 + $db_cpu/100));
-			$calc = 1 if ($calc < 1);
+			my $calc = int($maxChildren - ($db_cpu/100));
+			$calc = 2 if ($calc < 2);
 
 			$numChildren = $calc if ($calc < $numChildren && $db_cpu >= 90);
 

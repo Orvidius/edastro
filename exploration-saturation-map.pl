@@ -4,7 +4,7 @@ use strict;
 ############################################################################
 
 use lib "/home/bones/elite";
-use EDSM qw(log10 id64_subsector);
+use EDSM qw(log10 id64_subsector ssh_options scp_options);
 
 use lib "/home/bones/perl";
 use DB qw(db_mysql rows_mysql columns_mysql show_queries disconnect_all);
@@ -86,8 +86,8 @@ my $scripts_path	= "/home/bones/elite/scripts";
 my $debug_limit		= ' limit 50000' if ($debug);
 
 my $remote_server       = 'www@services:/www/edastro.com/mapcharts/';
-my $ssh                 = '/usr/bin/ssh';
-my $scp                 = '/usr/bin/scp -P222';	$scp .= " -O" if ($hostname =~ /ghoul/);
+my $ssh                 = '/usr/bin/ssh'.ssh_options();
+my $scp                 = '/usr/bin/scp'.scp_options();
 my $convert		= '/usr/bin/convert';
 my $filepath            = "/home/bones/www/elite";
 $filepath .= "/test" if ($debug);

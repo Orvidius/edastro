@@ -4,7 +4,7 @@ use strict;
 ############################################################################
 
 use lib "/home/bones/elite";
-use EDSM qw(log10);
+use EDSM qw(log10 ssh_options scp_options);
 
 use lib "/home/bones/perl";
 use DB qw(db_mysql rows_mysql columns_mysql show_queries disconnect_all);
@@ -163,11 +163,13 @@ if (!$outputgroup || $outputgroup==2) {
 
 my $pi			= 3.1415926535;
 
-my $ssh			= '/usr/bin/ssh';
-my $scp			= '/usr/bin/scp -P222';
+my $ssh			= '/usr/bin/ssh'.ssh_options();
+my $scp			= '/usr/bin/scp'.scp_options();
 my $convert		= '/usr/bin/convert';
 
-$scp .= " -O" if ($hostname =~ /ghoul/);
+#print "SSH: $ssh\n";
+#print "SCP: $scp\n";
+#exit;
 
 my $logarithm_scale	= 0.2;	# Fraction to add to logarithms based on the largest (hottest) pixel element
 
