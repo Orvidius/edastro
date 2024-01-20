@@ -180,7 +180,7 @@ foreach my $r (@rows) {
 my $force_passes = 0;
 $force_passes = 1 if ($ARGV[0]);
 
-print "DEBUG\n" if ($debug);
+print "[".epoch2date(time)."] DEBUG\n" if ($debug);
 
 #############################################################################
 
@@ -228,7 +228,7 @@ foreach my $table (qw(planets stars systems)) {
 	my $amChild = 0;
 
 	foreach my $pass (0,1) {
-		print "\nPROCESSING $table, pass $pass\n";
+		print "\n[".epoch2date(time)."] PROCESSING $table, pass $pass\n";
 
 		my $id = 0;
 		my $no_more_data = 0;
@@ -704,6 +704,7 @@ if (!$debug && $get_edsm) {
 	}
 }
 
+print "\n[".epoch2date(time)."] Done.\n";
 exit;
 
 
