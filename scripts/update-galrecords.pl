@@ -261,15 +261,16 @@ $index .= "<table class=\"galrecords recordsnav\"><tr>\n";
 
 $index .= "<td valign=\"top\" style=\"text-align:left;\"><B>System Attributes</B><p/><ul>\n";
 foreach my $v (sort keys %systemvars) {
-	next if (!$v || $v=~/^\s*$/);
+	next if (!$v || $v=~/^\s*$/ || !$vardisplay{$v} || $vardisplay{$v}=~/^\s*$/);
+	my $disp = $vardisplay{$v} ? $vardisplay{$v} : $v;
 	my $fn = '/records/'.make_filename($v);
-	$index .= "<li><a href=\"$fn#details\">$vardisplay{$v}</a></li>\n";
+	$index .= "<li><a href=\"$fn#details\">$disp</a></li>\n";
 }
 $index .= "</ul></td>\n";
 $index .= "<td>\&nbsp;\&nbsp;\&nbsp;</td>\n";
 $index .= "<td valign=\"top\" style=\"text-align:left;\"><B>Planet Attributes</B><p/><ul>\n";
 foreach my $v (sort keys %planetvars) {
-	next if (!$v || $v=~/^\s*$/);
+	next if (!$v || $v=~/^\s*$/ || !$vardisplay{$v} || $vardisplay{$v}=~/^\s*$/);
 	my $fn = '/records/'.make_filename($v);
 	$both{$v} = 1 if (exists($starvars{$v}));
 	$index .= "<li><a href=\"$fn#details\">$vardisplay{$v}</a></li>\n" if (!$both{$v});
@@ -278,7 +279,7 @@ $index .= "</ul></td>\n";
 $index .= "<td>\&nbsp;\&nbsp;\&nbsp;</td>\n";
 $index .= "<td valign=\"top\" style=\"text-align:left;\"><B>Star Attributes</B><p/><ul>\n";
 foreach my $v (sort keys %starvars) {
-	next if (!$v || $v=~/^\s*$/);
+	next if (!$v || $v=~/^\s*$/ || !$vardisplay{$v} || $vardisplay{$v}=~/^\s*$/);
 	my $fn = '/records/'.make_filename($v);
 	$both{$v} = 1 if (exists($planetvars{$v}));
 	$index .= "<li><a href=\"$fn#details\">$vardisplay{$v}</a></li>\n" if (!$both{$v});
@@ -287,7 +288,7 @@ $index .= "</ul></td>\n";
 $index .= "<td>\&nbsp;\&nbsp;\&nbsp;</td>\n";
 $index .= "<td valign=\"top\" style=\"text-align:left;\"><B>Star/Planet Attributes</B><p/><ul>\n";
 foreach my $v (sort keys %both) {
-	next if (!$v || $v=~/^\s*$/);
+	next if (!$v || $v=~/^\s*$/ || !$vardisplay{$v} || $vardisplay{$v}=~/^\s*$/);
 	my $fn = '/records/'.make_filename($v);
 	$index .= "<li><a href=\"$fn#details\">$vardisplay{$v}</a></li>\n";
 }
