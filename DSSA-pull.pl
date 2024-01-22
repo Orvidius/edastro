@@ -21,8 +21,8 @@ show_queries(0);
 
 my $te = undef;
 
-my $url  = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTevQUcLThqo4emXE4nowJeasI07gFio4fETwevAXKIA18NhlDzbnZzRMVUOAT26OROfHG7fCXvTLgY/pubhtml?gid=0&single=true';
-my $html = get $url;
+#my $url  = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTevQUcLThqo4emXE4nowJeasI07gFio4fETwevAXKIA18NhlDzbnZzRMVUOAT26OROfHG7fCXvTLgY/pubhtml?gid=0&single=true';
+#my $html = get $url;
 
 system('wget -O DSSA.csv "https://docs.google.com/spreadsheets/d/1aiWGXeFUojFnDkBG9UezKqZUMWZZCjYKO0Fj028fI_E/gviz/tq?tqx=out:csv&sheet=DSSA"') if (!@ARGV);
 
