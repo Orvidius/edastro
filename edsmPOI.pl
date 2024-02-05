@@ -639,33 +639,38 @@ while (<CSV>) {
 		next if ($v[$col{CARRIERNAME}] !~ /\S/ && $v[$col{CALLSIGN}] !~ /\S/);
                 warn "STAR CARRIER[$id]: ".join(' +|+ ', @v), "\n";
 
-                $carrier{$id}{callsign} = uc($v[$col{CALLSIGN}]);
-                $carrier{$id}{callsign} = "STAR#$id" if (!$carrier{$id}{callsign});
-                $carrier{$id}{name} = $v[$col{CARRIERNAME}];
-                $carrier{$id}{num} = $id;
-                $carrier{$id}{system} = $v[$col{DEPLOY}];
-                $carrier{$id}{current} = $v[$col{CURRENT}];
-                $carrier{$id}{color} = $v[$col{COLOUR}];
-                $carrier{$id}{url} = btrim($v[$col{URL}]);
-                $carrier{$id}{tonnage} = $v[$col{TONNAGE}];
-                $carrier{$id}{price} = $v[$col{PRICE}];
+		my ($x,$y,$z,$e) = system_coordinates($v[$col{DEPLOY}]);
+		next if (!defined($x) || !defined($z));
+
+		my $pixel = floor($x/10).'x'.floor($z);
+
+                $carrier{$pixel}{$id}{callsign} = uc($v[$col{CALLSIGN}]);
+                $carrier{$pixel}{$id}{callsign} = "STAR#$id" if (!$carrier{$pixel}{$id}{callsign});
+                $carrier{$pixel}{$id}{name} = $v[$col{CARRIERNAME}];
+                $carrier{$pixel}{$id}{num} = $id;
+                $carrier{$pixel}{$id}{system} = $v[$col{DEPLOY}];
+                $carrier{$pixel}{$id}{current} = $v[$col{CURRENT}];
+                $carrier{$pixel}{$id}{color} = $v[$col{COLOUR}];
+                $carrier{$pixel}{$id}{url} = btrim($v[$col{URL}]);
+                $carrier{$pixel}{$id}{tonnage} = $v[$col{TONNAGE}];
+                $carrier{$pixel}{$id}{price} = $v[$col{PRICE}];
 
 		if ($v[$col{UPDATE}] =~ /(\d+)/) {
-			$carrier{$id}{updated} = epoch2date($1);
+			$carrier{$pixel}{$id}{updated} = epoch2date($1);
 		}
 
-		$carrier{$id}{tonnage} =~ s/,+//;
-		$carrier{$id}{price} =~ s/,+//;
+		$carrier{$pixel}{$id}{tonnage} =~ s/,+//;
+		$carrier{$pixel}{$id}{price} =~ s/,+//;
 
-		$carrier{$id}{owner} =~ s/[^\x00-\x7f]//g;
-                $carrier{$id}{name} =~ s/[^\x00-\x7f]//g;
+		$carrier{$pixel}{$id}{owner} =~ s/[^\x00-\x7f]//g;
+                $carrier{$pixel}{$id}{name} =~ s/[^\x00-\x7f]//g;
 
 		#my @rows = db_mysql('elite',"select systemId64,systemName from carriers where callsign=? and LastEvent>=date_sub(NOW(),interval 2 month)",[($carrier{$id}{callsign})]);
-		my @rows = db_mysql('elite',"select systemId64,systemName from carriers where callsign=?",[($carrier{$id}{callsign})]);
-		if (!@rows || lc(${$rows[0]}{systemName}) ne lc($carrier{$id}{system})) {
+		my @rows = db_mysql('elite',"select systemId64,systemName from carriers where callsign=?",[($carrier{$pixel}{$id}{callsign})]);
+		if (!@rows || lc(${$rows[0]}{systemName}) ne lc($carrier{$pixel}{$id}{system})) {
 			warn "STAR CARRIER[$id]: Carrier not found in correct place.\n";
-			#delete $carrier{$id};
-			$carrier{$id}{color} = 'white' if ($carrier{$id}{color} !~ /purple/i);
+			#delete $carrier{$pixel}{$id};
+			$carrier{$pixel}{$id}{color} = 'white' if ($carrier{$id}{color} !~ /purple/i);
 		}
 	}
 }
@@ -673,67 +678,81 @@ close CSV;
 
 warn "STAR carriers: ".int(keys(%carrier))."\n";
 
-foreach my $id (sort {$a <=> $b} keys %carrier) {
-	my $displayName = "$carrier{$id}{name} [$carrier{$id}{callsign}]";
-	$displayName =~ s/\s+$//s;
-	$displayName =~ s/^\s+//s;
-	my $type = 'STARcarrier';	# white
+my $count = 0;
+foreach my $pixel (sort {$a <=> $b} keys %carrier) {
+	my ($markertype,$markerdisplay,$marker_x,$marker_y,$marker_z,$markersystem,$markertext) = undef;
 
-	$type = 'STARred' if ($carrier{$id}{color}=~/red/i);
-	$type = 'STARgreen' if ($carrier{$id}{color}=~/green/i);
-	$type = 'STARyellow' if ($carrier{$id}{color}=~/yellow/i);
-	$type = 'STARpurple' if ($carrier{$id}{color}=~/purple/i);
-	$type = 'STARcyan' if ($carrier{$id}{color}=~/cyan|blue/i);
+	foreach my $id (sort {$a <=> $b} keys %{$carrier{$pixel}}) {
+		my $displayName = "$carrier{$pixel}{$id}{name} [$carrier{$pixel}{$id}{callsign}]";
+		$displayName =~ s/\s+$//s;
+		$displayName =~ s/^\s+//s;
+		my $type = 'STARcarrier';	# white
 
-	my ($x,$y,$z,$e) = system_coordinates($carrier{$id}{system});
-	$n = $carrier{$id}{system};
-	$e = "+/- $e" if ($e);
-	$e = '' if (!$e);
-	
-	if ($type eq 'STARunknown' || !defined($x) || !defined($y) || !defined($z)) {
-		$type = 'STARunknown';
-		$x = $unknown_x;
-		$y = 0;
-		$z = $unknown_y;
-		$unknown_x += 1000;
-	}
+		$type = 'STARred' if ($carrier{$pixel}{$id}{color}=~/red/i);
+		$type = 'STARgreen' if ($carrier{$pixel}{$id}{color}=~/green/i);
+		$type = 'STARyellow' if ($carrier{$pixel}{$id}{color}=~/yellow/i);
+		$type = 'STARpurple' if ($carrier{$pixel}{$id}{color}=~/purple/i);
+		$type = 'STARcyan' if ($carrier{$pixel}{$id}{color}=~/cyan|blue/i);
 
-	$carrier{$id}{url} =~ s/\s+$//s;
-
-	my $status = 'Unknown';
-	$status = 'High Reserves' if ($type =~ /green/i);
-	$status = 'Moderate Reserves' if ($type =~ /yellow/i);
-	$status = 'Low Reserves' if ($type =~ /red/i);
-	$status = 'Restock Underway' if ($type =~ /cyan/i);
-	$status = 'Anomalous' if ($type =~ /purple/i);
-	$status = "Status: $status";
-
-	my $links = '';
-	$links .= "+|+Tonnage: $carrier{$id}{tonnage} (price: $carrier{$id}{price})" if ($carrier{$id}{tonnage} && $carrier{$id}{price});
-	$links .= "+|+Updated: $carrier{$id}{updated}" if ($carrier{$id}{updated});
-	$links .= "+|+(<a href=\"$carrier{$id}{url}\">Carrier info link</a>)" if ($carrier{$id}{url});
-
-	my $add = '';
-
-	if ($carrier{$id}{current} && lc(btrim($carrier{$id}{current})) ne lc(btrim($carrier{$id}{system}))) {
-		$add = " (NOT PRESENT)";
-
-		print join("\t|\t","STARtmp","STAR0$id",$displayName.$add,$x,$y,$z,$n,undef,"$status$links")."\n";
-		print OUT make_csv("STARtmp","STAR0$id",$displayName.$add,$x,$y,$z,$n,"$status$links")."\r\n";
-
-		($x,$y,$z,$e) = system_coordinates($carrier{$id}{current});
-		$n = $carrier{$id}{current};
+		my ($x,$y,$z,$e) = system_coordinates($carrier{$pixel}{$id}{system});
+		$n = $carrier{$pixel}{$id}{system};
 		$e = "+/- $e" if ($e);
 		$e = '' if (!$e);
+		
+		if ($type eq 'STARunknown' || !defined($x) || !defined($y) || !defined($z)) {
+			$type = 'STARunknown';
+			$x = $unknown_x;
+			$y = 0;
+			$z = $unknown_y;
+			$unknown_x += 1000;
+		}
 
-		print join("\t|\t",$type,"STAR0${id}REAL",$displayName." (CURRENT LOCATION)",$x,$y,$z,$n,undef,"$status$links")."\n";
-		print OUT make_csv($type,"STAR0${id}REAL",$displayName." (CURRENT LOCATION)",$x,$y,$z,$n,"$status$links")."\r\n";
+		$carrier{$pixel}{$id}{url} =~ s/\s+$//s;
 
-	} else {
-		print join("\t|\t",$type,"STAR0$id",$displayName,$x,$y,$z,$n,undef,"$status$links")."\n";
-		print OUT make_csv($type,"STAR0$id",$displayName,$x,$y,$z,$n,"$status$links")."\r\n";
+		my $status = 'Unknown';
+		$status = 'High Reserves' if ($type =~ /green/i);
+		$status = 'Moderate Reserves' if ($type =~ /yellow/i);
+		$status = 'Low Reserves' if ($type =~ /red/i);
+		$status = 'Restock Underway' if ($type =~ /cyan/i);
+		$status = 'Anomalous' if ($type =~ /purple/i);
+		$status = "Status: $status";
+
+		my $links = '';
+		$links .= "+|+Tonnage: $carrier{$pixel}{$id}{tonnage} (price: $carrier{$pixel}{$id}{price})" if ($carrier{$pixel}{$id}{tonnage} && $carrier{$pixel}{$id}{price});
+		$links .= "+|+Updated: $carrier{$pixel}{$id}{updated}" if ($carrier{$pixel}{$id}{updated});
+		$links .= "+|+(<a href=\"$carrier{$pixel}{$id}{url}\">Carrier info link</a>)" if ($carrier{$pixel}{$id}{url});
+
+		my $add = '';
+
+		if ($carrier{$pixel}{$id}{current} && lc(btrim($carrier{$pixel}{$id}{current})) ne lc(btrim($carrier{$pixel}{$id}{system}))) {
+			$add = " (NOT PRESENT)";
+
+			print join("\t|\t","STARtmp","STAR0$id",$displayName.$add,$x,$y,$z,$n,undef,"$status$links")."\n";
+			print OUT make_csv("STARtmp","STAR0$id",$displayName.$add,$x,$y,$z,$n,"$status$links")."\r\n";
+
+			($x,$y,$z,$e) = system_coordinates($carrier{$pixel}{$id}{current});
+			$n = $carrier{$pixel}{$id}{current};
+			$e = "+/- $e" if ($e);
+			$e = '' if (!$e);
+
+			#my $linecoords = sprintf("%.02f/%.02f/%.02f",$x,$y,$z);
+			my $linecoords = "0/0/0";
+
+			print join("\t|\t",$type,"STAR0${id}REAL",$displayName." (CURRENT LOCATION)",$x,$y,$z,$n,undef,"$status$links",$linecoords)."\n";
+			print OUT make_csv($type,"STAR0${id}REAL",$displayName." (CURRENT LOCATION)",$x,$y,$z,$n,"$status$links",$linecoords)."\r\n";
+
+		} else {
+			print join("\t|\t",$type,"STAR0$id",$displayName,$x,$y,$z,$n,undef,"$status$links")."\n";
+			print OUT make_csv($type,"STAR0$id",$displayName,$x,$y,$z,$n,"$status$links")."\r\n";
+		}
+		
 	}
-	
+	if (defined($markertype) && defined($markerdisplay) && defined($marker_x) && defined($marker_z) && defined($markertext)) {
+		# Consolidated output, stubbed out, does not cooperate with marker lines
+		$count++;
+		print join("\t|\t",$markertype,"STAR0$count",$markerdisplay,$marker_x,$marker_y,$marker_z,$markersystem,undef,$markertext)."\n";
+		print OUT make_csv($markertype,"STAR0$count",$markerdisplay,$marker_x,$marker_y,$marker_z,$markersystem,$markertext)."\r\n";
+	}
 }
 %carrier = ();
 

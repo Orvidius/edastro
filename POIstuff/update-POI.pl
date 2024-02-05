@@ -225,6 +225,8 @@ sub add_EDSM {
 
 		#print "Checking: ".join(';',@v)."\n";
 
+		my ($line_x,$line_y,$line_z) = (undef,undef,undef);
+
 		if (@v>1) {
 			$hash{type}	= $v[0];
 			$hash{id}	= $v[1];
@@ -235,6 +237,12 @@ sub add_EDSM {
 			$hash{mapref}	= $v[6];
 			$hash{pin}	= $v[7];
 			$hash{extra}	= $v[8];
+			
+			if ($v[9] =~ /^\s*([\d\.\-]+)\/([\d\.\-]+)\/([\d\.\-]+)\s*$/) {
+				$line_x = $1;
+				$line_y = $2;
+				$line_z = $3;
+			}
 
 			$hash{name}	= $override{$hash{id}} if ($override{$hash{id}});
 
@@ -392,13 +400,25 @@ sub add_EDSM {
 			next if (!defined($hash{x}) || !defined($hash{y}) || !defined($hash{z}));
 			next if ($hash{x} eq '' || $hash{y} eq ''  || $hash{z} eq '');
 
+			my @params = split(',',$pin);
+
+
+			if (defined($line_x) && defined($line_y) && defined($line_z)) {
+
+				for (my $i=0; $i<3; $i++) {
+					$params[$i] = undef if (!defined($params[$i]));	# Making sure they're at least there.
+				}
+
+				@{$params[3]} = ($line_x+0,$line_y+0,$line_z+0) 
+			}
+
 			push @{$coordsdone{floor($hash{x})}{floor($hash{z})}},
-				addMarker(\%list, $d, $hash{x},$hash{y},$hash{z},"$note$hash{name}$ref",split(',',$pin));
+				addMarker(\%list, $d, $hash{x},$hash{y},$hash{z},"$note$hash{name}$ref",@params);
 
 			if ($pin =~ /'PN'|'M'/) {
-					addMarker(\%list2, $d, $hash{x},$hash{y},$hash{z},"$note$hash{name}$ref",split(',',$pin));
+					addMarker(\%list2, $d, $hash{x},$hash{y},$hash{z},"$note$hash{name}$ref",@params);
 			} else {
-					addMarker(\%list1, $d, $hash{x},$hash{y},$hash{z},"$note$hash{name}$ref",split(',',$pin));
+					addMarker(\%list1, $d, $hash{x},$hash{y},$hash{z},"$note$hash{name}$ref",@params);
 			}
 		} else {
 			print "Skipping (via type) $hash{type}($hash{pin}) \"$hash{mapref}\ ($hash{name}) #$hash{id}\n";
@@ -412,7 +432,10 @@ sub addMarker {
 	my @p = @_;
 
 	for (my $i=0;$i<@p;$i++) {
-		if (length($p[$i]) && $p[$i] =~ /^[\d\.\-]+$/) {
+		if (!defined($p[$i]) || ref($p[$i]) eq 'ARRAY') {
+			next;
+
+		} elsif (length($p[$i]) && $p[$i] =~ /^[\d\.\-]+$/) {
 			$p[$i] += 0; # Force numeric 
 		} else {
 			$p[$i] =~ s/\\n/\n/gs;
@@ -431,7 +454,17 @@ sub addMarker {
 
 	if (@p > 3) {
 		for (my $i=3;$i<@p;$i++) {
-			$p[$i] = "\"$p[$i]\"" if ($p[$i] =~ /[^\d\.\-\+]/ && $p[$i] !~ /^'.+'$/);
+			if (ref($p[$i]) eq 'ARRAY') {
+
+				$p[$i] = "[".join(',',@{$p[$i]})."]";
+
+			} elsif (defined($p[$i])) {
+
+				$p[$i] = "\"$p[$i]\"" if ($p[$i] =~ /[^\d\.\-\+]/ && $p[$i] !~ /^'.+'$/);
+
+			} else {
+				$p[$i] = "null";
+			}
 		}
 	}
 
