@@ -225,7 +225,7 @@ sub add_EDSM {
 
 		#print "Checking: ".join(';',@v)."\n";
 
-		my ($line_x,$line_y,$line_z) = (undef,undef,undef);
+		my ($line_x,$line_y,$line_z,$line_col) = (undef,undef,undef,undef);
 
 		if (@v>1) {
 			$hash{type}	= $v[0];
@@ -238,10 +238,11 @@ sub add_EDSM {
 			$hash{pin}	= $v[7];
 			$hash{extra}	= $v[8];
 			
-			if ($v[9] =~ /^\s*([\d\.\-]+)\/([\d\.\-]+)\/([\d\.\-]+)\s*$/) {
-				$line_x = $1;
-				$line_y = $2;
-				$line_z = $3;
+			if ($v[9] =~ /^\s*([\d\.\-]+)\/([\d\.\-]+)\/([\d\.\-]+)(\/([\da-fA-F]+))?\s*$/) {
+				$line_x   = $1;
+				$line_y   = $2;
+				$line_z   = $3;
+				$line_col = $5;
 			}
 
 			$hash{name}	= $override{$hash{id}} if ($override{$hash{id}});
@@ -409,7 +410,7 @@ sub add_EDSM {
 					$params[$i] = undef if (!defined($params[$i]));	# Making sure they're at least there.
 				}
 
-				@{$params[3]} = ($line_x+0,$line_y+0,$line_z+0) 
+				@{$params[3]} = ($line_x+0,$line_y+0,$line_z+0,$line_col) 
 			}
 
 			push @{$coordsdone{floor($hash{x})}{floor($hash{z})}},

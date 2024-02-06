@@ -678,6 +678,8 @@ close CSV;
 
 warn "STAR carriers: ".int(keys(%carrier))."\n";
 
+my $consolidate = 1;
+
 my $count = 0;
 foreach my $pixel (sort {$a <=> $b} keys %carrier) {
 	my ($markertype,$markerdisplay,$marker_x,$marker_y,$marker_z,$markersystem,$markertext) = undef;
@@ -727,8 +729,23 @@ foreach my $pixel (sort {$a <=> $b} keys %carrier) {
 		if ($carrier{$pixel}{$id}{current} && lc(btrim($carrier{$pixel}{$id}{current})) ne lc(btrim($carrier{$pixel}{$id}{system}))) {
 			$add = " (NOT PRESENT)";
 
-			print join("\t|\t","STARtmp","STAR0$id",$displayName.$add,$x,$y,$z,$n,undef,"$status$links")."\n";
-			print OUT make_csv("STARtmp","STAR0$id",$displayName.$add,$x,$y,$z,$n,"$status$links")."\r\n";
+			if (!$consolidate) {
+				# Draw pin directly, no consolidation
+				print join("\t|\t","STARtmp","STAR0$id",$displayName.$add,$x,$y,$z,$n,undef,"$status$links")."\n";
+				print OUT make_csv("STARtmp","STAR0$id",$displayName.$add,$x,$y,$z,$n,"$status$links")."\r\n";
+			} else {	
+				# Consolidate pins
+				if (!$markerdisplay && !$markersystem) {
+					$markertype = "STARtmp";
+					$markerdisplay = $displayName.$add;
+					$marker_x = $x; $marker_y = $y; $marker_z = $z;
+					$markersystem = $n;
+					$markertext = "$status$links";
+				} else {
+					my $s = uc($markersystem) eq uc($n) ? '' : " -- $n";
+					$markertext .= "+|++|+$displayName$add$s+|+$status$links";
+				}
+			}
 
 			($x,$y,$z,$e) = system_coordinates($carrier{$pixel}{$id}{current});
 			$n = $carrier{$pixel}{$id}{current};
@@ -736,18 +753,38 @@ foreach my $pixel (sort {$a <=> $b} keys %carrier) {
 			$e = '' if (!$e);
 
 			#my $linecoords = sprintf("%.02f/%.02f/%.02f",$x,$y,$z);
-			my $linecoords = "0/0/0";
+			my $linecoords = "0/0/0/f0f";
 
 			print join("\t|\t",$type,"STAR0${id}REAL",$displayName." (CURRENT LOCATION)",$x,$y,$z,$n,undef,"$status$links",$linecoords)."\n";
 			print OUT make_csv($type,"STAR0${id}REAL",$displayName." (CURRENT LOCATION)",$x,$y,$z,$n,"$status$links",$linecoords)."\r\n";
 
 		} else {
-			print join("\t|\t",$type,"STAR0$id",$displayName,$x,$y,$z,$n,undef,"$status$links")."\n";
-			print OUT make_csv($type,"STAR0$id",$displayName,$x,$y,$z,$n,"$status$links")."\r\n";
+			if (!$consolidate) {
+				# Draw pin directly, no consolidation
+				print join("\t|\t",$type,"STAR0$id",$displayName,$x,$y,$z,$n,undef,"$status$links")."\n";
+				print OUT make_csv($type,"STAR0$id",$displayName,$x,$y,$z,$n,"$status$links")."\r\n";
+			} else {	
+				# Consolidate pins
+				if (!$markerdisplay && !$markersystem) {
+					$markertype = $type;
+					$markerdisplay = $displayName;
+					$marker_x = $x; $marker_y = $y; $marker_z = $z;
+					$markersystem = $n;
+					$markertext = "$status$links";
+				} else {
+					my $s = uc($markersystem) eq uc($n) ? '' : " -- $n";
+					$markertext .= "+|++|+$displayName$s+|+$status$links";
+					$markertype = $type if ($type =~ /green/);
+					$markertype = $type if ($type =~ /yellow/ && $markertype !~ /(green)/);
+					$markertype = $type if ($type =~ /red/    && $markertype !~ /(green|yellow)/);
+					$markertype = $type if ($type =~ /cyan/   && $markertype !~ /(green|yellow|red)/);
+					$markertype = $type if ($type =~ /purple/ && $markertype !~ /(green|yellow|red|cyan)/);
+				}
+			}
 		}
 		
 	}
-	if (defined($markertype) && defined($markerdisplay) && defined($marker_x) && defined($marker_z) && defined($markertext)) {
+	if ($consolidate && defined($markertype) && defined($markerdisplay) && defined($marker_x) && defined($marker_z) && defined($markertext)) {
 		# Consolidated output, stubbed out, does not cooperate with marker lines
 		$count++;
 		print join("\t|\t",$markertype,"STAR0$count",$markerdisplay,$marker_x,$marker_y,$marker_z,$markersystem,undef,$markertext)."\n";
