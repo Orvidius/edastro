@@ -612,6 +612,8 @@ if ($send_updates) {
 	close TXT;
 	system("/usr/bin/scp epoch.dat $sector_target");
 	system("/usr/bin/rsync -Wuvax --delete sectordata/* $rsync_target");
+	system("~bones/elite/cdn-purge.sh https://edastro.b-cdn.net/sectordata/sectorlist.json");
+	system("~bones/elite/cdn-purge.sh https://edastro.b-cdn.net/sectordata/sectorcoords.json");
 }
 
 
