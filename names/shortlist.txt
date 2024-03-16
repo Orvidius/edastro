@@ -57,6 +57,7 @@ LanceHawk
 LancePilot
 NovaFlight	<
 RavenBones
+ShrikeBones
 SolarSwift	<<
 SwiftStorm
 VectorBones	<<<
