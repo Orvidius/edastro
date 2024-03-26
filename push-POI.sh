@@ -20,3 +20,7 @@ cd -
 ~bones/elite/cdn-purge.sh https://edastro.b-cdn.net/galmap/IGAU-carriers.json
 ~bones/elite/cdn-purge.sh https://edastro.b-cdn.net/galmap/DSSA-carriers.json
 ~bones/elite/cdn-purge.sh https://edastro.b-cdn.net/galmap/carriers-DSSA.json
+~bones/elite/cdn-purge.sh https://edastro.b-cdn.net/galmap/edsmPOI.data
+~bones/elite/cdn-purge.sh https://edastro.b-cdn.net/mapcharts/DSSAdisplaced.csv
+~bones/elite/cdn-purge.sh https://edastro.b-cdn.net/mapcharts/edsmPOI.csv
+ssh www@services 'date "+%Y%m%d-%H%M%S" > /www/edastro.com/galmap/POI-timestamp'
