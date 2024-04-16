@@ -19,7 +19,8 @@ cp POIlist.json POIstuff/GEC-POIs.json`date +\%Y\%m`
 /usr/bin/wget -O canonn-challenge.csv "https://docs.google.com/spreadsheets/d/1YJklhwkJFp_Un7n88rlsNS8ELjXSNwT7ncnr8Xot9Tc/gviz/tq?tqx=out:csv"
 #/usr/bin/wget -O STAR-carriers.csv "https://docs.google.com/spreadsheets/d/1oXnyTK9ZzXOvymRxTpxHwrXeTnFn7wKLtIPGQAntEwQ/gviz/tq?tqx=out:csv"
 #/usr/bin/wget -O STAR-carriers.csv "https://docs.google.com/spreadsheets/d/1YDw9u7KbqFCyAOVP5OTOhtNLJKw-7sCuOIj7aAqcJ1s/gviz/tq?tqx=out:csv"
-/usr/bin/wget -O STAR-carriers.csv "https://docs.google.com/spreadsheets/d/1YDw9u7KbqFCyAOVP5OTOhtNLJKw-7sCuOIj7aAqcJ1s/export?format=csv&gid=0"
+#/usr/bin/wget -O STAR-carriers.csv "https://docs.google.com/spreadsheets/d/1YDw9u7KbqFCyAOVP5OTOhtNLJKw-7sCuOIj7aAqcJ1s/export?format=csv&gid=0"
+/usr/bin/wget -O STAR-carriers.csv "https://docs.google.com/spreadsheets/d/1YDw9u7KbqFCyAOVP5OTOhtNLJKw-7sCuOIj7aAqcJ1s/export?format=csv&gid=1404824807"
 
 # from: https://docs.google.com/spreadsheets/d/1hXmRljA5d4PSjzvxI8gqWybAHJZNFYAx/edit#gid=1137410615
 /usr/bin/wget -O pioneerproject.csv "https://docs.google.com/spreadsheets/d/1hXmRljA5d4PSjzvxI8gqWybAHJZNFYAx/gviz/tq?tqx=out:csv"
