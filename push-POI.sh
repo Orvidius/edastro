@@ -23,4 +23,13 @@ cd -
 ~bones/elite/cdn-purge.sh https://edastro.b-cdn.net/galmap/edsmPOI.data
 ~bones/elite/cdn-purge.sh https://edastro.b-cdn.net/mapcharts/DSSAdisplaced.csv
 ~bones/elite/cdn-purge.sh https://edastro.b-cdn.net/mapcharts/edsmPOI.csv
-ssh www@services 'date "+%Y%m%d-%H%M%S" > /www/edastro.com/galmap/POI-timestamp'
+date "+%Y%m%d-%H%M%S" > POIstuff/POI-timestamp
+scp POIstuff/POI-timestamp www@services:/www/edastro.com/galmap/POI-timestamp
+#ssh www@services 'date "+%Y%m%d-%H%M%S" > /www/edastro.com/galmap/POI-timestamp'
+~bones/elite/cdn-purge.sh "https://edastro.b-cdn.net/galmap/POI0.json?`cat POIstuff/POI-timestamp`"
+~bones/elite/cdn-purge.sh "https://edastro.b-cdn.net/galmap/POI1.json?`cat POIstuff/POI-timestamp`"
+~bones/elite/cdn-purge.sh "https://edastro.b-cdn.net/galmap/POI2.json?`cat POIstuff/POI-timestamp`"
+~bones/elite/cdn-purge.sh "https://edastro.b-cdn.net/galmap/POI3.json?`cat POIstuff/POI-timestamp`"
+~bones/elite/cdn-purge.sh "https://edastro.b-cdn.net/galmap/IGAU-carriers.json?`cat POIstuff/POI-timestamp`"
+~bones/elite/cdn-purge.sh "https://edastro.b-cdn.net/galmap/DSSA-carriers.json?`cat POIstuff/POI-timestamp`"
+~bones/elite/cdn-purge.sh "https://edastro.b-cdn.net/galmap/carriers-DSSA.json?`cat POIstuff/POI-timestamp`"
