@@ -599,7 +599,7 @@ my $unknown_x = -45000;
 
 #"Timestamp","Cmdr Name","Email","Preferred communications","Fleet Carrier ID","Fleet Carrier Name","System Deployed","Cmdr Platform","UTC Time Zone","My FC Services","Maximum Available Car go (Tons)","Tritium Market Maximum (Tons)","Tritium Available in Market (Tons)","Email Address","Tritium Required","Buy Orders","Sell Orders"
 
-my @column_patterns = qw(CALLSIGN CARRIERNAME DEPLOY CURRENT COLOUR URL TONNAGE PRICE UPDATE);
+my @column_patterns = qw(CALLSIGN CARRIERNAME DEPLOY CURRENT COLOUR URL TONNAGE PRICE UPDATE ACTIVE);
 my %col  = ();
 my $id = 0;
 my %carrier = ();
@@ -637,6 +637,7 @@ while (<CSV>) {
         } else {
 		$id++;
 		next if ($v[$col{CARRIERNAME}] !~ /\S/ && $v[$col{CALLSIGN}] !~ /\S/);
+		next if ($v[$col{ACTIVE}] && $v[$col{ACTIVE}] !~ /true/i);
                 warn "STAR CARRIER[$id]: ".join(' +|+ ', @v), "\n";
 
 		my ($x,$y,$z,$e) = system_coordinates($v[$col{DEPLOY}]);
@@ -694,7 +695,8 @@ foreach my $pixel (sort {$a <=> $b} keys %carrier) {
 		$type = 'STARgreen' if ($carrier{$pixel}{$id}{color}=~/green/i);
 		$type = 'STARyellow' if ($carrier{$pixel}{$id}{color}=~/yellow/i);
 		$type = 'STARpurple' if ($carrier{$pixel}{$id}{color}=~/purple/i);
-		$type = 'STARcyan' if ($carrier{$pixel}{$id}{color}=~/cyan|blue/i);
+		$type = 'STARblue' if ($carrier{$pixel}{$id}{color}=~/blue/i);
+		$type = 'STARcyan' if ($carrier{$pixel}{$id}{color}=~/cyan/i);
 
 		my ($x,$y,$z,$e) = system_coordinates($carrier{$pixel}{$id}{system});
 		$n = $carrier{$pixel}{$id}{system};
