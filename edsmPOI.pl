@@ -717,7 +717,8 @@ foreach my $pixel (sort {$a <=> $b} keys %carrier) {
 		$status = 'High Reserves' if ($type =~ /green/i);
 		$status = 'Moderate Reserves' if ($type =~ /yellow/i);
 		$status = 'Low Reserves' if ($type =~ /red/i);
-		$status = 'Restock Underway' if ($type =~ /cyan/i);
+		$status = 'Resupply Underway' if ($type =~ /cyan/i);
+		$status = 'Resupply Pending' if ($type =~ /blue/i);
 		$status = 'Anomalous' if ($type =~ /purple/i);
 		$status = "Status: $status";
 
