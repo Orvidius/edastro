@@ -36,7 +36,7 @@ $color{'planetary'}	= "rgb(0,144,224)";
 $color{'planetaryE'}	= "rgb(0,64,128)";
 
 my $scp			= '/usr/bin/scp -P222';
-my $remote_server	= 'www@services:/www/edastro.com/mapcharts/';
+my $remote_server	= 'www@services:/www/edastro.com/mapcharts';
 my $scriptpath		= "/home/bones/elite";
 my $filepath		= "/home/bones/www/elite";
 my $img_path		= "/home/bones/elite/images";
@@ -44,6 +44,8 @@ my $img_path		= "/home/bones/elite/images";
 my $filename_real	= "$scriptpath/nebulae-real.csv";
 my $filename_procgen	= "$scriptpath/nebulae-procgen.csv";
 my $filename_planetary	= "$scriptpath/nebulae-planetary.csv";
+
+my $output_sheet	= "$scriptpath/nebulae-coordinates.csv";
 
 $filepath .= '/test'	if ($0 =~ /\.pl\.\S+/);
 $allow_scp = 0		if ($0 =~ /\.pl\.\S+/);
@@ -74,6 +76,7 @@ open SKIP, ">nebulae-skipped.csv";
 print SKIP "Ref.System,Type,Reason\r\n";
 
 my %nebula = ();
+my %nebulaname = ();
 
 do_csv($filename_real,'real','Ref. System','Nebula Name');
 do_csv($filename_procgen,'procgen','Reference','Nebula Name');
@@ -140,9 +143,12 @@ print "Drawing\n";
 
 my %count = ();
 
+open OUT, ">$output_sheet";
+print OUT make_csv("Name","System","X","Y","Z","Type")."\r\n";
+
 foreach my $plusrad (1,0) {
-	foreach my $refsys (keys %nebula) {
-		my ($x,$y, $xb,$yb, $xr,$yr) = get_coords($refsys);
+	foreach my $refsys (sort { $nebula{$a} cmp $nebula{$b} || lc($nebulaname{$a}) cmp lc($nebulaname{$b}) } keys %nebula) {
+		my ($x,$y, $xb,$yb, $xr,$yr, $xx,$yy,$zz) = get_coords($refsys);
 	
 		if ($x && $y) {
 			my $type = $nebula{$refsys};
@@ -162,7 +168,10 @@ foreach my $plusrad (1,0) {
 			}
 	
 			draw_dots($x,$y, $xb,$yb, $xr,$yr, $radius+$plusrad, $c);
-			print '.';
+			#print '.';
+			print "$nebulaname{$refsys} ($refsys) $xx,$yy,$zz [$type]\n";
+
+			print OUT make_csv($nebulaname{$refsys},$refsys,$xx,$yy,$zz,$type)."\r\n" if ($plusrad);
 	
 			$count{$type}++ if (!$plusrad);
 		} elsif (!$plusrad) {
@@ -172,6 +181,8 @@ foreach my $plusrad (1,0) {
 	}
 }
 print "\n";
+
+close OUT;
 
 sub draw_dots {
 	my ($x,$y, $xb,$yb, $xr,$yr, $radius,$c) = @_;
@@ -262,6 +273,7 @@ my_system("$scp $f $f2 $remote_server/") if (!$debug && $allow_scp);
 close SKIP;
 
 my_system("$scp nebulae-skipped.csv $remote_server/") if (!$debug && $allow_scp);
+my_system("$scp nebulae-coordinates.csv $remote_server/files/") if (!$debug && $allow_scp);
 
 exit;
 
@@ -290,7 +302,9 @@ sub do_csv {
 		chomp;
 		my @v = fix_trim(parse_csv($_));
 		my $ref = '';
+		my $name = '';
 		$ref = $v[$col{ref}] if (defined($col{ref}));
+		$name = $v[$col{name}] if (defined($col{name}));
 
 		print "UNREADABLE: $_\n" if (!defined($col{ref}) || !$ref);
 
@@ -300,6 +314,13 @@ sub do_csv {
 		}
 
 		$nebula{$ref} = $type if ($ref);
+
+		if ($type eq 'planetary') {
+			$nebulaname{$ref} = $ref;
+			$nebulaname{$ref} .= " ($name)" if ($name);
+		} else {
+			$nebulaname{$ref} = $name if ($name);
+		}
 #print join("\t|\t",@v)."\n" if (!$ref);
 	}
 
@@ -339,7 +360,7 @@ sub get_coords {
 		my ($x3,$y3) = ( $size_x+($edge_height/2)+($$r{coord_y}*$size_x/$galsize) , ($galrad+$galcenter_y-$$r{coord_z})*$size_y/$galsize );
 		if ($x3<$size_x || $y3<0 || $x3>$size_x+$edge_height || $y3>$size_y) { $x3 = 0; $y3=0; }
 
-		return ( $x1,$y1, $x2,$y2, $x3,$y3 );
+		return ( $x1,$y1, $x2,$y2, $x3,$y3, $$r{coord_x},$$r{coord_y},$$r{coord_z} );
 	}
 
 	return (0,0,0,0,0,0);
