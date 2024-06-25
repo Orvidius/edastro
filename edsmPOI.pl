@@ -423,6 +423,79 @@ open CSV, "<tritium2.csv";
 close CSV;
 }
 
+
+# Tritium Highway
+my %trit_hwy = ();
+$count = 0;
+print "Tritium Highway: trit_highway.csv\n";
+open CSV, "<trit_highway.csv";
+	my %header = ();
+	my $h = <CSV>; chomp $h;
+	my @v = parse_csv($h);
+	my $n = 0;
+#"SYSTEM","BODY 1","BODY 2","NOTES","QUALITY","HIGHWAY"
+#"DRYOOE PROU WW-H C24-533","A4","","","","COLONIA NORTH"
+#type
+
+	foreach my $s (@v) {
+		$header{system} = $n if ($s =~ /SYSTEM/i);
+		$header{body1} = $n if ($s =~ /Body 1/i);
+		$header{body2} = $n if ($s =~ /Body 2/i);
+		$header{notes} = $n if ($s =~ /notes/i);
+		$header{quality} = $n if ($s =~ /quality/i);
+		$header{highway} = $n if ($s =~ /highway/i);
+		$n++;
+	}
+
+	foreach my $line (<CSV>) {
+		chomp $line;
+		next if (!$line);
+		my @v = parse_csv($line);
+		next if (!@v);
+
+		my @rows = db_mysql('elite',"select coord_x,coord_y,coord_z from systems where name=? and deletionState=0",[($v[$header{system}])]);
+		foreach my $r (@rows) {
+			$x = $$r{coord_x};
+			$y = $$r{coord_y};
+			$z = $$r{coord_z};
+		}
+
+		next if (sqrt($x**2 + $y**2 + $z**2) < 500);
+
+		my $name = $v[$header{highway}].': '.$v[$header{system}];
+
+		if ($x =~ /[^\d\.\-]/ || $y =~ /[^\d\.\-]/ || $z =~ /[^\d\.\-]/ || (!$x && !$y && !$z)) {
+			warn "TRIT SKIPPED: [$count] $v[$header{system}] no coords.\n";
+			next;
+		}
+
+		my $notes = $v[$header{notes}];
+
+		if ($v[$header{quality}]) {
+			$notes = "Quality: $v[$header{quality}]\\n$notes";
+		}
+
+		if ($v[$header{body1}] || $v[$header{body2}]) {
+			my @list = ();
+			push @list, btrim($v[$header{body1}]) if ($v[$header{body1}] =~ /\S+/);
+			push @list, btrim($v[$header{body2}]) if ($v[$header{body2}] =~ /\S+/);
+			$notes = "Body: ".join(', ', @list)."\\n$notes";
+		}
+	
+		if (!$tri{$v[$header{system}]}) {
+			$count++;
+			warn "TRIT FOUND: [$count] $v[$header{system}] ($x,$y,$z)\n";
+			$trit_hwy{$v[$header{system}]} = join("\t|\t",'trit_hwy',$count,$name,$x,$y,$z,$v[$header{system}],undef,$notes);
+			print OUT make_csv('trit_hwy',$count,$name,$x,$y,$z,$v[$header{system}],$notes)."\r\n";
+		} else {
+			# Already in hash
+		}
+		
+	}
+close CSV;
+
+
+
 # CANONN challenge
 
 open CSV, "<canonn-challenge.csv";
@@ -1136,6 +1209,10 @@ foreach my $sys (keys %ggg) {
 
 foreach my $sys (keys %tri) {
 	print "$tri{$sys}\n";
+}
+
+foreach my $sys (keys %trit_hwy) {
+	print "$trit_hwy{$sys}\n";
 }
 
 print "\n";

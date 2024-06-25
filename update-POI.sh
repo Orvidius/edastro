@@ -26,7 +26,7 @@ cp POIlist.json POIstuff/GEC-POIs.json`date +\%Y\%m`
 /usr/bin/wget -O pioneerproject.csv "https://docs.google.com/spreadsheets/d/1hXmRljA5d4PSjzvxI8gqWybAHJZNFYAx/gviz/tq?tqx=out:csv"
 
 # from: https://docs.google.com/spreadsheets/d/1ev9pxVJCHApDEhsXc0mzrgeQqjaIJc2lJw-m3nXCaz8/edit?pli=1#gid=72514601
-/usr/bin/wget -O trit_highway "https://docs.google.com/spreadsheets/d/1ev9pxVJCHApDEhsXc0mzrgeQqjaIJc2lJw-m3nXCaz8/gviz/tq?tqx=out:csv&gid=72514601"
+/usr/bin/wget -O trit_highway.csv "https://docs.google.com/spreadsheets/d/1ev9pxVJCHApDEhsXc0mzrgeQqjaIJc2lJw-m3nXCaz8/gviz/tq?tqx=out:csv&gid=72514601"
 
 ./DSSA-pull.pl 
 ./push-POI.sh
