@@ -246,6 +246,7 @@ my %heightgraphA = ();
 my %habitable = ();
 my %hrdata = ();
 my %highest_value = ();
+my %sectormetals = ();
 my %sectorplanets = ();
 my %systemplanets = ();
 my %system_vector = ();
@@ -490,6 +491,32 @@ sub graph_body {
 		$datedata{perday}{$b_days_ago}{stars}++ if ($$body{star});	# Iterates each body only once, so tally
 		$datedata{perday}{$b_days_ago}{planets}++ if (!$$body{star});
 	}
+
+
+	# Helium and metallicity distribution
+
+	if ($$r{name} =~ /^(\S+.*\S+)\s+[A-Z][A-Z]\-[A-Z] ([a-z])/) {
+		my $sector = $1;
+		my $masscode = uc($2);
+		my $mainstartype = abbreviate_star($$r{type});
+
+		if ($gfile{sectormassmetals} && $masscode) {
+			$sectormetals{sectormassmetals}{$sector}{$masscode}{mt} += $$body{metals};
+			$sectormetals{sectormassmetals}{$sector}{$masscode}{ht} += $$body{h};
+			$sectormetals{sectormassmetals}{$sector}{$masscode}{het} += $$body{he};
+			$sectormetals{sectormassmetals}{$sector}{$masscode}{b}++;
+			$sectormetals{sectormassmetals}{$sector}{$masscode}{m} = 
+				$sectormetals{sectormassmetals}{$sector}{$masscode}{mt} / 
+				$sectormetals{sectormassmetals}{$sector}{$masscode}{b};
+			$sectormetals{sectormassmetals}{$sector}{$masscode}{h} = 
+				$sectormetals{sectormassmetals}{$sector}{$masscode}{ht} / 
+				$sectormetals{sectormassmetals}{$sector}{$masscode}{b};
+			$sectormetals{sectormassmetals}{$sector}{$masscode}{he} = 
+				$sectormetals{sectormassmetals}{$sector}{$masscode}{het} / 
+				$sectormetals{sectormassmetals}{$sector}{$masscode}{b};
+		}
+	}
+
 
 	# Valuable Planet Distribution
 
@@ -2041,6 +2068,24 @@ sub get_bodies {
 	}
 	print "No planets returned\n" if (($debug || $verbose) && !@rows);
 
+
+	my %atmo = ();
+	my @planet_ids = ();
+
+	foreach my $r (@rows) {
+		push @planet_ids, $$r{localID} if ($$r{subType} =~ /giant/i);
+	}
+
+	if (@planet_ids) {
+
+		my @atmos =  db_mysql('elite',"select planet_id as id,helium as he,hydrogen as h from atmospheres where planet_id in (".join(@planet_ids).")");
+		foreach my $r (@atmos) {
+			$atmo{$$r{id}} = $r;
+			delete($atmo{$$r{id}}{id});
+		}
+	}
+	
+
 	foreach my $r (@rows) {
 		my $class = '';
 		my $subType = $$r{subType};
@@ -2064,6 +2109,12 @@ sub get_bodies {
 		$class = 'ROCKY' if ($subType =~ /Rocky body/i);
 		$class = 'ROCKICE' if ($subType =~ /Rocky Ice/i);
 		$class = 'potato' if (!$class);
+
+		if ($atmo{$$r{localID}}{he} && $atmo{$$r{localID}}{h}) {
+			$$r{he} = $atmo{$$r{localID}}{he};
+			$$r{h}  = $atmo{$$r{localID}}{h};
+			$$r{metals} = 100-($$r{he}+$$r{h});
+		}
 		
 		print "! Unused planet type: [".$$r{systemId64}."] $subType\n" if (!$class);
 
