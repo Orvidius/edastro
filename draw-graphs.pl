@@ -26,7 +26,7 @@ my $allow_scp		= 1;
 my $id_add		= 10**12;
 
 my $chunk_size		= 5000;
-my $debug_stars		= 100000;
+my $debug_stars		= 200000;
 my $debug_limit		= '';
 my $debug_and		= '';
 #   $debug_limit		= "order by coord_z limit $debug_stars" if ($debug);
@@ -58,11 +58,12 @@ my @perdaytypes		= qw(bodiespersystem newfinds);
 my @zonetypes		= qw();
 
 
-$gfile{bodiespersystem}	= "$filepath/bodiespersystem.png";
-$gfile{newfinds}	= "$filepath/newfinds.png";
+$gfile{sectormassmetals}= "$filepath/sectormassmetals.png";
 
 if (!$skip_all) {
 
+$gfile{bodiespersystem}	= "$filepath/bodiespersystem.png";
+$gfile{newfinds}	= "$filepath/newfinds.png";
 $gfile{heightgraph2W}	= "$filepath/heightgraph2W.png";
 $gfile{radialdistance}	= "$filepath/radialdistance.png";
 $gfile{systemmassplanets}	= "$filepath/systemmassplanets.png";
@@ -205,20 +206,32 @@ my %colorclass	= ();
 @{$colorclass{GG4}}	= (220,160,80);
 @{$colorclass{GG5}}	= (225,150,50);
 
-my %sectormasscolor	= ();
-@{$sectormasscolor{AW}}		= (255,255,0);
-@{$sectormasscolor{WW}}		= (80,80,255);
-@{$sectormasscolor{TWW}}	= (0,255,255);
-@{$sectormasscolor{ELW}}	= (0,255,0);
-@{$sectormasscolor{TFC}}	= (255,0,255);
-my @sectormasstypes = qw(WW TWW TFC ELW AW);
+my %sectormassplanetscolor	= ();
+@{$sectormassplanetscolor{AW}}		= (255,255,0);
+@{$sectormassplanetscolor{WW}}		= (80,80,255);
+@{$sectormassplanetscolor{TWW}}	= (0,255,255);
+@{$sectormassplanetscolor{ELW}}	= (0,255,0);
+@{$sectormassplanetscolor{TFC}}	= (255,0,255);
+my @sectormassplanetstypes = qw(WW TWW TFC ELW AW);
 
-my %sectormasskey = ();
-$sectormasskey{AW} = 'Ammonia world';
-$sectormasskey{WW} = 'Water world (non terraformable)';
-$sectormasskey{TWW} = 'Terraformable Water world';
-$sectormasskey{ELW} = 'Earth-like world';
-$sectormasskey{TFC} = 'Terraformable (other)';
+my %sectormassplanetskey = ();
+$sectormassplanetskey{AW} = 'Ammonia world';
+$sectormassplanetskey{WW} = 'Water world (non terraformable)';
+$sectormassplanetskey{TWW} = 'Terraformable Water world';
+$sectormassplanetskey{ELW} = 'Earth-like world';
+$sectormassplanetskey{TFC} = 'Terraformable (other)';
+
+my %sectormassmetalscolor      = ();
+@{$sectormassmetalscolor{H}}   = (255,255,0);
+@{$sectormassmetalscolor{He}}   = (0,255,255);
+@{$sectormassmetalscolor{Metals}} = (255,0,0);
+my @sectormassmetalstypes = qw(H He Metals);
+
+my %sectormassmetalskey = ();
+$sectormassmetalskey{H} = 'Hydrogen';
+$sectormassmetalskey{He} = 'Helium';
+$sectormassmetalskey{Metals} = 'Metals x0100';
+
 
 my $max_heat            = 9;
 my @heatcolor           = ();
@@ -500,20 +513,21 @@ sub graph_body {
 		my $masscode = uc($2);
 		my $mainstartype = abbreviate_star($$r{type});
 
-		if ($gfile{sectormassmetals} && $masscode) {
+		if ($gfile{sectormassmetals} && $masscode && ($$body{h} || $$body{he})) {
 			$sectormetals{sectormassmetals}{$sector}{$masscode}{mt} += $$body{metals};
 			$sectormetals{sectormassmetals}{$sector}{$masscode}{ht} += $$body{h};
 			$sectormetals{sectormassmetals}{$sector}{$masscode}{het} += $$body{he};
 			$sectormetals{sectormassmetals}{$sector}{$masscode}{b}++;
-			$sectormetals{sectormassmetals}{$sector}{$masscode}{m} = 
+			$sectormetals{sectormassmetals}{$sector}{$masscode}{Metals} = 1000 *  
 				$sectormetals{sectormassmetals}{$sector}{$masscode}{mt} / 
 				$sectormetals{sectormassmetals}{$sector}{$masscode}{b};
-			$sectormetals{sectormassmetals}{$sector}{$masscode}{h} = 
+			$sectormetals{sectormassmetals}{$sector}{$masscode}{H} = 
 				$sectormetals{sectormassmetals}{$sector}{$masscode}{ht} / 
 				$sectormetals{sectormassmetals}{$sector}{$masscode}{b};
-			$sectormetals{sectormassmetals}{$sector}{$masscode}{he} = 
+			$sectormetals{sectormassmetals}{$sector}{$masscode}{He} = 
 				$sectormetals{sectormassmetals}{$sector}{$masscode}{het} / 
 				$sectormetals{sectormassmetals}{$sector}{$masscode}{b};
+#warn "$sector [$masscode] H:$$body{h}, He:$$body{he}, Metals:$$body{metals}\n";
 		}
 	}
 
@@ -1193,7 +1207,7 @@ sub draw_graphs {
 
 	# Sector/System Mass/MainStar Valuable Planets Distribution:
 
-	foreach my $graphtype (qw(sectorstarplanets sectormassplanets systemstarplanets systemmassplanets)) {
+	foreach my $graphtype (qw(sectorstarplanets sectormassplanets systemstarplanets systemmassplanets sectormassmetals)) {
 		next if (!$gfile{$graphtype});
 		my $fn = $gfile{$graphtype};
 
@@ -1215,7 +1229,17 @@ sub draw_graphs {
 		}
 
 		my $scale_type = 'log';
-		$scale_type = 'linear' if ($graphtype =~ /^system/);
+		$scale_type = 'linear' if ($graphtype =~ /^system/ || $graphtype eq 'sectormassmetals');
+
+		if ($graphtype eq 'sectormassmetals') {
+			$size_x = 1020;
+			$size_y = 600;
+			$startx = 10;
+			$margin = 50;
+			$bottom_add = 200;
+			$top_add = 70;
+			$left_add = 50;
+		}
 
 		if ($graphtype eq 'sectormassplanets' || $graphtype eq 'systemmassplanets') {
 			$size_x = 1120;
@@ -1236,6 +1260,10 @@ sub draw_graphs {
 			$top_add = 70;
 			$left_add = 50;
 		}
+
+		my @sectormasstypes = $graphtype eq 'sectormassmetals' ? @sectormassmetalstypes : @sectormassplanetstypes;
+		my %sectormasscolor = $graphtype eq 'sectormassmetals' ? %sectormassmetalscolor : %sectormassplanetscolor;
+		my %sectormasskey   = $graphtype eq 'sectormassmetals' ? %sectormassmetalskey   : %sectormassplanetskey;
 
 		my $bottom = int(2*$margin+$size_y+$bottom_add+$top_add);
 		my $right  = int($left_add+2*$margin+$size_x);
@@ -1259,8 +1287,11 @@ sub draw_graphs {
 		$linear_intervals = 100000 if ($highest>1000000);
 		$linear_intervals = 1000000 if ($highest>10000000);
 
+		$linear_intervals = 10 if ($graphtype eq 'sectormassmetals');
+
 		my $top = floor(log10($highest))+1;
 		$top = (floor($highest/$linear_intervals)+1)*$linear_intervals if ($scale_type eq 'linear');
+		$top = 100 if ($graphtype eq 'sectormassmetals');
 
 		my $loop_max = $top;
 		$loop_max = floor($top/$linear_intervals) if ($scale_type eq 'linear');
@@ -1284,6 +1315,7 @@ sub draw_graphs {
 
 		my $bar_width = 20;
 		$bar_width = 18 if ($graphtype =~ /starplanets/);
+		$bar_width = 25 if ($graphtype =~ /massmetals/);
 		my $mass_width = (int(@sectormasstypes)+1)*$bar_width;
 
 		my $x1 = int($left_add+$margin);
@@ -1310,7 +1342,20 @@ sub draw_graphs {
 				my $num = 0;
 				my @list = ();
 	
-				if ($graphtype =~ /^sector/) {
+				if ($graphtype =~ /^sectormassmetals/) {
+					foreach my $sector (keys %{$sectormetals{$graphtype}}) {
+						my $n = $sectormetals{$graphtype}{$sector}{$itemcode}{$type};
+						$n = 0 if (!$n);
+	
+						$sum += $n;
+						$num ++;
+	
+						$highest = $n if ($n > $highest);
+						$lowest  = $n if ($n < $lowest);
+	
+						push @list, $n;
+					}
+				} elsif ($graphtype =~ /^sector/) {
 					foreach my $sector (keys %{$sectorplanets{$graphtype}}) {
 						my $n = $sectorplanets{$graphtype}{$sector}{$itemcode}{$type};
 						$n = 0 if (!$n);
@@ -1338,6 +1383,7 @@ sub draw_graphs {
 				}
 
 				$deviation = sqrt($deviation/$num) if ($deviation && $num);
+				$deviation = 0 if (!$num);
 
 				my $color  = "rgb(".join(',',@{$sectormasscolor{$type}}).")";
 				my $colorF = colorFormatted(@{$sectormasscolor{$type}});
@@ -1372,14 +1418,28 @@ sub draw_graphs {
 
 						my $avgUp = $average+$deviation;
 		
-						$highest = 1 if ($highest < 1);
-						$avgUp = 1 if ($avgUp < 1);
-						$average = 1 if ($average < 1);
+						my ($y1,$y2,$yA,$yB);
+
+						if ($scale_type eq 'linear') {
+							$highest = 0 if ($highest < 0);
+							$avgUp = 0 if ($avgUp < 0);
+							$average = 0 if ($average < 0);
 		
-						my $y1 = int($top_add+$margin+$size_y)-int(log10($highest)*$size_y/$top);
-						my $y2 = int($top_add+$margin+$size_y)-int(log10($avgUp)*$size_y/$top);
-						my $yA = int($top_add+$margin+$size_y)-int(log10($average)*$size_y/$top);
-						my $yB = int($top_add+$margin+$size_y);
+							$y1 = int($top_add+$margin+$size_y)-int($highest*$size_y/$top);
+							$y2 = int($top_add+$margin+$size_y)-int($avgUp*$size_y/$top);
+							$yA = int($top_add+$margin+$size_y)-int($average*$size_y/$top);
+							$yB = int($top_add+$margin+$size_y);
+#warn "$graphtype: $type $itemcode $average ($sum/$num) $deviation\n";
+						} else {
+							$highest = 1 if ($highest < 1);
+							$avgUp = 1 if ($avgUp < 1);
+							$average = 1 if ($average < 1);
+		
+							$y1 = int($top_add+$margin+$size_y)-int(log10($highest)*$size_y/$top);
+							$y2 = int($top_add+$margin+$size_y)-int(log10($avgUp)*$size_y/$top);
+							$yA = int($top_add+$margin+$size_y)-int(log10($average)*$size_y/$top);
+							$yB = int($top_add+$margin+$size_y);
+						}
 
 						my $halfcolor = 'rgb(64,64,64)';
 						if ($color =~ /rgb\(([\d\,]+)\)/) {
@@ -1400,7 +1460,7 @@ sub draw_graphs {
 				} elsif ($graphtype =~ /^system/) {
 					$average *= 1000;
 					$average = 1 if ($average < 1);
-warn "$graphtype: $type $itemcode $average ($sum/$num) $deviation\n";
+#warn "$graphtype: $type $itemcode $average ($sum/$num) $deviation\n";
 					my $y1;
 					$y1 = int($top_add+$margin+$size_y)-int(log10($average)*$size_y/$top) if ($scale_type eq 'log');
 					$y1 = int($top_add+$margin+$size_y)-int($average*$size_y/$top) if ($scale_type eq 'linear');
@@ -1475,6 +1535,9 @@ warn "$graphtype: $type $itemcode $average ($sum/$num) $deviation\n";
 			}
 		}
 
+		if ($graphtype eq 'sectormassmetals') {
+			$image->Annotate(pointsize=>30,fill=>'white',text=>"Average Metallicity per Sector by Mass Code",gravity=>'north',x=>0,y=>$margin-5);
+		}
 		if ($graphtype eq 'sectormassplanets') {
 			$image->Annotate(pointsize=>30,fill=>'white',text=>"Valuable Planets per Sector by Mass Code",gravity=>'north',x=>0,y=>$margin-5);
 		}
@@ -1488,7 +1551,7 @@ warn "$graphtype: $type $itemcode $average ($sum/$num) $deviation\n";
 			$image->Annotate(pointsize=>30,fill=>'white',text=>"Average Valuable Planets per Thousand Systems by Main Star Type",gravity=>'north',x=>0,y=>$margin-5);
 		}
 
-		if ($graphtype =~ /massplanets/) {
+		if ($graphtype =~ /massplanets|massmetals/) {
 			$image->Annotate(pointsize=>16,fill=>'white',text=>'Mass Code',gravity=>'south',x=>50,y=>$bottom_add/2+75);
 		}
 		if ($graphtype =~ /starplanets/) {
@@ -1496,7 +1559,8 @@ warn "$graphtype: $type $itemcode $average ($sum/$num) $deviation\n";
 		}
 
 		if ($graphtype =~ /^sector/) {
-			$image->Annotate(pointsize=>16,fill=>'white',text=>"Valuable Planets per Sector",rotate=>270,gravity=>'east',x=>$margin+$size_x+70,y=>-100);
+			$image->Annotate(pointsize=>16,fill=>'white',text=>"Valuable Planets per Sector",rotate=>270,gravity=>'east',x=>$margin+$size_x+70,y=>-100) if ($graphtype =~ /planets/);
+			$image->Annotate(pointsize=>16,fill=>'white',text=>"Average Elements per Sector",rotate=>270,gravity=>'east',x=>$margin+$size_x+70,y=>-100) if ($graphtype =~ /metals/);
 			$image->Annotate(pointsize=>16,fill=>'white',x=>5,y=>5,text=>"Bright = Average,    Dark =  Avg. + Std. Deviation,    Hollow = Outliers / Max",gravity=>'southeast');
 		}
 		if ($graphtype =~ /^system/) {
@@ -2078,7 +2142,7 @@ sub get_bodies {
 
 	if (@planet_ids) {
 
-		my @atmos =  db_mysql('elite',"select planet_id as id,helium as he,hydrogen as h from atmospheres where planet_id in (".join(@planet_ids).")");
+		my @atmos =  db_mysql('elite',"select planet_id as id,helium as he,hydrogen as h from atmospheres where planet_id in (".join(',',@planet_ids).")");
 		foreach my $r (@atmos) {
 			$atmo{$$r{id}} = $r;
 			delete($atmo{$$r{id}}{id});
