@@ -230,7 +230,7 @@ my @sectormassmetalstypes = qw(H He Metals);
 my %sectormassmetalskey = ();
 $sectormassmetalskey{H} = 'Hydrogen';
 $sectormassmetalskey{He} = 'Helium';
-$sectormassmetalskey{Metals} = 'Metals x0100';
+$sectormassmetalskey{Metals} = 'Metals x1000';
 
 
 my $max_heat            = 9;
