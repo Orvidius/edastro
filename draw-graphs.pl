@@ -26,7 +26,7 @@ my $allow_scp		= 1;
 my $id_add		= 10**12;
 
 my $chunk_size		= 5000;
-my $debug_stars		= 200000;
+my $debug_stars		= 10000;
 my $debug_limit		= '';
 my $debug_and		= '';
 #   $debug_limit		= "order by coord_z limit $debug_stars" if ($debug);
@@ -58,6 +58,7 @@ my @perdaytypes		= qw(bodiespersystem newfinds);
 my @zonetypes		= qw();
 
 
+$gfile{bodymetals}= "$filepath/bodymetals.png";
 $gfile{sectormassmetals}= "$filepath/sectormassmetals.png";
 
 if (!$skip_all) {
@@ -138,8 +139,15 @@ my %starcodes = ('O'=>1, 'B'=>1, 'A'=>1, 'F'=>1, 'G'=>1, 'K'=>1, 'M'=>1, 'BD'=>1
 my %planetcodes = ('GG1'=>1, 'GG2'=>1, 'GG3'=>1, 'GG4'=>1, 'GG5'=>1, 'ELW'=>1, 'AW'=>1, 'WW'=>1, 'GGAL'=>1, 'GGWL'=>1, 'GGHE'=>1, 'GGHR'=>1, 
 			'WG'=>1,'HMC'=>1,'MR'=>1,'ICY'=>1,'ROCKY'=>1,'ROCKICE'=>1);
 
-
+my @planetcodelist = (qw(ICY ROCKICE ROCKY HMC MR WW AW ELW WG GG1 GG2 GG3 GG4 GG5 GGAL GGWL GGHE GGHR));
 my @starcodelist = (qw(O B A F G K M BD TT HE C WR WD NS BH));
+
+
+my %colorkeynames = ();
+foreach my $type (@colorkey) {
+	my ($key, $name) = split /\|/, $type, 2;
+	$colorkeynames{$key} = $name;
+}
 
 my %mapdata = ();
 %{$mapdata{starclass}{bodies}}	= %starcodes;
@@ -230,7 +238,12 @@ my @sectormassmetalstypes = qw(H He Metals);
 my %sectormassmetalskey = ();
 $sectormassmetalskey{H} = 'Hydrogen';
 $sectormassmetalskey{He} = 'Helium';
-$sectormassmetalskey{Metals} = 'Metals x1000';
+$sectormassmetalskey{Metals} = 'Metals';
+
+my %bodymetalscolor = %sectormassmetalscolor;
+my @bodymetalstypes = qw(H He Metals);
+my %bodymetalskey   = %sectormassmetalskey;
+
 
 
 my $max_heat            = 9;
@@ -266,6 +279,7 @@ my %system_vector = ();
 my %system_seen = ();
 my %chunk_seen = ();
 my %datedata = ();
+my %bodymetals = ();
 
 my %bolometric_table = ();
 my $boloclass = 'V';
@@ -513,7 +527,33 @@ sub graph_body {
 		my $masscode = uc($2);
 		my $mainstartype = abbreviate_star($$r{type});
 
-		if ($gfile{sectormassmetals} && $masscode && ($$body{h} || $$body{he})) {
+		if ($gfile{bodymetals} && $masscode && ($$body{h} || $$body{he})) {
+			# Totals:
+			$bodymetals{bodymetals}{$$body{subType}}{mt} += $$body{metals};
+			$bodymetals{bodymetals}{$$body{subType}}{ht} += $$body{h};
+			$bodymetals{bodymetals}{$$body{subType}}{het} += $$body{he};
+
+			# Count:
+			$bodymetals{bodymetals}{$$body{subType}}{b}++;
+
+			# Averages:
+			$bodymetals{bodymetals}{$$body{subType}}{Metals} =
+				$bodymetals{bodymetals}{$$body{subType}}{mt} / 
+				$bodymetals{bodymetals}{$$body{subType}}{b};
+			$bodymetals{bodymetals}{$$body{subType}}{H} = 
+				$bodymetals{bodymetals}{$$body{subType}}{ht} / 
+				$bodymetals{bodymetals}{$$body{subType}}{b};
+			$bodymetals{bodymetals}{$$body{subType}}{He} = 
+				$bodymetals{bodymetals}{$$body{subType}}{het} / 
+				$bodymetals{bodymetals}{$$body{subType}}{b};
+
+			# Lists for calculating standard deviations and outliers:
+			push @{$bodymetals{bodymetals}{$$body{subType}}{num}{Metals}}, $$body{metals}+0;
+			push @{$bodymetals{bodymetals}{$$body{subType}}{num}{He}}, $$body{he}+0;
+			push @{$bodymetals{bodymetals}{$$body{subType}}{num}{H}}, $$body{h}+0;
+		}
+
+		if ($gfile{sectormassmetals} && $masscode && $$body{subType} =~ /G/i && ($$body{h} || $$body{he})) {
 			$sectormetals{sectormassmetals}{$sector}{$masscode}{mt} += $$body{metals};
 			$sectormetals{sectormassmetals}{$sector}{$masscode}{ht} += $$body{h};
 			$sectormetals{sectormassmetals}{$sector}{$masscode}{het} += $$body{he};
@@ -1205,9 +1245,9 @@ sub draw_graphs {
 
 
 
-	# Sector/System Mass/MainStar Valuable Planets Distribution:
+	# Sector/System Mass/MainStar/Body Valuable Planets / Metals Distribution:
 
-	foreach my $graphtype (qw(sectorstarplanets sectormassplanets systemstarplanets systemmassplanets sectormassmetals)) {
+	foreach my $graphtype (qw(sectorstarplanets sectormassplanets systemstarplanets systemmassplanets sectormassmetals bodymetals)) {
 		next if (!$gfile{$graphtype});
 		my $fn = $gfile{$graphtype};
 
@@ -1229,7 +1269,17 @@ sub draw_graphs {
 		}
 
 		my $scale_type = 'log';
-		$scale_type = 'linear' if ($graphtype =~ /^system/ || $graphtype eq 'sectormassmetals');
+		$scale_type = 'linear' if ($graphtype =~ /^system/ || $graphtype =~ /metals/);
+
+		if ($graphtype eq 'bodymetals') {
+			$size_x = 1920;
+			$size_y = 600;
+			$startx = 10;
+			$margin = 50;
+			$bottom_add = 200;
+			$top_add = 70;
+			$left_add = 50;
+		}
 
 		if ($graphtype eq 'sectormassmetals') {
 			$size_x = 1020;
@@ -1287,11 +1337,11 @@ sub draw_graphs {
 		$linear_intervals = 100000 if ($highest>1000000);
 		$linear_intervals = 1000000 if ($highest>10000000);
 
-		$linear_intervals = 10 if ($graphtype eq 'sectormassmetals');
+		$linear_intervals = 10 if ($graphtype =~ /metals/);
 
 		my $top = floor(log10($highest))+1;
 		$top = (floor($highest/$linear_intervals)+1)*$linear_intervals if ($scale_type eq 'linear');
-		$top = 100 if ($graphtype eq 'sectormassmetals');
+		$top = 100 if ($graphtype =~ /metals/);
 
 		my $loop_max = $top;
 		$loop_max = floor($top/$linear_intervals) if ($scale_type eq 'linear');
@@ -1315,23 +1365,38 @@ sub draw_graphs {
 
 		my $bar_width = 20;
 		$bar_width = 18 if ($graphtype =~ /starplanets/);
-		$bar_width = 25 if ($graphtype =~ /massmetals/);
+		$bar_width = 25 if ($graphtype =~ /metals/);
+		$bar_width = 21 if ($graphtype =~ /bodymetals/);
 		my $mass_width = (int(@sectormasstypes)+1)*$bar_width;
 
 		my $x1 = int($left_add+$margin);
 
 		my @list = ('A'..'H');
 		@list = @starcodelist if ($graphtype =~ /starplanets/);
+		@list = @planetcodelist if ($graphtype =~ /bodymetals/);
+
+		my @typelist = @sectormasstypes;
+		@typelist = @sectormassmetalstypes if ($graphtype =~ /metals/);
+
+		my %colorkey = %sectormasscolor;
+		%colorkey = %bodymetalscolor if ($graphtype =~ /metals/);
+
+		my %keynames = %sectormasskey;
+		%keynames = %bodymetalskey  if ($graphtype =~ /metals/);
 
 		foreach my $itemcode (@list) {
 
-			my $x_pos = $x1 + floor((int(@sectormasstypes)+2)*$bar_width/2);
+			my $x_pos = $x1 + floor((int(@typelist)+2)*$bar_width/2);
+			my $pointsize = $graphtype =~ /bodymetals/ ? 20 : 30;
 
-			$image->Annotate(pointsize=>30,fill=>'white',text=>$itemcode,gravity=>'northwest',x=>$x_pos-10,y=>$top_add+$margin+$size_y+30);
+			my $offset = $graphtype =~ /bodymetals/ ? floor(length($itemcode)*$pointsize/3) : 10;
+
+			$image->Annotate(pointsize=>$pointsize,fill=>'white',text=>$itemcode,gravity=>'northwest',x=>$x_pos-$offset,y=>$top_add+$margin+$size_y+10);
 			$image->Draw( primitive=>'line', stroke=>'white', strokewidth=>1, points=>sprintf("%u,%u %u,%u",
-				$x1+(int(@sectormasstypes)+2)*$bar_width,$top_add+$margin+$size_y+1,$x1+(int(@sectormasstypes)+2)*$bar_width,$top_add+$margin+$size_y+10));
+				$x1+(int(@typelist)+2)*$bar_width,$top_add+$margin+$size_y+1,$x1+(int(@typelist)+2)*$bar_width,$top_add+$margin+$size_y+10));
+#warn "$graphtype / $itemcode : typelist = ".join(',',@typelist)."\n";
 
-			foreach my $type (@sectormasstypes) {
+			foreach my $type (@typelist) {
 				$x1 += $bar_width;
 				my $x3 = $x1 + $bar_width - 4;
 				my $x2 = $x1 + floor($bar_width/2) - 2;
@@ -1342,7 +1407,26 @@ sub draw_graphs {
 				my $num = 0;
 				my @list = ();
 	
-				if ($graphtype =~ /^sectormassmetals/) {
+				if ($graphtype =~ /^bodymetals/) {
+					#push @{$bodymetals{bodymetals}{$$body{subType}}{num}{Metals}}, $$body{metals}+0;
+
+#warn "$graphtype / $itemcode / $type : ".ref($bodymetals{$graphtype}{$itemcode}{num}{$type})."\n";
+					next if (ref($bodymetals{$graphtype}{$itemcode}{num}{$type}) ne 'ARRAY');
+
+					while (@{$bodymetals{$graphtype}{$itemcode}{num}{$type}}) {
+						my $n = shift @{$bodymetals{$graphtype}{$itemcode}{num}{$type}};
+						$n = 0 if (!$n || $n<0);
+	
+						$sum += $n;
+						$num ++;
+	
+						$highest = $n if ($n > $highest);
+						$lowest  = $n if ($n < $lowest);
+#warn "$graphtype / $itemcode / $type = $highest,$lowest, [$n]\n";
+	
+						push @list, $n;
+					}
+				} elsif ($graphtype =~ /^sectormassmetals/) {
 					foreach my $sector (keys %{$sectormetals{$graphtype}}) {
 						my $n = $sectormetals{$graphtype}{$sector}{$itemcode}{$type};
 						$n = 0 if (!$n);
@@ -1381,14 +1465,15 @@ sub draw_graphs {
 				foreach (@list) {
 					$deviation += ($average - $_) ** 2;
 				}
+				@list = (); # Free memory
 
 				$deviation = sqrt($deviation/$num) if ($deviation && $num);
 				$deviation = 0 if (!$num);
 
-				my $color  = "rgb(".join(',',@{$sectormasscolor{$type}}).")";
-				my $colorF = colorFormatted(@{$sectormasscolor{$type}});
+				my $color  = "rgb(".join(',',@{$colorkey{$type}}).")";
+				my $colorF = colorFormatted(@{$colorkey{$type}});
 	
-				if ($graphtype =~ /^sector/) {
+				if ($graphtype =~ /^sector/ || $graphtype =~ /bodymetals/) {
 					if (0) { 
 						# Bars +/- Std Deviation, allows above zero bottoms
 
@@ -1479,8 +1564,9 @@ sub draw_graphs {
 		my $starty  = $top_add+$margin+$size_y+150;
 
 		$spacing = 250 if ($graphtype =~ /starplanets/);
+		$spacing = 150 if ($graphtype =~ /bodymetals/);
 
-		foreach my $type (@sectormasstypes) {
+		foreach my $type (@typelist) {
 			my ($name,$color) = ('','rgb(0,0,0)');
 
 			my $xn = $n % $per_row;
@@ -1491,13 +1577,48 @@ sub draw_graphs {
 			my $x2 = $x1 + $pointsize;
 			my $y2 = $y1 + $pointsize;
 
-			$name = $sectormasskey{$type};
-			$color  = "rgb(".join(',',@{$sectormasscolor{$type}}).")";
+			$name = $keynames{$type};
+			$color  = "rgb(".join(',',@{$colorkey{$type}}).")";
 
 			$image->Draw( primitive=>'rectangle', stroke=>'#777', fill=>$color, strokewidth=>1, points=>sprintf("%u,%u %u,%u",$x1,$y1,$x2,$y2));
 			$image->Annotate(pointsize=>$pointsize,fill=>'white',text=>$name,x=>$x2+5,y=>$y2);
 			$n++;
 			
+		}
+
+		if ($graphtype =~ /bodymetals/) {
+			my $n = 0;
+			$per_row = 4;
+			$pointsize = 15;
+			$spacing = 260;
+			$startx  = $left_add+$margin+720;
+			$starty  = $top_add+$margin+$size_y+100;
+
+			foreach my $type (@planetcodelist) {
+				#next if ($type =~ /^(O|B|A|F|G|K|M)$/);
+
+				my $name = '';
+
+				foreach my $ck (@colorkey) {
+					if ($ck =~ /^$type\|(.+)$/) {
+						$name = "$type = $1";
+						last;
+					}
+				}
+
+				next if (!$name);
+	
+				my $xn = $n % $per_row;
+				my $yn = int($n/$per_row);
+	
+				my $x1 = $startx+$xn*$spacing;
+				my $y1 = $starty+$yn*($pointsize+5);
+				my $x2 = $x1 + $pointsize;
+				my $y2 = $y1 + $pointsize;
+	
+				$image->Annotate(pointsize=>$pointsize,fill=>'white',text=>$name,x=>$x2,y=>$y2);
+				$n++;
+			}
 		}
 
 		if ($graphtype =~ /starplanets/) {
@@ -1535,8 +1656,11 @@ sub draw_graphs {
 			}
 		}
 
+		if ($graphtype eq 'bodymetals') {
+			$image->Annotate(pointsize=>30,fill=>'white',text=>"Average Metallicity by Body Type",gravity=>'north',x=>0,y=>$margin-5);
+		}
 		if ($graphtype eq 'sectormassmetals') {
-			$image->Annotate(pointsize=>30,fill=>'white',text=>"Average Metallicity per Sector by Mass Code",gravity=>'north',x=>0,y=>$margin-5);
+			$image->Annotate(pointsize=>30,fill=>'white',text=>"Average Gas Giant Metallicity per Sector by Mass Code",gravity=>'north',x=>0,y=>$margin-5);
 		}
 		if ($graphtype eq 'sectormassplanets') {
 			$image->Annotate(pointsize=>30,fill=>'white',text=>"Valuable Planets per Sector by Mass Code",gravity=>'north',x=>0,y=>$margin-5);
@@ -1551,6 +1675,9 @@ sub draw_graphs {
 			$image->Annotate(pointsize=>30,fill=>'white',text=>"Average Valuable Planets per Thousand Systems by Main Star Type",gravity=>'north',x=>0,y=>$margin-5);
 		}
 
+		if ($graphtype =~ /bodymetals/) {
+			$image->Annotate(pointsize=>16,fill=>'white',text=>'Body Type',gravity=>'south',x=>-300,y=>$bottom_add/2+50);
+		}
 		if ($graphtype =~ /massplanets|massmetals/) {
 			$image->Annotate(pointsize=>16,fill=>'white',text=>'Mass Code',gravity=>'south',x=>50,y=>$bottom_add/2+75);
 		}
@@ -1558,6 +1685,10 @@ sub draw_graphs {
 			$image->Annotate(pointsize=>16,fill=>'white',text=>'Main Star Type',gravity=>'south',x=>50,y=>$bottom_add/2+75);
 		}
 
+		if ($graphtype =~ /bodymetals/) {
+			$image->Annotate(pointsize=>16,fill=>'white',text=>"Average Elements per Body",rotate=>270,gravity=>'east',x=>$margin+$size_x+70,y=>-100);
+			$image->Annotate(pointsize=>16,fill=>'white',x=>5,y=>5,text=>"Bright = Average,    Dark =  Avg. + Std. Deviation,    Hollow = Outliers / Max",gravity=>'southeast');
+		}
 		if ($graphtype =~ /^sector/) {
 			$image->Annotate(pointsize=>16,fill=>'white',text=>"Valuable Planets per Sector",rotate=>270,gravity=>'east',x=>$margin+$size_x+70,y=>-100) if ($graphtype =~ /planets/);
 			$image->Annotate(pointsize=>16,fill=>'white',text=>"Average Elements per Sector",rotate=>270,gravity=>'east',x=>$margin+$size_x+70,y=>-100) if ($graphtype =~ /metals/);
@@ -2075,7 +2206,8 @@ sub get_bodies {
 
 	while (!$ok && $retry < 3) {
 		$ok = eval {
-			@rows = db_mysql('elite',"select starID as localID,isPrimary,systemId64,subType,absoluteMagnitude,luminosity,surfaceTemperature,age,updateTime,discoveryDate ".
+			@rows = db_mysql('elite',"select starID as localID,isPrimary,bodyId64,systemId64,subType,absoluteMagnitude,".
+					"luminosity,surfaceTemperature,age,updateTime,discoveryDate ".
 					"from stars where systemId64 in $id_list and deletionState=0");
 			1;
 		};
@@ -2120,7 +2252,8 @@ sub get_bodies {
 
 	while (!$ok && $retry < 3) {
 		$ok = eval {
-			@rows = db_mysql('elite',"select planetID as localID,systemId64,subType,terraformingState,gravity,surfaceTemperature,earthMasses,updateTime,discoveryDate ".
+			@rows = db_mysql('elite',"select planetID as localID,bodyId64,systemId64,subType,terraformingState,gravity,".
+					"surfaceTemperature,earthMasses,updateTime,discoveryDate ".
 					"from planets where systemId64 in $id_list and deletionState=0");
 			1;
 		};
@@ -2137,7 +2270,7 @@ sub get_bodies {
 	my @planet_ids = ();
 
 	foreach my $r (@rows) {
-		push @planet_ids, $$r{localID} if ($$r{subType} =~ /giant/i);
+		push @planet_ids, $$r{localID}; # if ($$r{subType} =~ /giant/i);
 	}
 
 	if (@planet_ids) {
