@@ -170,7 +170,7 @@ if ((!keys(%action) && $t[6] == 6) || $action{maps}) {
 	#my_system("cd ~bones/elite ; ./lagrangecloud-maps.pl");
 
 	#my_system("cd ~bones/elite ; ./get-nebulae.sh ; ./nebula-maps.pl ; ./IGAUcodex-maps.pl ");
-	my_system("cd ~bones/elite ; ./get-nebulae.sh ; ./nebula-maps.pl");
+	#my_system("cd ~bones/elite ; ./get-nebulae.sh ; ./nebula-maps.pl");
 	my_system("cd ~bones/elite ; ./missing-coordinates-map.pl > missing-coordinates-map.pl.out 2>\&1");
 	#my_system("cd ~bones/elite ; ./IGAU_Codex-import.pl > IGAU_Codex-import.pl.out 2>\&1 ");
 	my_system("cd ~bones/elite ; ./codex-tweaks.pl > codex-tweaks.pl.out 2>\&1 ") if (!$edsm_down);

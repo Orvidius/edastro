@@ -4,7 +4,7 @@ use strict;
 ############################################################################
 
 use lib "/home/bones/elite";
-use EDSM qw(log10);
+use EDSM qw(log10 ssh_options scp_options);
 
 use lib "/home/bones/perl";
 use DB qw(db_mysql rows_mysql columns_mysql show_queries);
@@ -93,8 +93,10 @@ my $heightgraph_maxheight	= 5000;
 
 my $pi			= 3.1415926535;
 
-my $ssh			= '/usr/bin/ssh';
-my $scp			= '/usr/bin/scp -P222';
+#my $ssh			= '/usr/bin/ssh';
+#my $scp			= '/usr/bin/scp -P222';
+my $ssh                 = '/usr/bin/ssh'.ssh_options();
+my $scp                 = '/usr/bin/scp'.scp_options();
 my $convert		= '/usr/bin/convert';
 
 my $logarithm_scale	= 0.2;	# Fraction to add to logarithms based on the largest (hottest) pixel element
@@ -1416,6 +1418,7 @@ sub draw_graphs {
 					while (@{$bodymetals{$graphtype}{$itemcode}{num}{$type}}) {
 						my $n = shift @{$bodymetals{$graphtype}{$itemcode}{num}{$type}};
 						$n = 0 if (!$n || $n<0);
+						$n = 100 if ($n>100);
 	
 						$sum += $n;
 						$num ++;
@@ -1502,6 +1505,7 @@ sub draw_graphs {
 						# Average, + Std Deviation, + Max
 
 						my $avgUp = $average+$deviation;
+						$avgUp = $top if ($avgUp > $top);
 		
 						my ($y1,$y2,$yA,$yB);
 
@@ -1535,7 +1539,7 @@ sub draw_graphs {
 
 							$halfcolor = "rgb($c[0],$c[1],$c[2])";
 						}
-		
+
 						my_rectangle($image,$x1,$y1,$x3,$yB,1,$color,'black');
 						my_rectangle($image,$x1,$y2,$x3,$yB,1,$color,$halfcolor);
 						my_rectangle($image,$x1,$yA,$x3,$yB,1,'white',$color);
