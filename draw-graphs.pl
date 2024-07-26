@@ -449,6 +449,9 @@ sub push_images {
 	my_system("$convert $fn -verbose -resize $jpg_size -gamma 1.3 $jpg");
 	my_system("$convert $fn -verbose -resize 200x200 -gamma 1.3 $thumb");
 	my_system("$scp $fn $jpg $thumb $remote_server") if (!$debug && $allow_scp);
+	my_system("~bones/elite/cdn-purge.sh $fn");
+	my_system("~bones/elite/cdn-purge.sh $jpg");
+	my_system("~bones/elite/cdn-purge.sh $thumb");
 	print "\n";
 }
 
@@ -529,7 +532,7 @@ sub graph_body {
 		my $masscode = uc($2);
 		my $mainstartype = abbreviate_star($$r{type});
 
-		if ($gfile{bodymetals} && $masscode && ($$body{h} || $$body{he})) {
+		if ($gfile{bodymetals} && $masscode && ($$body{h} || $$body{he} || $$body{metals})) {
 			# Totals:
 			$bodymetals{bodymetals}{$$body{subType}}{mt} += $$body{metals};
 			$bodymetals{bodymetals}{$$body{subType}}{ht} += $$body{h};
@@ -2311,9 +2314,10 @@ sub get_bodies {
 		$class = 'ROCKICE' if ($subType =~ /Rocky Ice/i);
 		$class = 'potato' if (!$class);
 
-		if ($atmo{$$r{localID}}{he} && $atmo{$$r{localID}}{h}) {
-			$$r{he} = $atmo{$$r{localID}}{he};
-			$$r{h}  = $atmo{$$r{localID}}{h};
+		#if ($atmo{$$r{localID}}{he} && $atmo{$$r{localID}}{h}) {
+		if ($atmo{$$r{localID}} && ref($atmo{$$r{localID}}) eq 'HASH' && keys(%{$atmo{$$r{localID}}})) {
+			$$r{he} = $atmo{$$r{localID}}{he}+0;
+			$$r{h}  = $atmo{$$r{localID}}{h}+0;
 			$$r{metals} = 100-($$r{he}+$$r{h});
 		}
 		
