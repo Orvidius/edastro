@@ -2314,7 +2314,7 @@ sub get_bodies {
 		$class = 'ROCKICE' if ($subType =~ /Rocky Ice/i);
 		$class = 'potato' if (!$class);
 
-		#if ($atmo{$$r{localID}}{he} && $atmo{$$r{localID}}{h}) {
+		#if ($atmo{$$r{localID}}{he} || $atmo{$$r{localID}}{h} || ($class =~ /WG|ELW/ && ref($atmo{$$r{localID}}) eq 'HASH' && keys(%{$atmo{$$r{localID}}}))) {
 		if ($atmo{$$r{localID}} && ref($atmo{$$r{localID}}) eq 'HASH' && keys(%{$atmo{$$r{localID}}})) {
 			$$r{he} = $atmo{$$r{localID}}{he}+0;
 			$$r{h}  = $atmo{$$r{localID}}{h}+0;
