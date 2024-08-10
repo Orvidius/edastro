@@ -4,7 +4,7 @@ use strict;
 ############################################################################
 
 use lib "/home/bones/elite";
-use EDSM qw(log10);
+use EDSM qw(log10 ssh_options scp_options);
 
 use lib "/home/bones/perl";
 use DB qw(db_mysql rows_mysql columns_mysql show_queries disconnect_all);
@@ -35,7 +35,8 @@ $color{'realE'}		= "rgb(96,48,0)";
 $color{'planetary'}	= "rgb(0,144,224)";
 $color{'planetaryE'}	= "rgb(0,64,128)";
 
-my $scp			= '/usr/bin/scp -P222';
+my $ssh                 = '/usr/bin/ssh'.ssh_options();
+my $scp                 = '/usr/bin/scp'.scp_options();
 my $remote_server	= 'www@services:/www/edastro.com/mapcharts';
 my $scriptpath		= "/home/bones/elite";
 my $filepath		= "/home/bones/www/elite";
