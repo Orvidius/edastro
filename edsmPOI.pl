@@ -442,8 +442,9 @@ open CSV, "<trit_highway.csv";
 		$header{body1} = $n if ($s =~ /Body 1/i);
 		$header{body2} = $n if ($s =~ /Body 2/i);
 		$header{notes} = $n if ($s =~ /notes/i);
-		$header{quality} = $n if ($s =~ /quality/i);
-		$header{highway} = $n if ($s =~ /highway/i);
+		#$header{quality} = $n if ($s =~ /quality/i);
+		#$header{highway} = $n if ($s =~ /highway/i);
+		$header{color} = $n if ($s =~ /COLOR/i);
 		$n++;
 	}
 
@@ -460,9 +461,17 @@ open CSV, "<trit_highway.csv";
 			$z = $$r{coord_z};
 		}
 
+		my $C = '';
+
+		if ($v[$header{color}] && $v[$header{color}] =~ /(ORANGE|WHITE)/i) {
+			$C = uc($v[$header{color}]);
+		}
+
 		next if (sqrt($x**2 + $y**2 + $z**2) < 500);
 
-		my $name = $v[$header{highway}].': '.$v[$header{system}];
+		#my $name = $v[$header{highway}].': '.$v[$header{system}];
+		#my $name = $v[$header{system}];
+		my $name = "Tritium Highway";
 
 		if ($x =~ /[^\d\.\-]/ || $y =~ /[^\d\.\-]/ || $z =~ /[^\d\.\-]/ || (!$x && !$y && !$z)) {
 			warn "TRIT SKIPPED: [$count] $v[$header{system}] no coords.\n";
@@ -471,9 +480,9 @@ open CSV, "<trit_highway.csv";
 
 		my $notes = $v[$header{notes}];
 
-		if ($v[$header{quality}]) {
-			$notes = "Quality: $v[$header{quality}]\\n$notes";
-		}
+#		if ($v[$header{quality}]) {
+#			$notes = "Quality: $v[$header{quality}]\\n$notes";
+#		}
 
 		if ($v[$header{body1}] || $v[$header{body2}]) {
 			my @list = ();
@@ -485,8 +494,8 @@ open CSV, "<trit_highway.csv";
 		if (!$tri{$v[$header{system}]}) {
 			$count++;
 			warn "TRIT FOUND: [$count] $v[$header{system}] ($x,$y,$z)\n";
-			$trit_hwy{$v[$header{system}]} = join("\t|\t",'trit_hwy',$count,$name,$x,$y,$z,$v[$header{system}],undef,$notes);
-			print OUT make_csv('trit_hwy',$count,$name,$x,$y,$z,$v[$header{system}],$notes)."\r\n";
+			$trit_hwy{$v[$header{system}]} = join("\t|\t",'trit_hwy'.$C,$count,$name,$x,$y,$z,$v[$header{system}],undef,$notes);
+			print OUT make_csv('trit_hwy'.$C,$count,$name,$x,$y,$z,$v[$header{system}],$notes)."\r\n";
 		} else {
 			# Already in hash
 		}
