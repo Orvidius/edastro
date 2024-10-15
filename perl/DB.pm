@@ -165,13 +165,16 @@ sub master_mysql {
 	my $connected = 0;
 	my $count = 0;
 	if (!$dbh{$db}) {
-		while (!$dbh{$db} && $count < 5) {
+		while (!$dbh{$db} && $count < 30) {
 			eval {
 				$dbh{$db} = DBI->connect(@connectparams) if (!$dbh{$db});
 				$connected = 1;
 			};
 			$count++;
-			info("CONNECT FAILED: Retrying [$count] ($db) \"".join('","',@connectparams)."\" [$sql_show]-- $@") if (!$dbh{$db});
+			if (!$dbh{$db}) {
+				info("CONNECT FAILED: Retrying after 10 seconds [$count] ($db) \"".join('","',@connectparams)."\" [$sql_show]-- $@");
+				sleep 10;
+			}
 		}
 	} else {
 		$connected = 1;
