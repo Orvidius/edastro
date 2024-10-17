@@ -9,8 +9,8 @@ open TXT, ">$fn";
 
 my %data = ();
 
-foreach my $table (qw(systems navsystems stars planets)) {
-	my $where = $table eq 'navsystems' ? '' : 'where deletionState=0';
+foreach my $table (qw(systems navsystems stars planets barycenters)) {
+	my $where = $table =~ /navsystems|barycenters/ ? '' : 'where deletionState=0';
 
 	my @rows = db_mysql('elite',"select count(*) as num from $table $where");
 	if (@rows) {
@@ -29,7 +29,7 @@ foreach my $table (qw(systems navsystems stars planets)) {
 }
 
 print TXT commify($data{systems} + $data{navsystems})." systems (".commify($data{systems})." visited, ".commify($data{navsystems})." route only); \n";
-foreach my $table (qw(stars planets)) {
+foreach my $table (qw(stars planets barycenters)) {
 	print TXT commify($data{$table})." $table; \n";
 }
 close TXT;
