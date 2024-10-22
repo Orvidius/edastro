@@ -158,7 +158,7 @@ sub master_mysql {
 		eval {
 			$dbh{$db}->disconnect;
 		};
-		info("MSQL DATABASE CONNECTION LOST: ($db) \"".join('","',@connectparams)."\" [$sql_show]-- $@");
+		info("[$0] MSQL DATABASE CONNECTION LOST: ($db) \"".join('","',@connectparams)."\" [$sql_show]-- $@");
 		delete($dbh{$db});
 	}
 
@@ -172,7 +172,7 @@ sub master_mysql {
 			};
 			$count++;
 			if (!$dbh{$db}) {
-				info("CONNECT FAILED: Retrying after 10 seconds [$count] ($db) \"".join('","',@connectparams)."\" [$sql_show]-- $@");
+				info("[$0] CONNECT FAILED: Retrying after 10 seconds [$count] ($db) \"".join('","',@connectparams)."\" [$sql_show]-- $@");
 				sleep 10;
 			}
 		}
@@ -180,8 +180,8 @@ sub master_mysql {
 		$connected = 1;
 	}
 
-	info("CONNECT FAILED: Giving Up! [$count attempts] ($db) \"".join('","',@connectparams)."\" [$sql_show]-- $@") if (!$connected);
-	die "CONNECT FAILED: Giving Up! [$count attempts] ($db) \"".join('","',@connectparams)."\" [$sql_show]-- $@\n" if (!$connected);
+	info("[$0] CONNECT FAILED: Giving Up! [$count attempts] ($db) \"".join('","',@connectparams)."\" [$sql_show]-- $@") if (!$connected);
+	die "[$0] CONNECT FAILED: Giving Up! [$count attempts] ($db) \"".join('","',@connectparams)."\" [$sql_show]-- $@\n" if (!$connected);
 
 	#info("CONNECT SUCCEDED: [$count attempts] ($db) \"".join('","',@connectparams)."\" [$sql_show]") if ($connected && $count);
 
@@ -224,8 +224,17 @@ sub master_mysql {
 		my $s = int(defined($sth)).'/'.int($failed);
 		my $e = $@; $e = 'EMPTY ERR' if (!$e);
 
-		info("FAILED MYSQL QUERY: ($db) [$s] \"$sql_show\" -- $e");
-		die "FAILED MYSQL QUERY: ($db) [$s] $sql_show -- $e\n";
+		info("[$0] FAILED MYSQL QUERY: ($db) [$s] \"$sql_show\" -- $e");
+
+		if ($e =~ /Lost connection to MySQL server during query/) {
+			info("[$0] MYSQL RETRY: in 30 seconds ($db) \"$sql_show\"");
+			
+			delete($dbh{$db});
+			sleep 30;
+			return master_mysql( $columns, $dbname, $sql, $arrayref, $nolock, $disable_constraints );
+		}
+
+		die "[$0] FAILED MYSQL QUERY: ($db) [$s] $sql_show -- $e\n";
 	}
 
 	if ($sql =~ /^\s*(SELECT|SHOW|DESCRIBE)\s/i) {
@@ -275,7 +284,7 @@ sub disconnect_all {
 				my $ref = $dbh{$i}->{mysql_dbd_stats};
 	
 				if ($$ref{auto_reconnects_ok} || $$ref{auto_reconnects_failed}) {
-					info("MSQL AUTO-RECONNECT TOTALs: auto_reconnects_ok=$$ref{auto_reconnects_ok}, auto_reconnects_failed=$$ref{auto_reconnects_failed}");
+					info("[$0] MSQL AUTO-RECONNECT TOTALs: auto_reconnects_ok=$$ref{auto_reconnects_ok}, auto_reconnects_failed=$$ref{auto_reconnects_failed}");
 				}
 			}
 

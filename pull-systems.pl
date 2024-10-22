@@ -24,6 +24,7 @@ my $mv			= '/usr/bin/mv';
 my $ps			= '/usr/bin/ps';
 my $grep		= '/usr/bin/grep';
 my $touch		= '/usr/bin/touch';
+my $scp			= '/usr/bin/scp';
 
 my $runfile		= '/home/bones/pull-systems.pl.running';
 
@@ -183,18 +184,12 @@ if (!keys(%action) && $t[6] == 6) {
 	my_system(1,"cd ~bones/elite ; ./update-main-startypes.pl 1 > update-main-startypes.pl.out2 2>\&1");	# Fix missing occasionally
 }
 
-if ((!keys(%action) && $t[6] == 6) || $action{video}) {
-	my_system(1,"$path/history-video.pl > $path/history-video.pl.out 2>\&1");
-	my_system(1,"$path/history-video.pl 1 > $path/history-video.pl.decay.out 2>\&1");
-	#my_system("$path/carrier-video.pl > $path/carrier-video.pl .out >\&1");
-}
-
 if ((!keys(%action) && $epochDay % $day_interval == 0) || $action{files}) {
 
 	my_system("$path/carrier-video.pl > $path/carrier-video.pl.out >\&1");
 	my_system("$path/thargoid-video.pl > $path/thargoid-video.pl.out >\&1");
 
-	my_system(1,"cd ~bones/elite/scripts ; ./lagrange-capable-stars.pl > lagrange-capable-stars.csv ; scp lagrange-capable-stars.csv www\@services:/www/edastro.com/mapcharts/files/  ");
+	my_system(1,"cd ~bones/elite/scripts ; ./lagrange-capable-stars.pl > lagrange-capable-stars.csv ; [ -s lagrange-capable-stars.csv ] \&\& scp lagrange-capable-stars.csv www\@services:/www/edastro.com/mapcharts/files/  ");
 
 	#redirect_script("near-entry-systems.pl.pl","near-entry-systems.pl.csv");
 
@@ -206,7 +201,7 @@ if ((!keys(%action) && $epochDay % $day_interval == 0) || $action{files}) {
 			push @list, $n if ($n =~ /^(and|rlike|binlike):/);
 		}
 
-		my $cmd = "cd ~bones/elite/scripts ; ./planet-list.pl ".join(' ',@list)." > $csv ; scp -P222 $csv www\@services:/www/edastro.com/mapcharts/files/";
+		my $cmd = "cd ~bones/elite/scripts ; ./planet-list.pl ".join(' ',@list)." > $csv ; [ -s $csv ] \&\& scp -P222 $csv www\@services:/www/edastro.com/mapcharts/files/";
 		my_system(1,$cmd);
 	}};
 
@@ -218,7 +213,7 @@ if ((!keys(%action) && $epochDay % $day_interval == 0) || $action{files}) {
 			push @list, $n if ($n =~ /^(and|rlike|binlike):/);
 		}
 
-		my $cmd = "cd ~bones/elite/scripts ; ./star-list.pl ".join(' ',@list)." > $csv ; scp -P222 $csv www\@services:/www/edastro.com/mapcharts/files/";
+		my $cmd = "cd ~bones/elite/scripts ; ./star-list.pl ".join(' ',@list)." > $csv ; [ -s $csv ] \&\& scp -P222 $csv www\@services:/www/edastro.com/mapcharts/files/";
 		my_system($cmd);
 	}};
 
@@ -230,29 +225,29 @@ if ((!keys(%action) && $epochDay % $day_interval == 0) || $action{files}) {
 			push @list, $n if ($n =~ /^(and|rlike|binlike):/);
 		}
 
-		my $cmd = "cd ~bones/elite/scripts ; ./moons-of-planets.pl ".join(' ',@list)." > $csv ; scp -P222 $csv www\@services:/www/edastro.com/mapcharts/files/";
+		my $cmd = "cd ~bones/elite/scripts ; ./moons-of-planets.pl ".join(' ',@list)." > $csv ; [ -s $csv ] \&\& scp -P222 $csv www\@services:/www/edastro.com/mapcharts/files/";
 		my_system($cmd);
 	}};
 
-	my_system(1,"cd ~bones/elite/scripts ; ./nearest-sol-discoveries.pl > nearest-sol-discoveries.csv ; scp nearest-sol-discoveries.csv www\@services:/www/edastro.com/mapcharts/files/ ");
+	my_system(1,"cd ~bones/elite/scripts ; ./nearest-sol-discoveries.pl > nearest-sol-discoveries.csv ; [ -s nearest-sol-discoveries.csv ] \&\& scp nearest-sol-discoveries.csv www\@services:/www/edastro.com/mapcharts/files/ ");
 	my_system(1,"cd ~bones/elite/scripts ; ./sector-list.pl > sector-list.pl.out ; cp sector-list.csv sector-list-stable.csv ; ".
-		"scp -P222 sector-list.csv www\@services:/www/edastro.com/mapcharts/files/ ; ".
-		"scp -P222 sector-discovery.csv www\@services:/www/edastro.com/mapcharts/files/ ");
+		"[ -s sector-list.csv ] \&\& scp -P222 sector-list.csv www\@services:/www/edastro.com/mapcharts/files/ ; ".
+		"[ -s sector-discovery.csv ] \&\& scp -P222 sector-discovery.csv www\@services:/www/edastro.com/mapcharts/files/ ");
 
-	my_system(1,"cd ~bones/elite/scripts ; ./database-stats.pl > database-stats.csv ; scp -P222 database-stats.csv www\@services:/www/edastro.com/mapcharts/files/ ");
-	my_system(1,"cd ~bones/elite/scripts ; ./inclined-moons-near-rings.pl > inclined-moons-near-rings.csv ; scp inclined-moons-near-rings.csv www\@services:/www/edastro.com/mapcharts/files/ ");
+	my_system(1,"cd ~bones/elite/scripts ; ./database-stats.pl > database-stats.csv ; [ -s database-stats.csv ] \&\& scp -P222 database-stats.csv www\@services:/www/edastro.com/mapcharts/files/ ");
+	my_system(1,"cd ~bones/elite/scripts ; ./inclined-moons-near-rings.pl > inclined-moons-near-rings.csv ; [ -s inclined-moons-near-rings.csv ] \&\& scp inclined-moons-near-rings.csv www\@services:/www/edastro.com/mapcharts/files/ ");
 	update_spreadsheets();
 
-	my_system("cd ~bones/elite/scripts ; ./planet-multiples.pl 2 'Earth-like world' > ELW-multiples.csv ; scp -P222 ELW-multiples.csv www\@services:/www/edastro.com/mapcharts/files/ ");
+	my_system("cd ~bones/elite/scripts ; ./planet-multiples.pl 2 'Earth-like world' > ELW-multiples.csv ; [ -s ELW-multiples.csv ] \&\& scp -P222 ELW-multiples.csv www\@services:/www/edastro.com/mapcharts/files/ ");
 	background_script("close-landables.pl","close-landables.csv");
-	my_system("cd ~bones/elite/scripts ; ./nested-moons.pl > Nested-Moons.csv ; scp -P222 Nested-Moons.csv www\@services:/www/edastro.com/mapcharts/files/ ");
-	my_system("cd ~bones/elite/scripts ; ./edge-systems.pl > edge-systems.csv ; scp -P222 edge-systems.csv www\@services:/www/edastro.com/mapcharts/files/ ");
-	my_system(1,"cd ~bones/elite/scripts ; ./hot-gasgiants.pl > hot-gasgiants.csv ; scp -P222 hot-gasgiants.csv www\@services:/www/edastro.com/mapcharts/files/ ");
-	my_system(1,"cd ~bones/elite/scripts ; ./hot-jupiters.pl > hot-jupiters.csv ; scp -P222 hot-jupiters.csv www\@services:/www/edastro.com/mapcharts/files/ ");
-	my_system("cd ~bones/elite/scripts ; ./unknown-stars.pl > unknown-stars.csv ; scp -P222 unknown-stars.csv www\@services:/www/edastro.com/mapcharts/files/ ");
-	my_system("cd ~bones/elite/scripts ; ./body-counts.pl > body-counts.csv ; scp -P222 body-counts.csv www\@services:/www/edastro.com/mapcharts/files/ ");
-	my_system("cd ~bones/elite/scripts ; ./binary-planets.pl > binary-ELW.csv ; scp -P222 binary-ELW.csv www\@services:/www/edastro.com/mapcharts/files/ ");
-	my_system("cd ~bones/elite/scripts ; ./neutron-stars.pl > neutron-stars.csv ; scp -P222 neutron-stars.csv www\@services:/www/edastro.com/mapcharts/files/ ");
+	my_system("cd ~bones/elite/scripts ; ./nested-moons.pl > Nested-Moons.csv ; [ -s Nested-Moons.csv ] \&\& scp -P222 Nested-Moons.csv www\@services:/www/edastro.com/mapcharts/files/ ");
+	my_system("cd ~bones/elite/scripts ; ./edge-systems.pl > edge-systems.csv ; [ -s edge-systems.csv ] \&\& scp -P222 edge-systems.csv www\@services:/www/edastro.com/mapcharts/files/ ");
+	my_system(1,"cd ~bones/elite/scripts ; ./hot-gasgiants.pl > hot-gasgiants.csv ; [ -s hot-gasgiants.csv ] \&\& scp -P222 hot-gasgiants.csv www\@services:/www/edastro.com/mapcharts/files/ ");
+	my_system(1,"cd ~bones/elite/scripts ; ./hot-jupiters.pl > hot-jupiters.csv ; [ -s hot-jupiters.csv ] \&\& scp -P222 hot-jupiters.csv www\@services:/www/edastro.com/mapcharts/files/ ");
+	my_system("cd ~bones/elite/scripts ; ./unknown-stars.pl > unknown-stars.csv ; [ -s unknown-stars.csv ] \&\& scp -P222 unknown-stars.csv www\@services:/www/edastro.com/mapcharts/files/ ");
+	my_system("cd ~bones/elite/scripts ; ./body-counts.pl > body-counts.csv ; [ -s body-counts.csv ] \&\& scp -P222 body-counts.csv www\@services:/www/edastro.com/mapcharts/files/ ");
+	my_system("cd ~bones/elite/scripts ; ./binary-planets.pl > binary-ELW.csv ; [ -s binary-ELW.csv ] \&\& scp -P222 binary-ELW.csv www\@services:/www/edastro.com/mapcharts/files/ ");
+	my_system("cd ~bones/elite/scripts ; ./neutron-stars.pl > neutron-stars.csv ; [ -s neutron-stars.csv ] \&\& scp -P222 neutron-stars.csv www\@services:/www/edastro.com/mapcharts/files/ ");
 	my_system(1,"cd ~bones/elite/scripts ; ./icy-ring-systems.pl ");
 
 	bg_execute_script("discovery-dates.pl","discovery-dates.csv","discovery-months.csv");
@@ -296,7 +291,7 @@ if ((!keys(%action) && $epochDay % $day_interval == 1) || $action{files}) {
 	background_script("moon-rich-HMCs.pl","moon-rich-HMCs.csv");
 	bg_execute_script("moon-rich-planets.pl","moon-rich-planets.csv");
 	bg_execute_script("moon-rich-stars.pl","moon-rich-stars.csv");
-	my_system(1,"cd ~bones/elite/scripts ; ./trojan-planets.pl > trojan-planets.csv ; scp trojan-planets.csv www\@services:/www/edastro.com/mapcharts/files/  ");
+	my_system(1,"cd ~bones/elite/scripts ; ./trojan-planets.pl > trojan-planets.csv ; [ -s trojan-planets.csv ] \&\& scp trojan-planets.csv www\@services:/www/edastro.com/mapcharts/files/  ");
 	background_script("suspicious-data.pl","suspicious-data.csv");
 	bg_execute_script("odyssey-landable-rare-candidates.sh","odyssey-landable-rare-candidates.csv");
 	redirect_script("sol-like-systems.pl","sol-like-systems.csv");
@@ -314,10 +309,10 @@ if ((!keys(%action) && $epochDay % $day_interval == 1) || $action{files}) {
 	background_script("high-body-count-systems.pl","high-body-count-systems.csv");
 	background_script("close-moons-landable.pl 'Earth-like world'","close-moons-landable-ELW.csv");
 
-	my_system("cd ~bones/elite/scripts ; ./shepherd-moons.pl > shepherd-moons.csv 2>shepherd-moons.out ; scp shepherd-moons.csv www\@services:/www/edastro.com/mapcharts/files/  ");
+	my_system("cd ~bones/elite/scripts ; ./shepherd-moons.pl > shepherd-moons.csv 2>shepherd-moons.out ; [ -s shepherd-moons.csv ] \&\& scp shepherd-moons.csv www\@services:/www/edastro.com/mapcharts/files/  ");
 
 	my_system("cd ~bones/elite/scripts ; ./catalog-systems.pl > catalog-systems.pl.out 2>\&1");
-	my_system("cd ~bones/elite/scripts ; ./sector-list-H-mass.pl > sector-list-H-mass.csv ; scp -P222 sector-list-H-mass.csv www\@services:/www/edastro.com/mapcharts/files/ ");
+	my_system("cd ~bones/elite/scripts ; ./sector-list-H-mass.pl > sector-list-H-mass.csv ; [ -s sector-list-H-mass.csv ] \&\& scp -P222 sector-list-H-mass.csv www\@services:/www/edastro.com/mapcharts/files/ ");
 
 	my_system("scp -P222 ~bones/elite/images/region-lines.png www\@services:/www/edastro.com/galmap/");
 	bg_execute_script("rings-statistics.pl","rings-statistics.csv");
@@ -335,6 +330,12 @@ if (!keys(%action) && $t[6] == 0) {
 	my_system('cd ~bones/elite/scripts ; cp metallicity.csv metallicity-stable.csv');
 	my_system("cd ~bones/elite/scripts ; ./systems-without-main-stars.pl > systems-without-main-stars.pl.out 2>\&1 ");
 	update_spreadsheets();
+}
+
+if ((!keys(%action) && $t[6] == 6) || $action{video}) {
+	my_system(1,"$path/history-video.pl > $path/history-video.pl.out 2>\&1 ; $path/history-video.pl 1 > $path/history-video.pl.decay.out 2>\&1");
+	#my_system(1,"$path/history-video.pl 1 > $path/history-video.pl.decay.out 2>\&1");
+	#my_system("$path/carrier-video.pl > $path/carrier-video.pl .out >\&1");
 }
 
 #get_file(0,'-u','https://eddb.io/archive/v5','bodies_recently.jsonl');
@@ -356,7 +357,7 @@ sub background_script {
 	my ($script,$outfile) = @_;
 	$script = btrim($script);
 	my $logname = log_name($script);
-	my_system(1,"cd ~bones/elite/scripts ; ./$script > $outfile 2>$logname ; scp $outfile www\@services:/www/edastro.com/mapcharts/files/");
+	my_system(1,"cd ~bones/elite/scripts ; ./$script > $outfile 2>$logname ; [ -s $outfile ] \&\& scp $outfile www\@services:/www/edastro.com/mapcharts/files/");
 }
 
 sub redirect_script {
@@ -366,7 +367,7 @@ sub redirect_script {
 		(my $ignore,$script,$outfile) = @_;
 	}
 	my $logname = log_name($script);
-	my_system("cd ~bones/elite/scripts ; ./$script > $outfile 2>$logname ; scp $outfile www\@services:/www/edastro.com/mapcharts/files/");
+	my_system("cd ~bones/elite/scripts ; ./$script > $outfile 2>$logname ; [ -s $outfile ] \&\& scp $outfile www\@services:/www/edastro.com/mapcharts/files/");
 }
 
 sub execute_script {
