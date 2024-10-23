@@ -214,16 +214,18 @@ sub make_video {
 		if (!$debug && !$skip_framing) {
 			my $orig_sys_count = unpack("%32b*", $sys_vector);
 	
-			my @rows = db_mysql('elite',"select distinct edsm_id,coord_x,coord_z,0.75 as v from systems where (edsm_date>='$starttime' and edsm_date<'$endtime') or ".
+			my @rows = db_mysql('elite',"select distinct edsm_id,coord_x,coord_z,0.75 as v from systems where ".
+						"(date_added>='$starttime' and date_added<'$endtime') or ".
+						"(edsm_date>='$starttime' and edsm_date<'$endtime') or ".
 						"(updateTime>='$starttime' and updateTime<'$endtime')");
 
 			push @rows, db_mysql('elite',"select distinct systemId as edsm_id,coord_x,coord_z,0.25 as v from systems,stars where stars.systemId=systems.edsm_id and ".
 				"( (stars.updateTime>='$starttime' and stars.updateTime<'$endtime') or (stars.edsm_date>='$starttime' and stars.edsm_date<'$endtime') or ".
-				"(discoveryDate>='$starttime' and discoveryDate<'$endtime') )") if ($use_bodies);
+				"(stars.date_added>='$starttime' and stars.date_added<'$endtime') or (discoveryDate>='$starttime' and discoveryDate<'$endtime') )") if ($use_bodies);
 
 			push @rows, db_mysql('elite',"select distinct systemId as edsm_id,coord_x,coord_z,0.25 as v from systems,planets where planets.systemId=systems.edsm_id and ".
 				"( (planets.updateTime>='$starttime' and planets.updateTime<'$endtime') or (planets.edsm_date>='$starttime' and planets.edsm_date<'$endtime') or ".
-				"(discoveryDate>='$starttime' and discoveryDate<'$endtime') )") if ($use_bodies);
+				"(planets.date_added>='$starttime' and planets.date_added<'$endtime') or (discoveryDate>='$starttime' and discoveryDate<'$endtime') )") if ($use_bodies);
 
 			my $systems = int(@rows);
 	

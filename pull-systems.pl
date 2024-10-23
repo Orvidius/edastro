@@ -333,8 +333,8 @@ if (!keys(%action) && $t[6] == 0) {
 }
 
 if ((!keys(%action) && $t[6] == 6) || $action{video}) {
-	my_system(1,"$path/history-video.pl > $path/history-video.pl.out 2>\&1 ; $path/history-video.pl 1 > $path/history-video.pl.decay.out 2>\&1");
-	#my_system(1,"$path/history-video.pl 1 > $path/history-video.pl.decay.out 2>\&1");
+	my_system(1,"$path/history-video.pl > $path/history-video.pl.out 2>\&1");
+	my_system(1,"$path/history-video.pl 1 > $path/history-video.pl.decay.out 2>\&1");
 	#my_system("$path/carrier-video.pl > $path/carrier-video.pl .out >\&1");
 }
 
