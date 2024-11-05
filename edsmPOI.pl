@@ -548,6 +548,71 @@ open CSV, "<canonn-challenge.csv";
 close CSV;
 
 
+# Marx's Codex Completionist List
+
+my $ccl_num = 0;
+
+open CSV, "<codex_completionist_nsp.csv";
+open CSV, "<codex_completionist_horizon_bio.csv";
+open CSV, "<codex_completionist_odyssey_bio_regions.csv";
+foreach my $fn ('codex_completionist_nsp.csv','codex_completionist_horizon_bio.csv','codex_completionist_odyssey_bio_regions.csv') {
+	open CSV, "<$fn";
+
+	my %header = ();
+	my $h = <CSV>; chomp $h;
+	my @v = parse_csv($h);
+	my $n = 0;
+	foreach my $s (@v) {
+		$header{system} = $n if ($s =~ /System/i);
+		$header{feature} = $n if ($s =~ /feature/i);
+		$header{species} = $n if ($s =~ /species/i);
+		$header{notes} = $n if ($s =~ /regions|notes/i);
+		$header{discoverer} = $n if ($s =~ /discover/i);
+		$n++;
+	}
+	
+
+
+	my $type = 'CCLNSP';
+	$type = 'CCLHBIO' if ($fn =~ /horizon/i);
+	$type = 'CCLOBIO' if ($fn =~ /odyssey/i);
+
+
+	foreach my $line (<CSV>) {
+		chomp $line;
+		next if (!$line);
+		my @v = parse_csv($line);
+		next if (!@v);
+
+		my @rows = db_mysql('elite',"select coord_x,coord_y,coord_z from systems where name=? and deletionState=0",[($v[$header{system}])]);
+		foreach my $r (@rows) {
+			$x = $$r{coord_x};
+			$y = $$r{coord_y};
+			$z = $$r{coord_z};
+		}
+
+		my $name = $v[$header{system}];
+		next if (!$name);
+		$ccl_num++;
+		my $id = "CCL$ccl_num";
+
+		if ($x =~ /[^\d\.\-]/ || $y =~ /[^\d\.\-]/ || $z =~ /[^\d\.\-]/ || (!$x && !$y && !$z)) {
+			warn "COMPLETIONIST LIST SKIPPED: [$count] $v[$header{system}] no coords.\n";
+			next;
+		}
+
+		$v[$header{notes}] = $v[$header{notes}] .'+|+Feature: '. $v[$header{feature}] if (defined($header{feature}) && $v[$header{feature}]);
+		$v[$header{notes}] = $v[$header{notes}] .'+|+Species '. $v[$header{species}] if (defined($header{species}) && $v[$header{species}]);
+		$v[$header{notes}] = $v[$header{notes}] .'+|+Discovered by: '. $v[$header{discoverer}] if (defined($header{discoverer}) && $v[$header{discoverer}]);
+	
+		$count++;
+		warn "COMPLETIONIST LIST FOUND: [$id] $v[$header{system}] ($x,$y,$z)\n";
+		print join("\t|\t",$type,$id,$name,$x,$y,$z,$v[$header{system}],$type,$v[$header{notes}])."\r\n";
+		print OUT make_csv($type,$id,$name,$x,$y,$z,$v[$header{system}],$v[$header{notes}])."\r\n";
+	}
+	close CSV;
+}
+
 
 
 # DSSA carriers
