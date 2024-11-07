@@ -29,6 +29,7 @@ cp POIlist.json POIstuff/GEC-POIs.json`date +\%Y\%m`
 /usr/bin/wget -O trit_highway.csv "https://docs.google.com/spreadsheets/d/1ev9pxVJCHApDEhsXc0mzrgeQqjaIJc2lJw-m3nXCaz8/gviz/tq?tqx=out:csv&gid=72514601"
 
 # from: https://docs.google.com/spreadsheets/d/1Ln1jUj-RooO1xqHEMC8kyIe7_ZfE8MKNAbTvUDpg13U/edit?pli=1&gid=0#gid=0
+# and: https://forums.frontier.co.uk/threads/codex-completionist-list-nsps-horizons-bios-and-odyssey-bio-regions.628928/
 /usr/bin/wget -O codex_completionist_nsp.csv "https://docs.google.com/spreadsheets/d/1Ln1jUj-RooO1xqHEMC8kyIe7_ZfE8MKNAbTvUDpg13U/gviz/tq?tqx=out:csv&gid=0"
 /usr/bin/wget -O codex_completionist_horizon_bio.csv "https://docs.google.com/spreadsheets/d/1Ln1jUj-RooO1xqHEMC8kyIe7_ZfE8MKNAbTvUDpg13U/gviz/tq?tqx=out:csv&gid=348415042"
 /usr/bin/wget -O codex_completionist_odyssey_bio_regions.csv "https://docs.google.com/spreadsheets/d/1Ln1jUj-RooO1xqHEMC8kyIe7_ZfE8MKNAbTvUDpg13U/gviz/tq?tqx=out:csv&gid=776148114"
