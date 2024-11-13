@@ -1169,7 +1169,7 @@ foreach my $c (sort { $a cmp $b } keys %pixel) {
 
 
 my @rows = db_mysql('elite',"select edsm_id,gec_id,score,summary,name,type,coord_x,coord_y,coord_z,galMapSearch,galMapUrl,poiUrl,descriptionHtml from POI ".
-			"where (skip is null or skip=0) and hidden=0 and (gec_id is null or score>=3)");
+			"where (skip is null or skip=0) and hidden=0 and (gec_id is null or score>=3 or type='Deep Space Outpost')");
 my @out = ();
 my %POIseen = ();
 
