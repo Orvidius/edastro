@@ -1182,6 +1182,10 @@ foreach my $r (sort { $$a{type} cmp $$b{type} || $$a{name} cmp $$b{name} } @out)
 	my $typeOverride = '';
 	my $name = $$r{name};
 
+	foreach my $v ('summary','descriptionHtml') {
+		$$r{$v} = html_encode($$r{$v});
+	}
+
 	if (exists($tri{$$r{galMapSearch}})) {
 		$typeOverride = 'tritium';
 		delete($tri{$$r{galMapSearch}});
@@ -1230,7 +1234,7 @@ foreach my $r (sort { $$a{type} cmp $$b{type} || $$a{name} cmp $$b{name} } @out)
 	$POIseen{$$r{galMapSearch}} = 1;
 	$POIname{$name} = 1;
 
-	print join("\t|\t",$$r{type},$id,$name,$$r{coord_x},$$r{coord_y},$$r{coord_z},$$r{galMapSearch},$typeOverride,$string)."\n";
+	print join("\t|\t",$$r{type},$id,$name,$$r{coord_x},$$r{coord_y},$$r{coord_z},$$r{galMapSearch},$typeOverride,html_encode($string))."\n";
 	print OUT make_csv($$r{type},$id,$name,$$r{coord_x},$$r{coord_y},$$r{coord_z},$$r{galMapSearch},undef)."\r\n";
 }
 
@@ -1368,3 +1372,11 @@ exit;
 
 #####################################################################
 
+sub html_encode {
+        my $s = shift;
+
+        $s =~ s/\x{c2}\x{b0}/\&deg;/gs;
+        $s =~ s/\x{e2}\x{80}\x{99}/\&apos;/gs;
+
+        return $s;
+}

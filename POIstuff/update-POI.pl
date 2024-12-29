@@ -424,9 +424,9 @@ sub add_EDSM {
 				addMarker(\%list, $d, $hash{x},$hash{y},$hash{z},"$note$hash{name}$ref",@params);
 
 			if ($pin =~ /'PN'|'M'/) {
-					addMarker(\%list2, $d, $hash{x},$hash{y},$hash{z},"$note$hash{name}$ref",@params);
+					addMarker(\%list2, $d, $hash{x},$hash{y},$hash{z},html_encode("$note$hash{name}$ref"),@params);
 			} else {
-					addMarker(\%list1, $d, $hash{x},$hash{y},$hash{z},"$note$hash{name}$ref",@params);
+					addMarker(\%list1, $d, $hash{x},$hash{y},$hash{z},html_encode("$note$hash{name}$ref"),@params);
 			}
 		} else {
 			print "Skipping (via type) $hash{type}($hash{pin}) \"$hash{mapref}\ ($hash{name}) #$hash{id}\n";
@@ -485,6 +485,15 @@ sub commify {
     my $text = reverse $_[0];
     $text =~ s/(\d\d\d)(?=\d)(?!\d*\.)/$1,/g;
     return scalar reverse $text
+}
+
+sub html_encode {
+	my $s = shift;
+
+        $s =~ s/\x{c2}\x{b0}/\&deg;/gs;
+        $s =~ s/\x{e2}\x{80}\x{99}/\&apos;/gs;
+
+	return $s;
 }
 
 ###########################################################################
