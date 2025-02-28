@@ -35,7 +35,7 @@ my $interval		= $days_per_period*86400;
 
 
 my %override_periods	= ();
-$override_periods{'Graea Hypue'}	= $max_periods * 10;
+$override_periods{'Graea Hypue'}	= $max_periods * 15;
 $override_periods{'Flyoo Prao'}		= $max_periods * 6;
 $override_periods{'Eishoqs'}		= $max_periods * 6;
 
