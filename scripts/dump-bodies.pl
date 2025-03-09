@@ -265,9 +265,9 @@ while ($id_chunk < $max_sys_id) {
 		foreach my $s (sort {$a <=> $b} @sys) {
 			$sysdata{$s}{planets} = 0 if (!$sysdata{$s}{planets});
 			$sysdata{$s}{stars} = 0 if (!$sysdata{$s}{stars});
-			print SYSTEMS "$sysdata{$s}{ID},$sysdata{$s}{edsm_id},$s,$sysdata{$s}{name},$sysdata{$s}{coord_x},$sysdata{$s}{coord_y},$sysdata{$s}{coord_z},".
-					"$sysdata{$s}{sol_dist},$sysdata{$s}{stars},$sysdata{$s}{planets},$sysdata{$s}{date_added},$sysdata{$s}{FSSprogress},$sysdata{$s}{bodyCount},".
-					"$mainstar{$s}{subType}\r\n";
+			print SYSTEMS make_csv($sysdata{$s}{ID},$sysdata{$s}{edsm_id},$s,$sysdata{$s}{name},$sysdata{$s}{coord_x},$sysdata{$s}{coord_y},$sysdata{$s}{coord_z},
+					$sysdata{$s}{sol_dist},$sysdata{$s}{stars},$sysdata{$s}{planets},$sysdata{$s}{date_added},$sysdata{$s}{FSSprogress},$sysdata{$s}{bodyCount},
+					$mainstar{$s}{subType})."\r\n";
 			$rowcounter{systems}++;
 		}
 
