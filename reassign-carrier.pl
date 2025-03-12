@@ -14,6 +14,11 @@ my $old = $ARGV[0];
 my $new = $ARGV[1];
 my $force = $ARGV[2];
 
+
+##### Don't reassign anmore
+exit;
+##### Don't reassign anmore
+
 sleep 1;
 
 my @c1c = db_mysql('elite',"select count(*) from carriers where callsign=?",[($old)]);
@@ -30,7 +35,7 @@ my @preserve = db_mysql('elite',"select * from carriers where callsign=?",[($old
 my @compare = db_mysql('elite',"select * from carriers where callsign=?",[($new)]);
 
 eval { db_mysql('elite',"delete from carriers where callsign=?",[($old)]); };
-eval { db_mysql('elite',"update carrierlog set callsign=? where callsign=?",[($new,$old)]); };
+eval { db_mysql('elite',"update carrierlog set callsign=?,converted=1 where callsign=?",[($new,$old)]); };
 eval { db_mysql('elite',"update carrierdockings set callsign=? where callsign=?",[($new,$old)]); };
 eval { db_mysql('elite',"update carriers set converted=1,callsign_old=? where callsign=?", [($old,$new)]); };
 

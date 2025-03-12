@@ -222,9 +222,11 @@ foreach my $id (sort {$a <=> $b || $a cmp $b} keys %carrier) {
 	my @IDcheck2 = db_mysql('elite',"select ID from carriers where converted=1 and callsign=?",[($carrier{$id}{callsign})]);
 	if (@IDcheck1 && !@IDcheck2 && uc($carrier{$id}{callsign}) ne uc($oldID{$carrier{$id}{num}}) && $oldID{$carrier{$id}{num}} && $carrier{$id}{callsign} =~ /^[\w\d]{3,4}\-[\w\d]{3,4}$/) {
 		# Carrier exists with old ID. Rename to preserve info.
-		db_mysql('elite',"delete from carriers where callsign=?",[($carrier{$id}{callsign})]);
+		db_mysql('elite',"delete from carriers where callsign=? and (converted is null or converted=0)",[($carrier{$id}{callsign})]);
+		eval {
 		db_mysql('elite',"update carriers set callsign=?,converted=1,callsign_old=? where callsign=?",[($carrier{$id}{callsign},$oldID{$carrier{$id}{num}},$oldID{$carrier{$id}{num}})]);
 		db_mysql('elite',"update carrierlog set callsign=? where callsign=?",[($carrier{$id}{callsign},$oldID{$carrier{$id}{num}})]);
+		};
 	}
 
 	db_mysql('elite',"update carriers set commander=? where callsign=? and (commander is null or commander='')",

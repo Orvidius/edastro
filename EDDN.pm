@@ -822,16 +822,16 @@ sub track_carrier {
 
 		check_db_connection();
 
-		if ($carrier{marketID}) {
-			eval {
-				my @check = db_mysql('elite',"select ID,callsign from $table where marketID=? and callsign!=?",[($carrier{marketID},$carrier{callsign})]);
-	
-				if (@check>1 || (@check==1 && ${$check[0]}{callsign} ne $carrier{callsign})) {
-					system('/home/bones/elite/reassign-carrier.pl',${$check[0]}{callsign},$carrier{callsign},1);
-				}
-			};
-			print "ERROR: $@" if ($@);
-		}
+#		if ($carrier{marketID}) {
+#			eval {
+#				my @check = db_mysql('elite',"select ID,callsign from $table where marketID=? and callsign!=? and (converted is null or converted=0)",[($carrier{marketID},$carrier{callsign})]);
+#	
+#				if (@check>1 || (@check==1 && ${$check[0]}{callsign} ne $carrier{callsign})) {
+#					system('/home/bones/elite/reassign-carrier.pl',${$check[0]}{callsign},$carrier{callsign},1);
+#				}
+#			};
+#			print "ERROR: $@" if ($@);
+#		}
 
 
 		if ($carrier{services}) {

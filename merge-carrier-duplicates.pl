@@ -6,6 +6,11 @@ use DB qw(db_mysql show_queries);
 
 show_queries(0);
 
+
+exit;
+
+
+
 my @rows = db_mysql('elite',"select distinct marketID,count(*) as num from carriers group by marketID having count(*)>1 order by marketID");
 
 foreach my $r (@rows) {
