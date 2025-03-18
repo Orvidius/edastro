@@ -3,6 +3,8 @@ use strict;
 
 #############################################################################
 
+use File::Basename;
+
 use lib "/home/bones/perl";
 use ATOMS qw(btrim epoch2date date2epoch);
 
@@ -477,11 +479,12 @@ sub waitfor {
 
 	while (!$done) {
 
+		#/usr/bin/perl ./trojan-planets.pl
 		open PS, "$ps awx | $grep perl |";
 		while (<PS>) {
 			#10164 pts/5    S+     0:00 /usr/bin/perl ./orbit-types-update.pl
-			if (/[\/\w]+perl\s+[\.\/\w\-]+([^\/]+)\s*(\s+.+)?$/) {
-				$running{$1} = 1;
+			if (/[\/\w]+perl\s+([\.\/\w\-]+)\s*(\s+.+)?$/) {
+				$running{basename($1)} = 1;
 			}
 		}
 		close PS;
@@ -497,6 +500,9 @@ sub waitfor {
 		}
 	}
 	print "\n";
+
+	my $d = epoch2date(time,-5,1);
+	print "[$d] DONE Waiting for: '".join("','",@scripts)."'\n";
 }
 
 #############################################################################
