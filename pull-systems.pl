@@ -139,7 +139,7 @@ if ($t[3] == 1) {
 
 if ((!keys(%action) && $epochDay % $day_interval == 0) || $action{bodies}) {
 	get_file(1,'-u','https://www.edsm.net/dump','stations.json') if (!$edsm_down);
-	my_system("cd ~bones/elite ; ./adjusted-dates.pl > adjusted-dates.pl.out 2>\&1 ");
+	my_system(1,"cd ~bones/elite ; ./adjusted-dates.pl > adjusted-dates.pl.out 2>\&1");
 }
 if (!keys(%action) || $action{bodies}) {
 	my_system(1,"cd ~bones/elite ; ./find-primaries.pl ");
@@ -149,7 +149,7 @@ if (!keys(%action) || $action{bodies}) {
 	my_system(1,"cd ~bones/elite ; ./update-parents.pl > update-parents.pl.out 2>\&1");
 	#my_system(1,"cd ~bones/elite ; ./update-completion.pl > update-completion.pl.out 2>\&1");
 	my_system(1,"cd ~bones/elite ; ./update-main-startypes.pl > update-main-startypes.pl.out 2>\&1");
-	waitfor('update-regioncodes.pl','update-parents.pl','update-main-startypes.pl','update-completion.pl');
+	waitfor('update-regioncodes.pl','update-parents.pl','update-completion.pl');
 }
 
 if (!keys(%action) && ($t[3] == 1 || $t[3] == 15)) {
@@ -480,11 +480,15 @@ sub waitfor {
 	while (!$done) {
 
 		#/usr/bin/perl ./trojan-planets.pl
+		#/usr/bin/perl ./update-POI.pl
+		my %running = ();
+
 		open PS, "$ps awx | $grep perl |";
 		while (<PS>) {
 			#10164 pts/5    S+     0:00 /usr/bin/perl ./orbit-types-update.pl
-			if (/[\/\w]+perl\s+([\.\/\w\-]+)\s*(\s+.+)?$/) {
+			if (/[\/\w]+perl\s+([\.\/\w\-]+?)\s*(\s+.+)?$/) {
 				$running{basename($1)} = 1;
+				#print "found: ".basename($1)."\n";
 			}
 		}
 		close PS;
@@ -496,7 +500,7 @@ sub waitfor {
 
 		if (!$done) {
 			sleep 5;
-			print '.';
+			print ';';
 		}
 	}
 	print "\n";
