@@ -51,7 +51,7 @@ while (@rows) {
 	$systemID{$$r{systemId64}}=1 if ($$r{systemId64});
 }
 
-@systems  = keys %systemID;
+@systems  = sort {$a <=> $b} keys %systemID;
 %systemID = ();
 
 if ($debug) {

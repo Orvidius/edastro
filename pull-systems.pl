@@ -174,10 +174,10 @@ if ((!keys(%action) && $t[6] == 6) || $action{maps}) {
 
 	#my_system("cd ~bones/elite ; ./get-nebulae.sh ; ./nebula-maps.pl ; ./IGAUcodex-maps.pl ");
 	#my_system("cd ~bones/elite ; ./get-nebulae.sh ; ./nebula-maps.pl");
-	my_system("cd ~bones/elite ; ./missing-coordinates-map.pl > missing-coordinates-map.pl.out 2>\&1");
 	#my_system("cd ~bones/elite ; ./IGAU_Codex-import.pl > IGAU_Codex-import.pl.out 2>\&1 ");
+	my_system(1,"cd ~bones/elite ; ./codex-maps.pl > codex-maps.pl.out 2>\&1 ");
+	my_system("cd ~bones/elite ; ./missing-coordinates-map.pl > missing-coordinates-map.pl.out 2>\&1");
 	my_system("cd ~bones/elite ; ./codex-tweaks.pl > codex-tweaks.pl.out 2>\&1 ") if (!$edsm_down);
-	my_system("cd ~bones/elite ; ./codex-maps.pl > codex-maps.pl.out 2>\&1 ");
 	my_system("cd ~bones/elite ; ./organic-maps.pl > organic-maps.pl.out 2>\&1 ");
 }
 
@@ -293,7 +293,7 @@ if ((!keys(%action) && $epochDay % $day_interval == 1) || $action{files}) {
 	background_script("moon-rich-HMCs.pl","moon-rich-HMCs.csv");
 	bg_execute_script("moon-rich-planets.pl","moon-rich-planets.csv");
 	bg_execute_script("moon-rich-stars.pl","moon-rich-stars.csv");
-	my_system(1,"cd ~bones/elite/scripts ; ./trojan-planets.pl > trojan-planets.csv ; [ -s trojan-planets.csv ] \&\& scp trojan-planets.csv www\@services:/www/edastro.com/mapcharts/files/  ");
+	#my_system(1,"cd ~bones/elite/scripts ; ./trojan-planets.pl > trojan-planets.csv ; [ -s trojan-planets.csv ] \&\& scp trojan-planets.csv www\@services:/www/edastro.com/mapcharts/files/  ");
 	background_script("suspicious-data.pl","suspicious-data.csv");
 	bg_execute_script("odyssey-landable-rare-candidates.sh","odyssey-landable-rare-candidates.csv");
 	redirect_script("sol-like-systems.pl","sol-like-systems.csv");
@@ -306,14 +306,14 @@ if ((!keys(%action) && $epochDay % $day_interval == 1) || $action{files}) {
 
 	update_spreadsheets();
 
-	waitfor('trojan-planets.pl');
-
 	background_script("high-body-count-systems.pl","high-body-count-systems.csv");
 	background_script("close-moons-landable.pl 'Earth-like world'","close-moons-landable-ELW.csv");
+	my_system("cd ~bones/elite/scripts ; ./catalog-systems.pl > catalog-systems.pl.out 2>\&1");
+
+	#waitfor('trojan-planets.pl');
 
 	my_system("cd ~bones/elite/scripts ; ./shepherd-moons.pl > shepherd-moons.csv 2>shepherd-moons.out ; [ -s shepherd-moons.csv ] \&\& scp shepherd-moons.csv www\@services:/www/edastro.com/mapcharts/files/  ");
 
-	my_system("cd ~bones/elite/scripts ; ./catalog-systems.pl > catalog-systems.pl.out 2>\&1");
 	my_system("cd ~bones/elite/scripts ; ./sector-list-H-mass.pl > sector-list-H-mass.csv ; [ -s sector-list-H-mass.csv ] \&\& scp -P222 sector-list-H-mass.csv www\@services:/www/edastro.com/mapcharts/files/ ");
 
 	my_system("scp -P222 ~bones/elite/images/region-lines.png www\@services:/www/edastro.com/galmap/");
