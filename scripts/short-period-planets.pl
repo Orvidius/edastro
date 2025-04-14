@@ -8,19 +8,19 @@ use EDSM qw(log10);
 
 use lib "/home/bones/perl";
 use DB qw(db_mysql rows_mysql columns_mysql show_queries);
-use ATOMS qw(epoch2date date2epoch);
+use ATOMS qw(epoch2date date2epoch make_csv);
 
 ############################################################################
 
 show_queries(0);
 
-my @rows = db_mysql('elite',"select * from planets where orbitalPeriod<0.042 and orbitalPeriod>0 and orbitalPeriod is not null ".
+my @rows = db_mysql('elite',"select * from planets where orbitalPeriod<0.17 and orbitalPeriod>0 and orbitalPeriod is not null ".
 			" and name rlike ' [0-9]\$' and deletionState=0 order by orbitalPeriod");
 
 print "System,Planet,Mass Code,Type,Rings,Arrival Distance,Terraforming State,Radius,Earth Masses,Surface Gravity,Surface Temperature,".
 	"Volcanism,Atmosphere,Axial Tilt,Rotational Period,Tidally Locked,Orbital Period,".
 	"Semi-major Axis,Orbital Eccentricity,Orbital Inclination,Arg. of Periapsis,".
-	"Coord X,Coord Y,Coord Z,Timestamp,EDSM Discoverer,EDSM Discovery Date\r\n";
+	"Coord X,Coord Y,Coord Z,Timestamp,EDSM Discoverer,EDSM Discovery Date,regionID\r\n";
 
 my $count = 0;
 foreach my $r (@rows) {
@@ -33,7 +33,7 @@ foreach my $r (@rows) {
 	my $num = int(@rows2);
 
 	my $r2 = undef;
-	@rows2 = db_mysql('elite',"select name,coord_x,coord_y,coord_z from systems where id64='$$r{systemId64}' and deletionState=0");
+	@rows2 = db_mysql('elite',"select name,coord_x,coord_y,coord_z,region from systems where id64='$$r{systemId64}' and deletionState=0");
 	if (@rows2) {
 		$r2 = shift @rows2;
 	} else {
@@ -49,10 +49,11 @@ foreach my $r (@rows) {
 		$masscode = uc($1);
 	}
 
-	print "$$r2{name},$$r{name},$masscode,$$r{subType},$num,".
-		"$$r{distanceToArrivalLS},$$r{terraformingState},$$r{radius},$$r{earthMasses},$$r{gravity},$$r{surfaceTemperature},".
-		"$$r{volcanismType},$$r{atmosphereType},$$r{axialTilt},$$r{rotationalPeriod},$locked,$$r{orbitalPeriod},$$r{semiMajorAxis},$$r{orbitalEccentricity},".
-		"$$r{orbitalInclination},$$r{argOfPeriapsis},$$r2{coord_x},$$r2{coord_y},$$r2{coord_z},$$r{updateTime},$$r{commanderName},$$r{discoveryDate}\r\n";
+	print make_csv($$r2{name},$$r{name},$masscode,$$r{subType},$num,
+		$$r{distanceToArrivalLS},$$r{terraformingState},$$r{radius},$$r{earthMasses},$$r{gravity},$$r{surfaceTemperature},
+		$$r{volcanismType},$$r{atmosphereType},$$r{axialTilt},$$r{rotationalPeriod},$locked,$$r{orbitalPeriod},$$r{semiMajorAxis},$$r{orbitalEccentricity},
+		$$r{orbitalInclination},$$r{argOfPeriapsis},$$r2{coord_x},$$r2{coord_y},$$r2{coord_z},$$r{updateTime},$$r{commanderName},$$r{discoveryDate},
+		$$r2{region})."\r\n";
 	$count++;
 }
 warn "$count found\n";

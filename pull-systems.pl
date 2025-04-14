@@ -75,7 +75,7 @@ if ($cron && $fdate eq $cdate) {
 @{$planets{'eccentric-orbits-landable.csv'}} = ('and:orbitalEccentricity\>=0.9','and:isLandable=1');
 @{$planets{'metal-rich-terraformables.csv'}} = ('Metal-rich body',"and:terraformingState=\\'Candidate\\ for\\ terraforming\\'");
 @{$planets{'gas-giants-as-moons.csv'}} = (q(rlike:name=\'\ \[\0-9\]+\\(\ \[a-z\]\\)+$\'),'Class I gas giant','Class II gas giant','Class III gas giant','Class IV gas giant','Class V gas giant','Gas giant with ammonia-based life','Gas giant with water-based life','Helium gas giant','Helium-rich gas giant','Water giant');
-@{$planets{'shortest-rotation-planets.csv'}} = ('notnull:rotationalPeriodDec','and:rotationalPeriodDec\>0','order=abs(rotationalPeriodDec)','limit=1000');
+@{$planets{'shortest-rotation-planets.csv'}} = ('notnull:rotationalPeriodDec','and:rotationalPeriodDec\>0','order=abs(rotationalPeriodDec)','limit=10000');
 
 #@{$planets{'odyssey-landables.csv'}} = ('High metal content world','Icy body','Metal-rich body','Rocky body','Rocky Ice world','and:surfacePressure\>=0.001','and:surfacePressure\<=0.1','and:isLandable=1');
 

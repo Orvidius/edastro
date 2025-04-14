@@ -8,7 +8,7 @@ use EDSM qw(log10);
 
 use lib "/home/bones/perl";
 use DB qw(db_mysql rows_mysql columns_mysql show_queries);
-use ATOMS qw(epoch2date date2epoch);
+use ATOMS qw(epoch2date date2epoch make_csv);
 
 ############################################################################
 
@@ -21,7 +21,7 @@ print "System,Planet,Mass Code,Type,Semi-major Axis (LS),Parent Star,Star Type,S
 	"Arrival Distance,Terraforming State,Radius,Earth Masses,Surface Gravity,Surface Temperature,Surface Pressure,".
 	"Volcanism,Atmosphere,Axial Tilt,Rotational Period,Tidally Locked,Orbital Period,".
 	"Semi-major Axis,Orbital Eccentricity,Orbital Inclination,Arg. of Periapsis,".
-	"Coord X,Coord Y,Coord Z,Timestamp,EDSM Discoverer,EDSM Discovery Date\r\n";
+	"Coord X,Coord Y,Coord Z,Timestamp,EDSM Discoverer,EDSM Discovery Date,regionID\r\n";
 
 my $count = 0;
 foreach my $r (@rows) {
@@ -57,7 +57,7 @@ foreach my $r (@rows) {
 		next if (!$lightseconds);
 
 		if (!keys %$system) {
-			my @systemlist = db_mysql('elite',"select name,coord_x,coord_y,coord_z from systems where id64='$$r{systemId64}' and deletionState=0");
+			my @systemlist = db_mysql('elite',"select name,coord_x,coord_y,coord_z,region from systems where id64='$$r{systemId64}' and deletionState=0");
 			if (@systemlist) {
 				$system = shift @systemlist;
 			} else {
@@ -95,10 +95,11 @@ foreach my $r (@rows) {
 	
 		#warn "$$system{name},$$r{name},$masscode,$$r{subType},$lightseconds,$parentname,$stars{$parentname}{subType},$stars{$parentname}{solarRadius}\n";
 
-		$out{$name} = "$$system{name},$$r{name},$masscode,$$r{subType},$lightseconds,$parentname,$stars{$parentname}{subType},$stars{$parentname}{solarRadius},$numrings,".
-			"$$r{distanceToArrivalLS},$$r{terraformingState},$$r{radius},$$r{earthMasses},$$r{gravity},$$r{surfaceTemperature},$$r{surfacePressure},".
-			"$$r{volcanismType},$$r{atmosphereType},$$r{axialTilt},$$r{rotationalPeriod},$locked,$$r{orbitalPeriod},$$r{semiMajorAxis},$$r{orbitalEccentricity},".
-			"$$r{orbitalInclination},$$r{argOfPeriapsis},$$system{coord_x},$$system{coord_y},$$system{coord_z},$$r{updateTime},$$r{commanderName},$$r{discoveryDate}\r\n";
+		$out{$name} = make_csv($$system{name},$$r{name},$masscode,$$r{subType},$lightseconds,$parentname,$stars{$parentname}{subType},$stars{$parentname}{solarRadius},$numrings,
+			$$r{distanceToArrivalLS},$$r{terraformingState},$$r{radius},$$r{earthMasses},$$r{gravity},$$r{surfaceTemperature},$$r{surfacePressure},
+			$$r{volcanismType},$$r{atmosphereType},$$r{axialTilt},$$r{rotationalPeriod},$locked,$$r{orbitalPeriod},$$r{semiMajorAxis},$$r{orbitalEccentricity},
+			$$r{orbitalInclination},$$r{argOfPeriapsis},$$system{coord_x},$$system{coord_y},$$system{coord_z},$$r{updateTime},$$r{commanderName},$$r{discoveryDate},
+			$$system{region})."\r\n";
 	}
 
 	foreach my $name (sort keys %out) {
