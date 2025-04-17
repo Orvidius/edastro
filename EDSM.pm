@@ -791,7 +791,7 @@ sub update_table {
 				push @params, $source{updateTime};
 			}
 		}
-		if ($table =~ /^(systems|planets|stars|barycenters)$/) {
+		if ($table =~ /^(systems|planets|stars|barycenters|stations)$/) {
 			$vars .= ",date_added";
 
 			if ($source{updateTime}) {
