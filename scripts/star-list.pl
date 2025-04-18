@@ -146,7 +146,7 @@ while (@$rows) {
 	my $num = int(@rows2);
 
 	my $r2 = undef;
-	@rows2 = db_mysql('elite',"select name,coord_x,coord_y,coord_z from systems where id64='$$r{systemId64}' and deletionState=0") if (!$simple_list);
+	@rows2 = db_mysql('elite',"select name,coord_x,coord_y,coord_z,region from systems where id64='$$r{systemId64}' and deletionState=0") if (!$simple_list);
 	if (@rows2) {
 		$r2 = shift @rows2;
 	} else {
@@ -182,7 +182,7 @@ while (@$rows) {
 		$$r{solarMasses},$$r{solarRadius},$$r{surfaceTemperature},$$r{absoluteMagnitude},$$r{spectralClass},$$r{luminosity},$$r{axialTilt},
 		$$r{rotationalPeriod},$locked,$$r{orbitalPeriod},$$r{semiMajorAxis},$$r{orbitalEccentricity},$$r{orbitalInclination},$$r{argOfPeriapsis},
 		$$r{meanAnomaly},$$r{ascendingNode},".int($starcount+$planetcount).",$starcount,$planetcount,
-		$$r2{coord_x},$$r2{coord_y},$$r2{coord_z},$$r{region},$$r{updateTime},$$r{commanderName},$$r{discoveryDate})."\r\n";
+		$$r2{coord_x},$$r2{coord_y},$$r2{coord_z},$$r2{region},$$r{updateTime},$$r{commanderName},$$r{discoveryDate})."\r\n";
 
 	} elsif ($simple_list && !$skip_type) {
 		print make_csv($$r{name},$$r{subType},$$r{updateTime},$$r{date_added})."\r\n";

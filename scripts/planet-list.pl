@@ -224,7 +224,7 @@ while (@{$$cols{planetID}}) {
 
 	my $r2 = undef;
 	@rows2 = ();
-	@rows2 = db_mysql('elite',"select name,coord_x,coord_y,coord_z from systems where id64='$$r{systemId64}'") if (!$simple_list);
+	@rows2 = db_mysql('elite',"select name,coord_x,coord_y,coord_z,region from systems where id64='$$r{systemId64}'") if (!$simple_list);
 	if (@rows2) {
 		$r2 = shift @rows2;
 	} else {
@@ -390,7 +390,7 @@ while (@{$$cols{planetID}}) {
 	push @out, $ringnum,$ringtypes,
 		$$r{distanceToArrivalLS},$$r{terraformingState},$$r{radiusDec},$$r{earthMasses},$$r{gravity},$$r{surfaceTemperature},$$r{surfacePressureDec},
 		$$r{volcanismType},$$r{atmosphereType},$$r{axialTiltDec},$$r{rotationalPeriodDec},$locked,$$r{orbitalPeriodDec},$$r{semiMajorAxisDec},$$r{orbitalEccentricityDec},
-		$$r{orbitalInclinationDec},$$r{argOfPeriapsisDec},$$r{meanAnomaly},$$r{ascendingNodeDec},$$r2{coord_x},$$r2{coord_y},$$r2{coord_z},$$r{region},$$r{updateTime};
+		$$r{orbitalInclinationDec},$$r{argOfPeriapsisDec},$$r{meanAnomaly},$$r{ascendingNodeDec},$$r2{coord_x},$$r2{coord_y},$$r2{coord_z},$$r2{region},$$r{updateTime};
 
 	@out = ($$r{name},$$r{subType},$$r{updateTime},$$r{date_added}) if ($simple_list && !$skip_type);
 	@out = ($$r{name},$$r{updateTime},$$r{date_added}) if ($simple_list && $skip_type);
