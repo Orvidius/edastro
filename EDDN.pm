@@ -104,6 +104,8 @@ sub eddn_json {
 		log_jsonl('barycenters',$json) if ($logging);
 	} elsif ($event =~ /NavRoute/i) {
 		log_jsonl('navroute',$json);
+	} elsif ($event =~ /CarrierJumpRequest/i) {
+		log_jsonl('carrierjump',$json);
 	} else {
 		log_jsonl('other',$json) if ($logging);
 	}
@@ -800,7 +802,8 @@ sub track_carrier {
 			$carrier{lastEvent} =~ s/T/ /gs;
 			$carrier{lastEvent} =~ s/(\.\d+)?Z.*$//gs;
 
-			$carrier{systemName} = $event{StarSystem};
+			$carrier{systemName} = $event{StarSystem} if ($event{StarSystem});
+			$carrier{systemName} = $event{StarSystem} if ($event{systemName});
 			$carrier{systemId64} = $event{SystemAddress};
 
 			my @sys = db_mysql('elite',"select coord_x,coord_y,coord_z from systems where id64=? and deletionState=0",[($event{SystemAddress})]);

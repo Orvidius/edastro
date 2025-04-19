@@ -25,6 +25,7 @@ print "System,Planet,Mass Code,Type,Semi-major Axis (LS),Parent Star,Star Type,S
 
 my $count = 0;
 foreach my $r (@rows) {
+	next if (!$$r{systemId64});
 
 	my @planetlist = db_mysql('elite',"select * from planets where systemId64=$$r{systemId64} and (name like '% 1' or name like '% 2' or name like '% I' or name like '% II') and deletionState=0");
 	my %planets = ();
