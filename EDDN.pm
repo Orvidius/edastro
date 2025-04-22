@@ -840,6 +840,7 @@ sub track_carrier {
 		if ($carrier{services}) {
 			$carrier{services} =~ s/(carrierfuel|carriermanagement|docking|flightcontroller|stationMenu|stationoperations|autodock)\,/\,/gs;
 			$carrier{services} =~ s/\,\,+/\,/gs;
+			$carrier{services} =~ s/^\,+//s;
 		}
 
 		if ($carrier{systemId64} && (!$carrier{systemName} || !$carrier{coord_x} || !$carrier{coord_y} ||!$carrier{coord_z})) {
