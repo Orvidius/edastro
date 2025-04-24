@@ -16,7 +16,7 @@ my @rows = db_mysql('elite',"select distinct stars.starID,stars.name,subType,sys
 			"('T (Brown dwarf) Star','Y (Brown dwarf) Star','L (Brown dwarf) Star','T Tauri Star') and deletionState=0 and ".
 			"rings.name not like '%Belt' order by stars.name");
 
-print "Name,Rings,Arrival Distance,Type,Age,Absolute Magnitude,Luminosity,Surface Temperature,Solar Masses,Solar Radius,Rotational Period,Tidally Locked,Orbital Period,Commander Name,Discovery Date,Coord X,Coord Y,Coord Z\r\n";
+print "Name,Rings,Arrival Distance,Type,Age,Absolute Magnitude,Luminosity,Surface Temperature,Solar Masses,Solar Radius,Rotational Period,Tidally Locked,Orbital Period,Commander Name,Discovery Date,Coord X,Coord Y,Coord Z,regionID\r\n";
 
 my $count = 0;
 foreach my $r (@rows) {
@@ -39,7 +39,7 @@ foreach my $r (@rows) {
 
 	print "$$r{name},$num,$$r{distanceToArrivalLS},$$r{subType},$$r{age},$$r{absoluteMagnitude},$$r{luminosity},$$r{surfaceTemperature},".
 		"$$r{solarMasses},$$r{solarRadius},$$r{rotationalPeriod},$locked,$$r{orbitalPeriod},\"$$r{commanderName}\",\"$$r{discoveryDate}\",".
-		"$$r2{coord_x},$$r2{coord_y},$$r2{coord_z},$$r2{regionID}\r\n";
+		"$$r2{coord_x},$$r2{coord_y},$$r2{coord_z},$$r2{region}\r\n";
 	$count++;
 }
 warn "$count found\n";

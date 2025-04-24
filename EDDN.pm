@@ -584,9 +584,11 @@ sub track_exploration {
 		$date =~ s/T|Z/ /gs;
 		$date =~ s/\.\d+\s*$//s;
 
+		my $body = $event{Body} ? $event{Body} : $event{BodyId};
+
 		if ($speciesID && $genusID) {
 			my @rows = db_mysql('elite',"select * from organic where systemId64=? and bodyId=? and genusID=? and speciesID=?",
-				[($event{SystemAddress},$event{Body},$genusID,$speciesID)]);
+				[($event{SystemAddress},$body,$genusID,$speciesID)]);
 
 			if (@rows) {
 				foreach my $r (@rows) {

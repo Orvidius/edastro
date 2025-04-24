@@ -36,6 +36,7 @@ my $rows = rows_mysql('elite',"select
 	coord_x,
 	coord_y,
 	coord_z,
+	region,
 	sol_dist
 
 	from planets p1 
@@ -51,7 +52,7 @@ print make_csv(
 	'Moon ID','Moon Name','Moon Type','Moon Radius','Moon SMA',
 	'Parent ID','Parent Name','Parent Type','Parent Radius',
 	'Ring Type','Ring Outer Radius',
-	'System Name','X','Y','Z','Sol Distance'
+	'System Name','X','Y','Z','Sol Distance','regionID'
 	)."\r\n";
 
 foreach my $r (@$rows) {
@@ -60,7 +61,7 @@ foreach my $r (@$rows) {
 		$$r{planetID},$$r{name},$$r{subType},$$r{radiusDec}+0,$$r{sma}+0,
 		$$r{parentID},$$r{parentName},$$r{parentType},$$r{parentRadius}+0,
 		$$r{ringType},$$r{outerRadius}+0,
-		$$r{systemName},$$r{coord_x}+0,$$r{coord_y}+0,$$r{coord_z}+0,$$r{sol_dist}+0
+		$$r{systemName},$$r{coord_x}+0,$$r{coord_y}+0,$$r{coord_z}+0,$$r{sol_dist}+0,$$r{region}
 	)."\r\n";
 }
 

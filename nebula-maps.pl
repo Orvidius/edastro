@@ -145,11 +145,11 @@ print "Drawing\n";
 my %count = ();
 
 open OUT, ">$output_sheet";
-print OUT make_csv("Name","System","X","Y","Z","Type")."\r\n";
+print OUT make_csv("Name","System","X","Y","Z","Type","RegionID")."\r\n";
 
 foreach my $plusrad (1,0) {
 	foreach my $refsys (sort { $nebula{$a} cmp $nebula{$b} || lc($nebulaname{$a}) cmp lc($nebulaname{$b}) } keys %nebula) {
-		my ($x,$y, $xb,$yb, $xr,$yr, $xx,$yy,$zz) = get_coords($refsys);
+		my ($x,$y, $xb,$yb, $xr,$yr, $xx,$yy,$zz, $region) = get_coords($refsys);
 	
 		if ($x && $y) {
 			my $type = $nebula{$refsys};
@@ -172,7 +172,7 @@ foreach my $plusrad (1,0) {
 			#print '.';
 			print "$nebulaname{$refsys} ($refsys) $xx,$yy,$zz [$type]\n";
 
-			print OUT make_csv($nebulaname{$refsys},$refsys,$xx,$yy,$zz,$type)."\r\n" if ($plusrad);
+			print OUT make_csv($nebulaname{$refsys},$refsys,$xx,$yy,$zz,$type,$region)."\r\n" if ($plusrad);
 	
 			$count{$type}++ if (!$plusrad);
 		} elsif (!$plusrad) {
@@ -347,7 +347,7 @@ sub fix_trim {
 
 sub get_coords {
 	my $name = shift;
-	my @rows = db_mysql('elite',"select coord_x,coord_y,coord_z from systems where name=? and deletionState=0",[($name)]);
+	my @rows = db_mysql('elite',"select coord_x,coord_y,coord_z,region from systems where name=? and deletionState=0",[($name)]);
 
 	if (@rows) {
 		my $r = shift @rows;
@@ -361,10 +361,10 @@ sub get_coords {
 		my ($x3,$y3) = ( $size_x+($edge_height/2)+($$r{coord_y}*$size_x/$galsize) , ($galrad+$galcenter_y-$$r{coord_z})*$size_y/$galsize );
 		if ($x3<$size_x || $y3<0 || $x3>$size_x+$edge_height || $y3>$size_y) { $x3 = 0; $y3=0; }
 
-		return ( $x1,$y1, $x2,$y2, $x3,$y3, $$r{coord_x},$$r{coord_y},$$r{coord_z} );
+		return ( $x1,$y1, $x2,$y2, $x3,$y3, $$r{coord_x},$$r{coord_y},$$r{coord_z},$$r{region} );
 	}
 
-	return (0,0,0,0,0,0);
+	return (0,0,0,0,0,0,0);
 }
 
 sub my_system {
