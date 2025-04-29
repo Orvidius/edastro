@@ -190,6 +190,7 @@ if ((!keys(%action) && $epochDay % $day_interval == 0) || $action{files}) {
 
 	my_system("$path/carrier-video.pl > $path/carrier-video.pl.out >\&1");
 	my_system("$path/thargoid-video.pl > $path/thargoid-video.pl.out >\&1");
+	my_system("$path/inhabited-video.pl > $path/inhabited-video.pl.out >\&1");
 
 	my_system(1,"cd ~bones/elite/scripts ; ./lagrange-capable-stars.pl > lagrange-capable-stars.csv ; [ -s lagrange-capable-stars.csv ] \&\& scp lagrange-capable-stars.csv www\@services:/www/edastro.com/mapcharts/files/  ");
 

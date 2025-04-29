@@ -40,6 +40,8 @@ foreach my $arg (@ARGV) {
 print "Epoch Day: $epochDay\n";
 print "\t$day_interval-Day: ".($epochDay % $day_interval)."\n";
 
+my_system("cd ~bones/elite ; ./inhabited-space-overlay.pl > inhabited-space-overlay.pl.out 2>\&1");
+my_system("/usr/bin/ssh -p222 www\@services 'cd /www/EDtravelhistory ; nohup nice ./tiles.pl inhabited >tiles.pl.out.inhabited 2>\&1 \&'");
 
 if ((!keys(%action) && $t[6]==0) || $action{saturation}) {
 	my_system("cd ~bones/elite ; ./exploration-saturation-map.pl cron > exploration-saturation-map.pl.out 2>\&1");

@@ -52,14 +52,22 @@ my $save_y              = 1800;
 my $thumb_x             = 400;
 my $thumb_y             = $thumb_x;
 
-#my $title		= "Fleet Carrier locations, active within 60 days";
-my $title		= "Fleet Carrier locations";
-my $author		= "Map by CMDR Orvidius (edastro.com) - CC BY-NC-SA 3.0 - Data via EDDN";
+my $title		= "Inhabited Systems with Docking Locations";
+my $author		= "Map by CMDR Orvidius (edastro.com) - CC BY-NC-SA 3.0 - Data via EDDN & EDSM";
 
 
 ############################################################################
 
-print timestamp()."Reading DATA\n";
+die "Usage: $0 [YYYY-MM-DD]\n" if (@ARGV && $ARGV[0] !~ /^\d{4}-\d{2}-\d{2}/);
+
+my $time = time;
+$time = date2epoch($ARGV[0]." 12:00:00") if (@ARGV);
+
+my @t = localtime($time);
+my $date = sprintf("%04u%02u%02u",$t[5]+1900,$t[4]+1,$t[3]);
+my $today = sprintf("%04u-%02u-%02u",$t[5]+1900,$t[4]+1,$t[3]);
+
+print timestamp()."Reading DATA for $today\n";
 
 my %id64 = ();
 my %data = ();
@@ -204,7 +212,7 @@ foreach my $image ($regionmap,$galaxymap) {
 
 }
 
-print timestamp()."Drawing\n";
+print timestamp()."Drawing $today\n";
 
 my $rmap = $regionmap->Clone();
 my $gmap = $galaxymap->Clone();
@@ -237,24 +245,22 @@ foreach my $image ($rmap,$gmap) {
 
 				my $plusgraph = 2;
 
-				for (my $inc=0; $inc<$data{$refsys}; $inc++) {
-					draw_dots($image, $x,$y, $xb,$yb, $xr,$yr, $xs,$ys, $radius+$plusrad, $plusgraph, $c);
-				}
+				draw_dots($image, $x,$y, $xb,$yb, $xr,$yr, $xs,$ys, $radius+$plusrad, $plusgraph, $c);
 
 				if (!$plusrad && $image==$rmap) {
-					$count += $data{$refsys};
+					$count++;
 				}
 				$dotcount ++;
-				print '.' if ($dotcount % 5 == 0);
-				print "\n" if ($dotcount % 500 == 0);
+				print '.' if ($dotcount % 1000 == 0);
+				print " $dotcount\n" if ($dotcount % 100000 == 0);
 			} elsif (!$plusrad) {
-				#print "\nSkipped $refsys ($data{$type}{$refsys})\n";
+				#print "\nSkipped $refsys\n";
 			}
 		}
 	}
 }
 
-print timestamp()."\n$count inhabited systems plotted.\n";
+print timestamp()."\n$count inhabited systems plotted for $today.\n";
 
 foreach my $image ($rmap,$gmap) {
 	
@@ -265,19 +271,16 @@ foreach my $image ($rmap,$gmap) {
 
 	show_result($image->Composite(image=>$logo, compose=>'over', gravity=>'northeast',x=>$pointsize/2,y=>$pointsize*2));
 
-	annotate_border($image,$pointsize,'white',10,"$title - ".epoch2date(time)." - $count inhabited systems shown.",'northwest',$pointsize,$pointsize);
+	annotate_border($image,$pointsize,'white',10,"$title - $today - $count inhabited systems shown.",'northwest',$pointsize,$pointsize);
 	annotate_border($image,$pointsize,'white',10,$author,'northeast',$pointsize,$pointsize);
 
 	annotate_border($image,$pointsize*3,'white',30,'Sol / Bubble', undef, $size_x+$edge_height+$pointsize, $pointsize*4);
 }
 
 
-my @t = localtime;
-my $date = sprintf("%04u%02u%02u",$t[5]+1900,$t[4]+1,$t[3]);
+system('/usr/bin/mkdir','-p',"$scriptpath/inhabited-history") if (!-d "$scriptpath/inhabited-history");
 
-system('/usr/bin/mkdir','-p',"$scriptpath/fleetinhabited-history") if (!-d "$scriptpath/fleetinhabited-history");
-
-my $fn = sprintf("%s/fleetinhabited-history/$fileout-$date.bmp",$scriptpath);
+my $fn = sprintf("%s/inhabited-history/$fileout-$date.bmp",$scriptpath);
 print timestamp()."Writing to: $fn\n";
 show_result($gmap->Write( filename => $fn ));
 my $do = "/usr/bin/convert $fn";
@@ -286,7 +289,7 @@ $fn =~ s/bmp/png/;
 my_system("$do $fn");
 unlink $rm if (-e $fn);
 
-my $fn = sprintf("%s/fleetinhabited-history/$fileout-regions-$date.bmp",$scriptpath);
+my $fn = sprintf("%s/inhabited-history/$fileout-regions-$date.bmp",$scriptpath);
 print timestamp()."Writing to: $fn\n";
 show_result($rmap->Write( filename => $fn ));
 my $do = "/usr/bin/convert $fn";
@@ -384,17 +387,18 @@ sub get_data {
 #	my @rows = db_mysql('elite',"select systemId64,systemName,coord_x,coord_y,coord_z from inhabiteds where (callsign in ('W21-G9Z','W48-Q1Z') or ".
 #			"lastEvent>date_sub(NOW(), interval 60 day) or lastMoved>date_sub(NOW(), interval 60 day)) and ((systemName is not null and systemName!='') or systemId64>0)");
 
-	my @rows = db_mysql('elite',"select systemId64,systemName,coord_x,coord_y,coord_z from inhabiteds where ((systemName is not null and systemName!='') or systemId64>0)");
+	my @rows = db_mysql('elite',"select systemId64,stations.systemName,coord_x,coord_y,coord_z from stations,systems where stations.date_added<=? and ((stations.systemName is not null and stations.systemName!='') or systemId64>0) and type is not NULL and type!='Mega ship' and type!='Fleet Carrier' and type!='GameplayPOI' and type!='PlanetaryConstructionDepot' and type !='SpaceConstructionDepot' and stations.deletionState=0 and id64=systemId64",[($today)]);
 
 	foreach my $r (@rows) {
 		$$r{systemName} = $$r{systemId64} if ($$r{systemId64} && !$$r{systemName});
+
+		$data{$$r{systemName}} = $r;
 
 		$coords{$$r{systemName}}{x} = $$r{coord_x} if ($$r{systemName} && defined($$r{coord_x}));
 		$coords{$$r{systemName}}{y} = $$r{coord_y} if ($$r{systemName} && defined($$r{coord_y}));
 		$coords{$$r{systemName}}{z} = $$r{coord_z} if ($$r{systemName} && defined($$r{coord_z}));
 	
 		$id64{$$r{systemName}} = $$r{systemId64} if ($$r{systemName} && $$r{systemId64});
-		$data{$$r{systemName}}++;
 	}
 }
 
@@ -441,7 +445,11 @@ sub fix_trim {
 sub get_coords {
 	my $name = shift;
 
-	my @rows = db_mysql('elite',"select coord_x,coord_y,coord_z from systems where deletionState=0 and name=?",[($name)]);
+	my @rows = ();
+
+	push @rows, $data{$name} if (exists($data{$name}));
+
+	@rows = db_mysql('elite',"select coord_x,coord_y,coord_z from systems where deletionState=0 and name=?",[($name)]) if (!@rows);
 
 	if (!@rows && $id64{$name}) {
 		@rows = db_mysql('elite',"select coord_x,coord_y,coord_z from systems where deletionState=0 and id64=?",[($id64{$name})]);
