@@ -285,6 +285,10 @@ sub track_station {
 		import_field(\%hash,'padsM',\%event,'LandingPads/Medium');
 		import_field(\%hash,'padsS',\%event,'LandingPads/Small');
 
+		import_field(\%hash,'bodyName',\%event,'Body');
+		import_field(\%hash,'economy',\%event,'StationEconomy');
+		import_field(\%hash,'government',\%event,'StationGovernment');
+
 		$hash{type} = 'Odyssey Settlement' if ($hash{type} eq 'OnFootSettlement');
 		$hash{type} = 'Planetary Outpost' if ($hash{type} eq 'CraterOutpost');
 		$hash{type} = 'Planetary Port' if ($hash{type} eq 'CraterPort');
@@ -296,11 +300,14 @@ sub track_station {
 		$hash{type} = 'Mega ship' if ($hash{type} eq 'MegaShip');
 
 		my $event_services = '';
-		$event_services = join(',',@{$event{StationServices}}) if (ref($event{StationServices}) eq 'ARRAY');
+		$event_services = join(',',sort(@{$event{StationServices}})) if (ref($event{StationServices}) eq 'ARRAY');
+
+		$hash{services} = $event_services if ($event_services);
 	
-		$hash{haveOutfitting} = 1 if ($event_services =~ /outfitting/);
-		$hash{haveShipyard} = 1 if ($event_services =~ /shipyard/);
-		$hash{haveMarket} = 1 if ($event_services =~ /shipyard/);
+		$hash{haveOutfitting} = $event_services =~ /outfitting/ ? 1 : 0;
+		$hash{haveShipyard} = $event_services =~ /shipyard/ ? 1 : 0;
+		$hash{haveMarket} = $event_services =~ /commodities/ ? 1 : 0;
+		$hash{haveColonization} = $event_services =~ /coloni[sz]ation/ ? 1 : 0;
 	
 		update_object('station',\%hash,\%event,'eddnDate',$hash{eddnDate});
 	}

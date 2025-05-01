@@ -20,11 +20,11 @@ my $scripts_path        = "/home/bones/elite/scripts";
 show_queries(0);
 
 my @rows = db_mysql('elite',"select stations.id,stations.name,type,systemId64,systemId,systemName,bodyID,bodyName,coord_x,coord_y,coord_z,sol_dist,".
-		"distanceToArrival,allegiance,government,economy,haveMarket,haveShipyard,haveOutfitting,stations.updateTime ".
-		"from stations,systems where stations.systemId=systems.edsm_id order by stations.name");
+		"distanceToArrival,allegiance,government,economy,haveMarket,haveShipyard,haveOutfitting,haveColonization,stations.updateTime,".
+		"stations,date_added from stations,systems where stations.systemId=systems.edsm_id order by stations.name");
 
 print make_csv('EDSM ID','Station Name','Type', 'ID64','EDSM systemId','SystemName','BodyID','BodyName','Coord X','Coord Y','Coord Z','Sol Distance',
-	'DistanceToArrival','Allegiance','Government','Economy','Market','Shipyard','Outfitting','Updated')."\r\n";
+	'DistanceToArrival','Allegiance','Government','Economy','Market','Shipyard','Outfitting','Colonization','Updated')."\r\n";
 
 my $count = 0;
 foreach my $r (@rows) {
@@ -36,7 +36,7 @@ foreach my $r (@rows) {
 	}
 
 	print make_csv($$r{id},$$r{name},$$r{type}, $$r{systemId64},$$r{systemId},$$r{systemName},$$r{bodyID},$$r{bodyName},$$r{coord_x},$$r{coord_y},$$r{coord_z},$$r{sol_dist},
-		$$r{distanceToArrival},$$r{allegiance},$$r{government},$$r{economy},$$r{haveMarket},$$r{haveShipyard},$$r{haveOutfitting},$$r{updateTime})."\r\n";
+		$$r{distanceToArrival},$$r{allegiance},$$r{government},$$r{economy},$$r{haveMarket},$$r{haveShipyard},$$r{haveOutfitting},$$r{haveColonization},$$r{updateTime})."\r\n";
 
 	$count++;
 }

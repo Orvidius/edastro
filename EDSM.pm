@@ -145,7 +145,7 @@ BEGIN { # Export functions first because of possible circular dependancies
 	@{$columns{POI}}	= qw(edsm_id name type systemId64 coord_x coord_y coord_z galMapSearch galMapUrl descriptionHtml hidden iconoverride);
 	@{$columns{GEC}}	= qw(gec_id name type systemId64 coord_x coord_y coord_z galMapSearch galMapUrl descriptionHtml summary score poiUrl hidden callsign iconoverride);
 	@{$columns{station}}	= qw(edsmID systemId64 systemId systemName bodyID bodyName name type distanceToArrival allegiance government economy secondEconomy 
-					haveMarket haveShipyard haveOutfitting updateTime updated eddnDate marketID padsL padsM padsS);
+					haveMarket haveShipyard haveOutfitting haveColonization updateTime updated eddnDate marketID padsL padsM padsS services);
 	@{$columns{codex_edsm}}	= qw(systemId64 systemId systemName type name region reportedOn);
 
 	$ringtype{planet}{ring}	= 1;
