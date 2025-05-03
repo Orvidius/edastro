@@ -1429,6 +1429,9 @@ sub update_systemcounts {
 	my @rows = db_mysql($db,"select count(*) as num from planets where systemId64=? and terraformingState='Candidate for terraforming' and deletionState=0",[($id64)]);
 	my $numterra = ${$rows[0]}{num};
 
+	my @rows = db_mysql($db,"select count(*) as num from planets where systemId64=? and isLandable=1 and deletionState=0",[($id64)]);
+	my $numLandables = ${$rows[0]}{num};
+
 #	my @rows = db_mysql($db,"select count(*) as num from planets where systemId64=? and deletionState=0",[($id64)]);
 #	my $numplanets = ${$rows[0]}{num};
 #
@@ -1455,10 +1458,10 @@ sub update_systemcounts {
 
 	print "$id64: Stars=$numstars, Planets=$numplanets, ELW=$numELW, AW=$numAW, WW=$numWW, Terra=$numterra\n" if ($verbose);
 
-	db_mysql($db,"update systems set numStars=?,numPlanets=?,numELW=?,numAW=?,numWW=?,numTerra=?,updated=updated where id64=? and ".
-		"(numstars is null or numplanets is null or numELW is null or numAW is null or numWW is null or numTerra is null or ".
-		"numstars!=? or numplanets!=? or numELW!=? or numAW!=? or numWW!=? or numTerra!=?)",
-			[($numstars,$numplanets,$numELW,$numAW,$numWW,$numterra,$id64,$numstars,$numplanets,$numELW,$numAW,$numWW,$numterra)]);
+	db_mysql($db,"update systems set numStars=?,numPlanets=?,numELW=?,numAW=?,numWW=?,numTerra=?,numLandables=?,updated=updated where id64=? and ".
+		"(numstars is null or numplanets is null or numELW is null or numAW is null or numWW is null or numTerra is null or numLandables is null or ".
+		"numstars!=? or numplanets!=? or numELW!=? or numAW!=? or numWW!=? or numTerra!=? or numLandables!=?)",
+			[($numstars,$numplanets,$numELW,$numAW,$numWW,$numterra,$numLandables,$id64,$numstars,$numplanets,$numELW,$numAW,$numWW,$numterra,$numLandables)]);
 
 	my @rows = db_mysql($db,"select ID,bodyCount,complete,FSSprogress from systems where id64=? and deletionState=0",[($id64)]);
 

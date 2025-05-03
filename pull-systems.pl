@@ -125,6 +125,8 @@ my_system("cd ~bones/elite ; ./update-boxels.pl ");
 my_system("cd ~bones/elite ; ./systems-fixups.pl ");
 my_system("cd ~bones/elite ; ./purge-navsystems-duplicates.pl");
 
+my_system(1,"cd ~bones/elite ; ./colony-candidates.pl > colony-candidates.pl.out 2>\&1 ");
+
 #my_system("cd ~bones/elite ; ./carrier-maps.pl ");
 
 #my_system("cd ~bones/elite ; ./get-GGGs.sh ; ./DSSA-pull.pl");

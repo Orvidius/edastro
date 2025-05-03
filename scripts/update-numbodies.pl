@@ -59,7 +59,7 @@ if ($ARGV[0] =~ /^\d+$/) {
 		$limit = "limit $ARGV[1]";
 	}
 
-	my $rows = rows_mysql($db,"select distinct id64 from systems where (numStars is null or numPlanets is null or numTerra is null or numELW is null or numAW is null or numWW is null) and deletionState=0 $limit");
+	my $rows = rows_mysql($db,"select distinct id64 from systems where (numStars is null or numPlanets is null or numTerra is null or numLandables is null or numELW is null or numAW is null or numWW is null) and deletionState=0 $limit");
 	if (ref($rows) eq 'ARRAY') {
 		foreach my $r (@$rows) {
 			$sys{$$r{id64}} = 1;
@@ -86,14 +86,15 @@ if ($ARGV[0] =~ /^\d+$/) {
 		"left join (select systemId64,count(*) as awnum from planets where subType='Ammonia world' and deletionState=0 group by systemId64) as a on a.systemId64=systems.id64 ".
 		"left join (select systemId64,count(*) as wwnum from planets where subType='Water world' and deletionState=0 group by systemId64) as w on w.systemId64=systems.id64 ".
 		"left join (select systemId64,count(*) as terranum from planets where terraformingState='Candidate for terraforming' and deletionState=0 group by systemId64) as t on t.systemId64=systems.id64 ".
+		"left join (select systemId64,count(*) as landables from planets where isLandable=1 and deletionState=0 group by systemId64) as t on t.systemId64=systems.id64 ".
 		"where ID>=? and ID<? and (numStars is null or numPlanets is null or numTerra is null or numELW is null or numAW is null or numWW is null)",[($id,$id+$chunk_size)]);
 
 		foreach my $r (@rows) {
-			db_mysql($db,"update systems set numStars=?,numPlanets=?,numELW=?,numAW=?,numWW=?,numTerra=?,updated=updated where id64=? and ".
+			db_mysql($db,"update systems set numStars=?,numPlanets=?,numELW=?,numAW=?,numWW=?,numTerra=?,numLandables=?,updated=updated where id64=? and ".
 				"(numstars is null or numplanets is null or numstars!=? or numplanets!=? or numTerra is null or ".
-				"numELW!=? or numELW is null or numAW!=? or numAW is null or numWW!=? or numWW is null or numTerra!=?)",
-				[($$r{starnum},$$r{planetnum},$$r{elwnum},$$r{awnum},$$r{wwnum},$$r{terranum},$$r{id64},
-				  $$r{starnum},$$r{planetnum},$$r{elwnum},$$r{awnum},$$r{wwnum},$$r{terranum})]);
+				"numELW!=? or numELW is null or numAW!=? or numAW is null or numWW!=? or numWW is null or numTerra!=? or numLandalbes is null or numLandables!=?)",
+				[($$r{starnum},$$r{planetnum},$$r{elwnum},$$r{awnum},$$r{wwnum},$$r{terranum},$$r{landables},$$r{id64},
+				  $$r{starnum},$$r{planetnum},$$r{elwnum},$$r{awnum},$$r{wwnum},$$r{terranum},$$r{landables})]);
 			}
 
 
@@ -149,6 +150,9 @@ sub do_update {
 		my @rows = db_mysql($db,"select count(*) as num from planets where systemId64=? and terraformingState='Candidate for terraforming' and deletionState=0",[($id64)]);
 		my $numterra = ${$rows[0]}{num};
 
+		my @rows = db_mysql($db,"select count(*) as num from planets where systemId64=? and isLandable=1 and deletionState=0",[($id64)]);
+		my $numlandables = ${$rows[0]}{num};
+
 #		my @rows = db_mysql($db,"select count(*) as num from planets where systemId64=? and deletionState=0",[($id64)]);
 #		my $numplanets = ${$rows[0]}{num};
 #
@@ -175,11 +179,13 @@ sub do_update {
 
 		print "$id64: Stars=$numstars, Planets=$numplanets, ELW=$numELW, AW=$numAW, WW=$numWW, Terra=$numterra\n" if ($verbose);
 
-		db_mysql($db,"update systems set numStars=?,numPlanets=?,numELW=?,numAW=?,numWW=?,numTerra=?,updated=updated where id64=? and ".
-			"(numstars is null or numplanets is null or numELW is null or numAW is null or numWW is null or numTerra is null or ".
-			"numstars!=? or numplanets!=? or numELW!=? or numAW!=? or numWW!=? or numTerra!=?)",
-				[($numstars,$numplanets,$numELW,$numAW,$numWW,$numterra,$id64,$numstars,$numplanets,$numELW,$numAW,$numWW,$numterra)]);
+		db_mysql($db,"update systems set numStars=?,numPlanets=?,numELW=?,numAW=?,numWW=?,numTerra=?,numLandables=?,updated=updated where id64=? and ".
+			"(numstars is null or numplanets is null or numELW is null or numAW is null or numWW is null or numTerra is null or numLandables is null or ".
+			"numstars!=? or numplanets!=? or numELW!=? or numAW!=? or numWW!=? or numTerra!=? or numLandables!=?)",
+				[($numstars,$numplanets,$numELW,$numAW,$numWW,$numterra,$numlandables,$id64,$numstars,$numplanets,$numELW,$numAW,$numWW,$numterra,$numlandables)]);
 		}
+
+		delete($sys{$id64});
 	}
 
 	#print "." if (!$verbose);
