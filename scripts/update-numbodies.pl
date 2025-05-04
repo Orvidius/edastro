@@ -3,9 +3,11 @@ use strict;
 
 ############################################################################
 
-use POSIX qw(floor);
 use Math::Trig;
 use Data::Dumper;
+use POSIX qw(floor);
+use POSIX ":sys_wait_h";
+use Time::HiRes qw(sleep);
 
 use lib "/home/bones/elite";
 use EDSM qw(log10 update_systemcounts);
@@ -27,6 +29,15 @@ my $debug               = 0;
 my $minutes		= 35;
 my $db			= 'elite';
 my $chunk_size		= 10000;
+
+my $max_children        = 24;
+my $use_forking         = 1;
+my $fork_verbose        = 0;
+
+my $amChild   = 0;
+my %child     = ();
+$SIG{CHLD} = \&REAPER;
+
 
 #############################################################################
 
@@ -77,43 +88,26 @@ if ($ARGV[0] =~ /^\d+$/) {
 
 	while ($id < $maxID) {
 
-
-	    if (0) {
-		my @rows = db_mysql($db,"select id64,IFNULL(planetnum,0) planetnum,IFNULL(starnum,0) starnum,IFNULL(elwnum,0) elwnum,IFNULL(awnum,0) awnum,IFNULL(wwnum,0) wwnum from systems ".
-		"left join (select systemId64,count(*) as planetnum from planets where deletionState=0 group by systemId64) as p on p.systemId64=systems.id64 ".
-		"left join (select systemId64,count(*) as starnum from stars where deletionState=0 group by systemId64) as s on s.systemId64=systems.id64 ".
-		"left join (select systemId64,count(*) as elwnum from planets where subType='Earth-like world' and deletionState=0 group by systemId64) as e on e.systemId64=systems.id64 ".
-		"left join (select systemId64,count(*) as awnum from planets where subType='Ammonia world' and deletionState=0 group by systemId64) as a on a.systemId64=systems.id64 ".
-		"left join (select systemId64,count(*) as wwnum from planets where subType='Water world' and deletionState=0 group by systemId64) as w on w.systemId64=systems.id64 ".
-		"left join (select systemId64,count(*) as terranum from planets where terraformingState='Candidate for terraforming' and deletionState=0 group by systemId64) as t on t.systemId64=systems.id64 ".
-		"left join (select systemId64,count(*) as landables from planets where isLandable=1 and deletionState=0 group by systemId64) as t on t.systemId64=systems.id64 ".
-		"where ID>=? and ID<? and (numStars is null or numPlanets is null or numTerra is null or numELW is null or numAW is null or numWW is null)",[($id,$id+$chunk_size)]);
-
-		foreach my $r (@rows) {
-			db_mysql($db,"update systems set numStars=?,numPlanets=?,numELW=?,numAW=?,numWW=?,numTerra=?,numLandables=?,updated=updated where id64=? and ".
-				"(numstars is null or numplanets is null or numstars!=? or numplanets!=? or numTerra is null or ".
-				"numELW!=? or numELW is null or numAW!=? or numAW is null or numWW!=? or numWW is null or numTerra!=? or numLandalbes is null or numLandables!=?)",
-				[($$r{starnum},$$r{planetnum},$$r{elwnum},$$r{awnum},$$r{wwnum},$$r{terranum},$$r{landables},$$r{id64},
-				  $$r{starnum},$$r{planetnum},$$r{elwnum},$$r{awnum},$$r{wwnum},$$r{terranum},$$r{landables})]);
-			}
-
-
-	    } else {
-			%sys = ();
-			my @rows = db_mysql($db,"select id64 from systems where ID>=? and ID<? and deletionState=0",[($id,$id+$chunk_size)]);
-			while (@rows) {
-				my $r = shift @rows;
-				$sys{$$r{id64}}++;
-			}
-			
-			do_update(0) if (keys %sys);
-	    }
+		my %sys = ();
+		my @rows = db_mysql($db,"select id64 from systems where ID>=? and ID<? and deletionState=0",[($id,$id+$chunk_size)]);
+		while (@rows) {
+			my $r = shift @rows;
+			$sys{$$r{id64}}++;
+		}
+		
+		print "$$> do_update : $id - ".($id+$chunk_size-1)."\n" if ($fork_verbose);
+		do_update(\%sys,0,1,"$id - ".($id+$chunk_size-1)) if (keys %sys);
 
 		$id += $chunk_size;
 		$n++;
 		print '.';
 		print " [".int($id)."]\n" if ($n % 100 == 0);
 	}
+
+	while (int(keys %child) > 0) {
+            #sleep 1;
+            sleep 1;
+        }
 	exit;
 
 } else {
@@ -129,67 +123,83 @@ if ($ARGV[0] =~ /^\d+$/) {
 	}
 }
 
-do_update(1) if (keys %sys);
+do_update(\%sys,1,0) if (keys %sys);
 
 exit;
 
 #############################################################################
 
 sub do_update {
+	my $href    = shift;
 	my $verbose = shift;
+	my $do_fork = shift;
+	my $label   = shift;
 
-	foreach my $id64 (keys %sys) {
+	if (!$use_forking || !$do_fork) {
+		foreach my $id64 (keys %$href) {
+	
+			update_systemcounts($id64,$verbose);
+	
+			delete($sys{$id64});
+		}
+	} else {
+		my $pid = 0;
+		my $do_anyway = 0;
+		$SIG{CHLD} = \&REAPER;
+		
+		while (int(keys %child) >= $max_children) {
+			#sleep 1;
+			sleep 0.05;
+		}
 
+		if ($pid = fork) {
+			# Parent here
+			$child{$pid}{start} = time;
+			warn("$$> FORK: Child spawned on PID $pid ($label)\n") if ($fork_verbose);
+			return; # NOT EXIT, since we're in a function instead of a loop
+		} elsif (defined $pid) {
+			# Child here
+			$amChild = 1;   # I AM A CHILD!!!
+			warn("$$> FORK: $$ ready. ($label)\n") if ($fork_verbose);
+			$0 = $progname . " - $label";
+		} elsif ($! =~ /No more process/) {
+			warn("$$> FORK: Could not fork a child, retrying in 3 seconds\n");
+			sleep 3;
+			redo FORK;
+		} else {
+			warn("$$> FORK: Could not fork a child. $! $@\n");
+			$do_anyway = 1;
+		}
 
-		update_systemcounts($id64,$verbose);
+		
+		return if (!$amChild && !$do_anyway);
 
-		if (0) {
-		my @rows = db_mysql($db,"select count(*) as num from stars where systemId64=? and deletionState=0",[($id64)]);
-		my $numstars = ${$rows[0]}{num};
+		disconnect_all() if ($amChild); # Important to make our own DB connections as a child process.
 
-		my @rows = db_mysql($db,"select count(*) as num from planets where systemId64=? and terraformingState='Candidate for terraforming' and deletionState=0",[($id64)]);
-		my $numterra = ${$rows[0]}{num};
+		if ($amChild || $do_anyway) {
 
-		my @rows = db_mysql($db,"select count(*) as num from planets where systemId64=? and isLandable=1 and deletionState=0",[($id64)]);
-		my $numlandables = ${$rows[0]}{num};
-
-#		my @rows = db_mysql($db,"select count(*) as num from planets where systemId64=? and deletionState=0",[($id64)]);
-#		my $numplanets = ${$rows[0]}{num};
-#
-#		my @rows = db_mysql($db,"select count(*) as num from planets where systemId64=? and subType='Earth-like world' and deletionState=0",[($id64)]);
-#		my $numELW = ${$rows[0]}{num};
-#
-#		my @rows = db_mysql($db,"select count(*) as num from planets where systemId64=? and subType='Ammonia world' and deletionState=0",[($id64)]);
-#		my $numAW = ${$rows[0]}{num};
-#
-#		my @rows = db_mysql($db,"select count(*) as num from planets where systemId64=? and subType='Water world' and deletionState=0",[($id64)]);
-#		my $numWW = ${$rows[0]}{num};
-
-		my $rows = rows_mysql($db,"select distinct subType,count(*) as num from planets where systemId64=? and deletionState=0 group by subType",[($id64)]);
-		my ($numplanets,$numELW,$numAW,$numWW) = (0,0,0,0);
-
-		if (ref($rows) eq 'ARRAY' && int(@$rows)) {
-			foreach my $r (@$rows) {
-				$numplanets += $$r{num};
-				$numELW += $$r{num} if ($$r{subType} =~ /Earth-like world/i);
-				$numAW += $$r{num}  if ($$r{subType} =~ /Ammonia world/i);
-				$numWW += $$r{num}  if ($$r{subType} =~ /Water world/i);
+			foreach my $id64 (keys %$href) {
+		
+				update_systemcounts($id64,$verbose);
+		
+				delete($sys{$id64});
 			}
 		}
 
-		print "$id64: Stars=$numstars, Planets=$numplanets, ELW=$numELW, AW=$numAW, WW=$numWW, Terra=$numterra\n" if ($verbose);
+		exit if ($amChild);
 
-		db_mysql($db,"update systems set numStars=?,numPlanets=?,numELW=?,numAW=?,numWW=?,numTerra=?,numLandables=?,updated=updated where id64=? and ".
-			"(numstars is null or numplanets is null or numELW is null or numAW is null or numWW is null or numTerra is null or numLandables is null or ".
-			"numstars!=? or numplanets!=? or numELW!=? or numAW!=? or numWW!=? or numTerra!=? or numLandables!=?)",
-				[($numstars,$numplanets,$numELW,$numAW,$numWW,$numterra,$numlandables,$id64,$numstars,$numplanets,$numELW,$numAW,$numWW,$numterra,$numlandables)]);
-		}
-
-		delete($sys{$id64});
 	}
 
 	#print "." if (!$verbose);
 
+}
+
+sub REAPER {
+	while ((my $pid = waitpid(-1, &WNOHANG)) > 0) {
+		warn("$$> FORK: Child on PID $pid terminated.\n") if ($fork_verbose);
+		delete($child{$pid});
+	}
+	$SIG{CHLD} = \&REAPER;
 }
 
 #############################################################################

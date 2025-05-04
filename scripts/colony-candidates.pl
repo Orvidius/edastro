@@ -24,7 +24,7 @@ my $remote_server       = 'www@services:/www/edastro.com/mapcharts/files';
 my $radius		= 16; # lightyears
 my $one			= 1;
 my $use_forking		= 1;
-my $maxChildren		= 20;
+my $maxChildren		= 24;
 my $fork_verbose	= 0;
 my $chunk_size		= 10;
 
@@ -58,7 +58,7 @@ my $systems = 0;
 my $no_more_data = 0;
 
 open CSV, ">$outfile";
-print CSV make_csv('id64','Name','Main Star Type','Sol Distance','Planet Score','Stars','Planets','Terraformables',
+print CSV make_csv('id64','Name','Main Star Type','Sol Distance','FSS Percent','Planet Score','Stars','Planets','Landables','Terraformables',
 			'Earth-like Worlds','Ammonia Worlds','Water Worlds','regionID','X','Y','Z')."\r\n";
 
 while (@new && !$no_more_data) {
@@ -111,7 +111,7 @@ while (@new && !$no_more_data) {
 						${$seen{$id64}} = \$one;
 		
 						my @sys = db_mysql('elite',"select id64,coord_x x,coord_y y,coord_z z,name,mainStarType,sol_dist,planetscore,".
-							"numStars,numPlanets,numTerra,numELW,numAW,numWW,region from systems where ".
+							"numStars,numPlanets,numTerra,numELW,numAW,numWW,numLandables,region,FSSprogress,complete from systems where ".
 							"coord_z>=? and coord_z<=? and coord_x is not null and coord_x!=0 and coord_y is not null and coord_y!=0 ".
 							"and coord_z is not null and coord_z!=0 and sqrt(pow(coord_x-?,2)+pow(coord_y-?,2)+pow(coord_z-?,2))<? and ".
 							"deletionState=0 and (SystemGovernment is null or SystemGovernment=3 or SystemGovernment=2) and ".
@@ -120,8 +120,9 @@ while (@new && !$no_more_data) {
 		
 						foreach my $s (@sys) {
 							#print "$$s{id64},$$s{x},$$s{y},$$s{z}\n";
-							print make_csv($$s{id64},$$s{name},$$s{mainStarType},$$s{sol_dist},$$s{planetscore},$$s{numStars},$$s{numPlanets},
-								$$s{numTerra},$$s{numELW},$$s{numAW},$$s{numWW},$$s{region},$$s{x},$$s{y},$$s{z})."\r\n";
+							my $fss = $$s{complete} ? 100 : int($$s{FSSprogress}*10000)/10;
+							print make_csv($$s{id64},$$s{name},$$s{mainStarType},$$s{sol_dist},$fss,$$s{planetscore},$$s{numStars},$$s{numPlanets},
+								$$s{numLandables},$$s{numTerra},$$s{numELW},$$s{numAW},$$s{numWW},$$s{region},$$s{x},$$s{y},$$s{z})."\r\n";
 						}
 					}
 
