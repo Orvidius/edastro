@@ -120,7 +120,7 @@ while (@new && !$no_more_data) {
 		
 						foreach my $s (@sys) {
 							#print "$$s{id64},$$s{x},$$s{y},$$s{z}\n";
-							my $fss = $$s{complete} ? 100 : int($$s{FSSprogress}*10000)/10;
+							my $fss = $$s{complete} ? 100 : int($$s{FSSprogress}*10000)/100;
 							print make_csv($$s{id64},$$s{name},$$s{mainStarType},$$s{sol_dist},$fss,$$s{planetscore},$$s{numStars},$$s{numPlanets},
 								$$s{numLandables},$$s{numTerra},$$s{numELW},$$s{numAW},$$s{numWW},$$s{region},$$s{x},$$s{y},$$s{z})."\r\n";
 						}
