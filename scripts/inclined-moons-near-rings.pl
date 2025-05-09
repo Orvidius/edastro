@@ -22,7 +22,7 @@ print "System,Planet,Mass Code,Type,Parent Body,Parent Body Type,Parent Rings,Ri
 	"Arrival Distance,Terraforming State,Radius,Earth Masses,Surface Gravity,Surface Temperature,Surface Pressure,".
 	"Volcanism,Atmosphere,Axial Tilt,Rotational Period,Tidally Locked,Orbital Period,".
 	"Semi-major Axis,Orbital Eccentricity,Orbital Inclination,Arg. of Periapsis,".
-	"Coord X,Coord Y,Coord Z,Timestamp,EDSM Discoverer,EDSM Discovery Date\r\n";
+	"Coord X,Coord Y,Coord Z,regionID,Timestamp,EDSM Discoverer,EDSM Discovery Date\r\n";
 
 warn int(@rows)." systems to consider.\n";
 
@@ -57,7 +57,7 @@ foreach my $r (@rows) {
 		next if ($$r{parents} =~ /^Null/);	# Skip obvious binary mooons
 
 		if (!keys %$system) {
-			my @systemlist = db_mysql('elite',"select name,coord_x,coord_y,coord_z from systems where id64='$$r{systemId64}' and deletionState=0");
+			my @systemlist = db_mysql('elite',"select name,coord_x,coord_y,coord_z,region from systems where id64='$$r{systemId64}' and deletionState=0");
 			if (@systemlist) {
 				$system = shift @systemlist;
 			} else {
@@ -120,7 +120,8 @@ foreach my $r (@rows) {
 		$out{$$r{name}} = "$$system{name},$$r{name},$masscode,$$r{subType},$parentname,$parentdata{subType},$parentrings,$numrings,$$r{orbitalRadius},".
 			"$$r{distanceToArrivalLS},$$r{terraformingState},$$r{radius},$$r{earthMasses},$$r{gravity},$$r{surfaceTemperature},$$r{surfacePressure},".
 			"$$r{volcanismType},$$r{atmosphereType},$$r{axialTilt},$$r{rotationalPeriod},$locked,$$r{orbitalPeriod},$$r{semiMajorAxis},$$r{orbitalEccentricity},".
-			"$$r{orbitalInclination},$$r{argOfPeriapsis},$$system{coord_x},$$system{coord_y},$$system{coord_z},$$r{updateTime},$$r{commanderName},$$r{discoveryDate}\r\n";
+			"$$r{orbitalInclination},$$r{argOfPeriapsis},$$system{coord_x},$$system{coord_y},$$system{coord_z},$$system{region},".
+			"$$r{updateTime},$$r{commanderName},$$r{discoveryDate}\r\n";
 
 		$count++;
 	}
