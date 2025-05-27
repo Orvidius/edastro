@@ -36,6 +36,15 @@ my %carrierJSONs = ();
 
 my $count = 0;
 
+my %exclude = ();
+
+open TXT, "<POIstuff/exclusions.csv";	# Right now it's one column
+while (<TXT>) {
+	chomp;
+	$exclude{lc($_)} = 1 if ($_);
+}
+close TXT;
+
 open TXT, "<RAXXLA.txt";
 my $raxxla_time = <TXT>; chomp $raxxla_time;
 my $raxxla_system = <TXT>; chomp $raxxla_system;
@@ -187,9 +196,9 @@ open CSV, "<nebulae-procgen.csv";
 	foreach my $s (@v) {
 		$header{system} = $n if ($s =~ /Reference system/i);
 		$header{ID} = $n if ($s =~ /Designation/i);
-		$header{notes} = $n if ($s =~ /Notes/);
-		$header{GMPname} = $n if ($s =~ /Nebula name/);
-		$header{nickname} = $n if ($s =~ /nickname/);
+		$header{notes} = $n if ($s =~ /Notes/i);
+		$header{GMPname} = $n if ($s =~ /Nebula name/i);
+		$header{nickname} = $n if ($s =~ /nickname/i);
 		$n++;
 	}
 	foreach my $line (<CSV>) {
@@ -1182,6 +1191,10 @@ foreach my $r (sort { $$a{type} cmp $$b{type} || $$a{name} cmp $$b{name} } @out)
 	my $typeOverride = '';
 	my $name = $$r{name};
 
+	next if ($exclude{lc($$r{name})} || $exclude{lc($$r{galMapSearch})});
+
+	$$r{summary} =~ s/^$$r{name}\s*//si;
+
 	foreach my $v ('summary','descriptionHtml') {
 		$$r{$v} = html_encode($$r{$v});
 	}
@@ -1200,15 +1213,37 @@ foreach my $r (sort { $$a{type} cmp $$b{type} || $$a{name} cmp $$b{name} } @out)
 		$$r{type} = 'nebula';
 	}
 
+	my $poilink_added = 0;
+
 	if (exists($pn{uc($$r{galMapSearch})})) {
 		#$typeOverride = 'planetaryNebula';
 		if ($pn{uc($$r{galMapSearch})} =~ /planetaryNebula\t\|\t[^\t]+\t\|\t([^\t]+)\t/) {
 			if (uc(btrim($name)) ne uc(btrim($1))) {
-				$name = "$1\\n(POI: $name)";
+				my $poiname = '';
+				($name, $poiname) = ($1, $name);
+
+				if ($$r{galMapUrl} || $$r{poiUrl}) {
+					my $url = $$r{poiUrl} ? $$r{poiUrl} : $$r{galMapUrl};
+					$$r{summary} .= "<br/>" if ($$r{summary});
+					$$r{summary} .= "(POI: <a href=\"$url\" target=\"_blank\">$poiname</a>)";
+					$poilink_added = 1;
+				} else {
+					$name = "$name\\n(POI: $poiname)";
+					$poilink_added = 1;
+				}
 			}
 		}
 		#delete($pn{uc($$r{galMapSearch})});
 		##next;
+	}
+
+	if (!$poilink_added) {
+		if  ($$r{galMapUrl} || $$r{poiUrl}) {
+			my $url = $$r{poiUrl} ? $$r{poiUrl} : $$r{galMapUrl};
+			$$r{summary} .= "<br/>" if ($$r{summary});
+			$$r{summary} .= "(<a href=\"$url\" target=\"_blank\">View POI</a>)";
+			$poilink_added = 1;
+		}
 	}
 
 	if ($$r{type} =~ /deepSpaceOutpost/ && ($$r{descriptionHtml} =~ /DSSA/ || $$r{name} =~ /DSSA/)) {
@@ -1224,12 +1259,6 @@ foreach my $r (sort { $$a{type} cmp $$b{type} || $$a{name} cmp $$b{name} } @out)
 	my $id = $$r{edsm_id} ? $$r{edsm_id} : 'GEC'.$$r{gec_id};
 
 	my $string = $$r{summary} ? $$r{summary} : '';
-
-	if ($$r{galMapUrl} || $$r{poiUrl}) {
-		my $url = $$r{poiUrl} ? $$r{poiUrl} : $$r{galMapUrl};
-		$string .= "<br/>" if ($string);
-		$string .= "(<a href=\"$url\" target=\"_blank\">View POI</a>)";
-	}
 
 	$POIseen{$$r{galMapSearch}} = 1;
 	$POIname{$name} = 1;
