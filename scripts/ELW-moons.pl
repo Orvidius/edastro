@@ -34,6 +34,16 @@ foreach my $r (@rows) {
 	next if ($1 !~ /^[a-zA-Z]$/ && $1 !~ /^\d+$/);
 	next if ($parent_name eq uc($$r{name}));
 
+	my $r2 = undef;
+	my @rows2 = db_mysql('elite',"select name,coord_x,coord_y,coord_z,region from systems where id64='$$r{systemId64}'");
+	if (@rows2) {
+		$r2 = shift @rows2;
+	} else {
+		%$r2 = ();
+	}
+
+	next if (uc($parent_name) eq uc($$r2{name}) || uc($parent_name) =~ /^$$r2{name} [A-Z]$/i);
+
 	my @planets = db_mysql('elite',"select * from planets where systemId64=? and name=? and deletionState=0",[($$r{systemId64},$parent_name)]);
 	foreach my $pp (@planets) {
 		if (uc($$pp{name}) eq $parent_name) {
@@ -62,14 +72,6 @@ foreach my $r (@rows) {
 
 	my @rows2 = db_mysql('elite',"select id from rings where planet_id='$$r{planetID}' and isStar=0");
 	my $num = int(@rows2);
-
-	my $r2 = undef;
-	@rows2 = db_mysql('elite',"select name,coord_x,coord_y,coord_z,region from systems where id64='$$r{systemId64}'");
-	if (@rows2) {
-		$r2 = shift @rows2;
-	} else {
-		%$r2 = ();
-	}
 
 	my $locked = 'no';
 	$locked = 'yes' if ($$r{rotationalPeriodTidallyLocked});
