@@ -24,9 +24,11 @@ my $allow_scp		= 1;
 
 my $scp			= '/usr/bin/scp -P222';
 my $remote_server	= 'www@services:/www/edastro.com/mapcharts/';
+my $cdn_url		= 'https://edastro.b-cdn.net/mapcharts/';
 my $scriptpath		= "/home/bones/elite";
 my $filepath		= "/home/bones/www/elite";
 my $img_path		= "/home/bones/elite/images";
+my $cdn_purge		= "$scriptpath/cdn-purge.sh";
 
 my $fileout		= "inhabited";
 
@@ -325,9 +327,14 @@ my $f2 = sprintf("%s/$fileout-thumb.jpg",$filepath);
 print timestamp()."Writing to: $f2\n";
 show_result($gmap->Write( filename => $f2 ));
 
-my_system("$scp $f $f1 $f2 $remote_server/") if (!$debug && $allow_scp);
-
-
+if (!$debug && $allow_scp) {
+	my_system("$scp $f $f1 $f2 $remote_server/");
+	if ($cdn_url) {
+		my_system("$cdn_purge $cdn_url$f");
+		my_system("$cdn_purge $cdn_url$f1");
+		my_system("$cdn_purge $cdn_url$f2");
+	}
+}
 
 #show_result($rmap->Resize(geometry=>int($save_x).'x'.int($save_y).'+0+0'));
 
@@ -351,7 +358,14 @@ my $f2 = sprintf("%s/$fileout-regions-thumb.jpg",$filepath);
 print timestamp()."Writing to: $f2\n";
 show_result($rmap->Write( filename => $f2 ));
 
-my_system("$scp $f $f1 $f2 $remote_server/") if (!$debug && $allow_scp);
+if (!$debug && $allow_scp) {
+	my_system("$scp $f $f1 $f2 $remote_server/");
+	if ($cdn_url) {
+		my_system("$cdn_purge $cdn_url$f");
+		my_system("$cdn_purge $cdn_url$f1");
+		my_system("$cdn_purge $cdn_url$f2");
+	}
+}
 
 
 exit;
