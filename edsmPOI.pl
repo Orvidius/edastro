@@ -88,6 +88,7 @@ if (time - $raxxla_time > 3.5*86400 || !$raxxla_system || !$raxxla_time || (!$x 
 print join("\t|\t",'raxxla',"919191919191",'Raxxla',$x,$y,$z,$raxxla_system,undef,undef)."\n";
 
 
+warn "[NEBULAE]\n";
 #"Designation","Nebula / Star name","Region","FD by CMDR","Submitted by","Catalogue nickname","GMP nickname","Notes","Verified?","Model","","","","","","","","","","","","","","","","","",""
 
 open CSV, "<nebulae-planetary.csv";
@@ -234,6 +235,7 @@ open CSV, "<nebulae-procgen.csv";
 	}
 close CSV;
 
+warn "[GGG]\n";
 
 foreach my $file ('GGG.csv','GGG2.csv') {
 	open CSV, "<$file";
@@ -299,6 +301,7 @@ $count = 0;
 
 if (0) {	##### DISABLED #####
 
+warn "[TRIT]\n";
 print "TRIT FILE 1: tritium.csv\n";
 open CSV, "<tritium.csv";
 	my %header = ();
@@ -513,6 +516,7 @@ open CSV, "<trit_highway.csv";
 close CSV;
 
 
+warn "[CANONN]\n";
 
 # CANONN challenge
 
@@ -623,6 +627,7 @@ foreach my $fn ('codex_completionist_nsp.csv','codex_completionist_horizon_bio.c
 }
 
 
+warn "[DSSA]\n";
 
 # DSSA carriers
 
@@ -746,6 +751,197 @@ while (my $line = <TSV>) {
 close TSV;
 close DSSAOUT;
 
+
+warn "[OASIS]\n";
+
+# OASIS carriers
+
+my $unknown_y = -17000;
+my $unknown_x = -45000;
+
+#"Timestamp","Cmdr Name","Email","Preferred communications","Fleet Carrier ID","Fleet Carrier Name","System Deployed","Cmdr Platform","UTC Time Zone","My FC Services","Maximum Available Car go (Tons)","Tritium Market Maximum (Tons)","Tritium Available in Market (Tons)","Email Address","Tritium Required","Buy Orders","Sell Orders"
+
+my @column_patterns = qw(SYSTEM CARRIER);
+my %col  = ();
+my $id = 0;
+my %carrier = ();
+open CSV, "<oasis-carriers.csv";
+while (<CSV>) {
+        chomp;
+        my @v = parse_csv($_);
+#"","REF","Fleet Carrier ID","Fleet Carrier Name","System Deployed","Cmdr Platform","UTC Time Zone","My FC Services","Maximum Available Cargo (Tons)","","","Buy Orders","","Sell Orders","Inara Station","Tritium Required"
+#"","1","XZH-NXF","[IGAU] Cygni-Vanguard","Floalk QQ-Q c20-2","PC","-5","Buy Tritium","13999","5000","0","5000","5000","0","https://inara.cz/station/184282/",""
+
+
+        if (!keys(%col)) {
+		my $header = uc($_);
+		#$header =~ s/ID/CALLSIGN/gis;
+		#$header =~ s/Carrier Name/CARRIERNAME/gis;
+
+        	@v = parse_csv($header);
+
+		print "OASIS ";
+
+                foreach my $key (@column_patterns) {
+                        for (my $i=0; $i<@v; $i++) {
+                                if (!$col{$key} && $v[$i] =~ /$key/i) {
+                                        $col{$key} = $i;
+                                        last;
+                                }
+                        }
+
+                        #$col{$key} = 1 if ($key eq '#' && !$col{$key});
+
+                        print $key.'['.$col{$key}."], ";
+                }
+                print "\n\n";
+
+        } else {
+		$id++;
+		next if ($v[$col{CARRIER}] !~ /\S/ && $v[$col{SYSTEM}] !~ /\S/);
+                warn "OASIS CARRIER[$id]: ".join(' +|+ ', @v), "\n";
+
+		$v[$col{SYSTEM}] =~ s/\s+\(.*\)\s*$//;
+		my $callsign = '-';
+		if ($v[$col{CARRIER}] =~ /\s+\[(\S+)\]\s*$/) {
+			$callsign = $1;
+			$v[$col{CARRIER}] =~ s/\s+\[\S+\]\s*$//s;
+		}
+
+		my ($x,$y,$z,$e) = system_coordinates($v[$col{SYSTEM}]);
+		next if (!defined($x) || !defined($z));
+
+		my $pixel = floor($x/10).'x'.floor($z);
+
+                $carrier{$pixel}{$id}{callsign} = uc($callsign);
+                $carrier{$pixel}{$id}{callsign} = "OASIS#$id" if (!$callsign);
+                $carrier{$pixel}{$id}{name} = $v[$col{CARRIER}];
+                $carrier{$pixel}{$id}{num} = $id;
+                $carrier{$pixel}{$id}{system} = $v[$col{SYSTEM}];
+                $carrier{$pixel}{$id}{current} = $v[$col{SYSTEM}];
+
+                $carrier{$pixel}{$id}{name} =~ s/[^\x00-\x7f]//g;
+
+		#my @rows = db_mysql('elite',"select systemId64,systemName from carriers where callsign=? and LastEvent>=date_sub(NOW(),interval 2 month)",[($carrier{$id}{callsign})]);
+		my @rows = db_mysql('elite',"select systemId64,systemName from carriers where callsign=?",[($carrier{$pixel}{$id}{callsign})]);
+		if (!@rows || lc(${$rows[0]}{systemName}) ne lc($carrier{$pixel}{$id}{system})) {
+			warn "OASIS CARRIER[$id]: Carrier not found in correct place.\n";
+			#delete $carrier{$pixel}{$id};
+			$carrier{$pixel}{$id}{color} = 'white' if ($carrier{$id}{color} !~ /purple/i);
+		}
+	}
+}
+close CSV;
+
+warn "OASIS carriers: ".int(keys(%carrier))."\n";
+
+my $consolidate = 1;
+
+my $count = 0;
+foreach my $pixel (sort {$a <=> $b} keys %carrier) {
+	my ($markertype,$markerdisplay,$marker_x,$marker_y,$marker_z,$markersystem,$markertext) = undef;
+
+	foreach my $id (sort {$a <=> $b} keys %{$carrier{$pixel}}) {
+		my $displayName = "$carrier{$pixel}{$id}{name} [$carrier{$pixel}{$id}{callsign}]";
+		$displayName =~ s/\s+$//s;
+		$displayName =~ s/^\s+//s;
+		my $type = 'OASIScarrier';
+
+		#$type = 'OASISred' if ($carrier{$pixel}{$id}{color}=~/red/i);
+		#$type = 'OASISgreen' if ($carrier{$pixel}{$id}{color}=~/green/i);
+		#$type = 'OASISyellow' if ($carrier{$pixel}{$id}{color}=~/yellow/i);
+		#$type = 'OASISpurple' if ($carrier{$pixel}{$id}{color}=~/purple/i);
+		#$type = 'OASISblue' if ($carrier{$pixel}{$id}{color}=~/blue/i);
+		#$type = 'OASIScyan' if ($carrier{$pixel}{$id}{color}=~/cyan/i);
+
+		my ($x,$y,$z,$e) = system_coordinates($carrier{$pixel}{$id}{system});
+		$n = $carrier{$pixel}{$id}{system};
+		$e = "+/- $e" if ($e);
+		$e = '' if (!$e);
+		
+		if ($type eq 'OASISunknown' || !defined($x) || !defined($y) || !defined($z)) {
+			$type = 'OASISunknown';
+			$x = $unknown_x;
+			$y = 0;
+			$z = $unknown_y;
+			$unknown_x += 1000;
+		}
+
+		$carrier{$pixel}{$id}{url} =~ s/\s+$//s;
+
+		my $add = '';
+		my $status = 'Oasis Carrier';
+
+		if ($carrier{$pixel}{$id}{current} && lc(btrim($carrier{$pixel}{$id}{current})) ne lc(btrim($carrier{$pixel}{$id}{system}))) {
+			$add = " (NOT PRESENT)";
+
+			if (!$consolidate) {
+				# Draw pin directly, no consolidation
+				print join("\t|\t","OASIStmp","OASIS0$id",$displayName.$add,$x,$y,$z,$n,undef,"$status")."\n";
+				print OUT make_csv("OASIStmp","OASIS0$id",$displayName.$add,$x,$y,$z,$n,"$status")."\r\n";
+			} else {	
+				# Consolidate pins
+				if (!$markerdisplay && !$markersystem) {
+					$markertype = "OASIStmp";
+					$markerdisplay = $displayName.$add;
+					$marker_x = $x; $marker_y = $y; $marker_z = $z;
+					$markersystem = $n;
+					$markertext = "$status";
+				} else {
+					my $s = uc($markersystem) eq uc($n) ? '' : " -- $n";
+					$markertext .= "+|++|+$displayName$add$s+|+$status";
+				}
+			}
+
+			($x,$y,$z,$e) = system_coordinates($carrier{$pixel}{$id}{current});
+			$n = $carrier{$pixel}{$id}{current};
+			$e = "+/- $e" if ($e);
+			$e = '' if (!$e);
+
+			#my $linecoords = sprintf("%.02f/%.02f/%.02f",$x,$y,$z);
+			my $linecoords = "0/0/0/f0f";
+
+			print join("\t|\t",$type,"OASIS0${id}REAL",$displayName." (CURRENT LOCATION)",$x,$y,$z,$n,undef,"$status",$linecoords)."\n";
+			print OUT make_csv($type,"OASIS0${id}REAL",$displayName." (CURRENT LOCATION)",$x,$y,$z,$n,"$status",$linecoords)."\r\n";
+
+		} else {
+			if (!$consolidate) {
+				# Draw pin directly, no consolidation
+				print join("\t|\t",$type,"OASIS0$id",$displayName,$x,$y,$z,$n,undef,"$status")."\n";
+				print OUT make_csv($type,"OASIS0$id",$displayName,$x,$y,$z,$n,"$status")."\r\n";
+			} else {	
+				# Consolidate pins
+				if (!$markerdisplay && !$markersystem) {
+					$markertype = $type;
+					$markerdisplay = $displayName;
+					$marker_x = $x; $marker_y = $y; $marker_z = $z;
+					$markersystem = $n;
+					$markertext = "$status";
+				} else {
+					my $s = uc($markersystem) eq uc($n) ? '' : " -- $n";
+					$markertext .= "+|++|+$displayName$s+|+$status";
+					$markertype = $type if ($type =~ /green/);
+					$markertype = $type if ($type =~ /yellow/ && $markertype !~ /(green)/);
+					$markertype = $type if ($type =~ /red/    && $markertype !~ /(green|yellow)/);
+					$markertype = $type if ($type =~ /cyan/   && $markertype !~ /(green|yellow|red)/);
+					$markertype = $type if ($type =~ /purple/ && $markertype !~ /(green|yellow|red|cyan)/);
+				}
+			}
+		}
+		
+	}
+	if ($consolidate && defined($markertype) && defined($markerdisplay) && defined($marker_x) && defined($marker_z) && defined($markertext)) {
+		# Consolidated output, stubbed out, does not cooperate with marker lines
+		$count++;
+		print join("\t|\t",$markertype,"OASIS0$count",$markerdisplay,$marker_x,$marker_y,$marker_z,$markersystem,undef,$markertext)."\n";
+		print OUT make_csv($markertype,"OASIS0$count",$markerdisplay,$marker_x,$marker_y,$marker_z,$markersystem,$markertext)."\r\n";
+	}
+}
+%carrier = ();
+
+
+
+warn "[STAR]\n";
 
 
 # STAR carriers
@@ -955,6 +1151,7 @@ foreach my $pixel (sort {$a <=> $b} keys %carrier) {
 
 
 
+warn "[PIONEER]\n";
 
 # Pioneer Project
 
@@ -1128,6 +1325,7 @@ sub strip_services {
 }
 
 
+warn "[GUARDIAN]\n";
 
 my @rows = db_mysql('elite',"select codexname_local.name type,systems.name sysname,coord_x,coord_y,coord_z from codex,codexname_local,systems where nameID=codexnameID and ".
 			"codex.deletionState=0 and codexname_local.name like '%guardian %' and systemId64=id64 and systems.deletionState=0");
@@ -1176,6 +1374,7 @@ foreach my $c (sort { $a cmp $b } keys %pixel) {
 }
 
 
+warn "[POI]\n";
 
 my @rows = db_mysql('elite',"select edsm_id,gec_id,score,summary,name,type,coord_x,coord_y,coord_z,galMapSearch,galMapUrl,poiUrl,descriptionHtml from POI ".
 			"where (skip is null or skip=0) and hidden=0 and (gec_id is null or score>=3 or type='Deep Space Outpost')");
@@ -1268,6 +1467,7 @@ foreach my $r (sort { $$a{type} cmp $$b{type} || $$a{name} cmp $$b{name} } @out)
 }
 
 
+warn "[MEGASHIP]\n";
 my @rows = db_mysql('elite',"select stations.id,stations.name shipname,systems.name sysname,sol_dist,coord_x,coord_y,coord_z,edsm_id,eddnDate from ".
 			"stations,systems where id64=systemId64 and type='Mega ship' and stations.name not like 'Rescue Ship - \%' and ".
 
@@ -1326,6 +1526,10 @@ print "\n";
 
 my %hash;
 @{$hash{markers}} = ();
+
+
+warn "[IGAU]\n";
+
 
 my @rows = db_mysql('elite',"select ID,name,callsign,systemName,systemId64,services,coord_x,coord_y,coord_z,note from carriers where isIGAU=1 order by callsign");
 foreach my $r (@rows) {

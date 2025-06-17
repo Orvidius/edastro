@@ -34,6 +34,9 @@ cp POIlist.json POIstuff/GEC-POIs.json`date +\%Y\%m`
 /usr/bin/wget -O codex_completionist_horizon_bio.csv "https://docs.google.com/spreadsheets/d/1Ln1jUj-RooO1xqHEMC8kyIe7_ZfE8MKNAbTvUDpg13U/gviz/tq?tqx=out:csv&gid=348415042"
 /usr/bin/wget -O codex_completionist_odyssey_bio_regions.csv "https://docs.google.com/spreadsheets/d/1Ln1jUj-RooO1xqHEMC8kyIe7_ZfE8MKNAbTvUDpg13U/gviz/tq?tqx=out:csv&gid=776148114"
 
+# from: https://docs.google.com/spreadsheets/d/17ixBZwe3tCz6FvMN4orybfPcX71lDUhmgDkU7qLFMB0/edit?gid=1965789736#gid=1965789736
+/usr/bin/wget -O oasis-carriers.csv "https://docs.google.com/spreadsheets/d/17ixBZwe3tCz6FvMN4orybfPcX71lDUhmgDkU7qLFMB0/export?format=csv&gid=1965789736"
+echo '' >> oasis-carriers.csv
 
 ./DSSA-pull.pl 
 ./push-POI.sh
