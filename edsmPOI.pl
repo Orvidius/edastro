@@ -761,7 +761,7 @@ my $unknown_x = -45000;
 
 #"Timestamp","Cmdr Name","Email","Preferred communications","Fleet Carrier ID","Fleet Carrier Name","System Deployed","Cmdr Platform","UTC Time Zone","My FC Services","Maximum Available Car go (Tons)","Tritium Market Maximum (Tons)","Tritium Available in Market (Tons)","Email Address","Tritium Required","Buy Orders","Sell Orders"
 
-my @column_patterns = qw(SYSTEM CARRIER);
+my @column_patterns = qw(SYSTEM CARRIER SERVICES);
 my %col  = ();
 my $id = 0;
 my %carrier = ();
@@ -819,6 +819,7 @@ while (<CSV>) {
                 $carrier{$pixel}{$id}{num} = $id;
                 $carrier{$pixel}{$id}{system} = $v[$col{SYSTEM}];
                 $carrier{$pixel}{$id}{current} = $v[$col{SYSTEM}];
+                $carrier{$pixel}{$id}{services} = $v[$col{SERVICES}];
 
                 $carrier{$pixel}{$id}{name} =~ s/[^\x00-\x7f]//g;
 
@@ -871,6 +872,8 @@ foreach my $pixel (sort {$a <=> $b} keys %carrier) {
 
 		my $add = '';
 		my $status = 'Oasis Carrier';
+
+		$status .= "+|+Services: ".$carrier{$pixel}{$id}{services} if ($carrier{$pixel}{$id}{services});
 
 		if ($carrier{$pixel}{$id}{current} && lc(btrim($carrier{$pixel}{$id}{current})) ne lc(btrim($carrier{$pixel}{$id}{system}))) {
 			$add = " (NOT PRESENT)";
