@@ -46,7 +46,7 @@ my $strokewidth         = 3;
 
 my $bubble_size_x	= $size_x + $edge_height;
 my $bubble_size_y	= $size_y + $edge_height;
-my $bubble_radius	= 1500;
+my $bubble_radius	= 4000;
 my $bubble_diameter	= $bubble_radius*2;
 
 my $save_x              = 3600;
@@ -60,7 +60,13 @@ my $author		= "Map by CMDR Orvidius (edastro.com) - CC BY-NC-SA 3.0 - Data via E
 
 ############################################################################
 
-die "Usage: $0 [YYYY-MM-DD]\n" if (@ARGV && $ARGV[0] !~ /^\d{4}-\d{2}-\d{2}/);
+die "Usage: $0 [YYYY-MM-DD [radius]]\n" if (@ARGV && $ARGV[0] !~ /^\d{4}-\d{2}-\d{2}/);
+
+if ($ARGV[1]) {
+	$bubble_radius = $ARGV[1];
+	$bubble_diameter = $bubble_radius*2;
+	print timestamp()."Bubble Radius: $bubble_radius\n";
+}
 
 my $time = time;
 $time = date2epoch($ARGV[0]." 12:00:00") if (@ARGV);
@@ -175,8 +181,10 @@ foreach my $image ($regionmap,$galaxymap) {
 	show_result($image->Draw(primitive=>'line',fill=>$graphcolor,stroke=>$graphcolor,strokewidth=>3,points=>($cx-$radius).",$cy ".($cx+$radius).",$cy"));
 	show_result($image->Draw(primitive=>'line',fill=>$graphcolor,stroke=>$graphcolor,strokewidth=>3,points=>"$cx,".($cy-$radius)." $cx,".($cy+$radius)));
 
+	my $ring_radius = $bubble_radius/10;
+
 	for (my $i=1; $i<=10; $i++) {
-		my $rad = floor(($i*150)*($bubble_size_x/$bubble_diameter));
+		my $rad = floor(($i*$ring_radius)*($bubble_size_x/$bubble_diameter));
 
 		$image->Draw(primitive=>'circle',fill=>'none',stroke=>$graphcolor,strokewidth=>3,points=>"$cx,$cy $cx,".($cy+$rad));
 	}
@@ -192,17 +200,17 @@ foreach my $image ($regionmap,$galaxymap) {
 	}
 
 	for (my $i=1; $i<=10; $i++) {
-		my $rad = floor(($i*150)*($bubble_size_x/$bubble_diameter));
+		my $rad = floor(($i*($bubble_radius/10))*($bubble_size_x/$bubble_diameter));
 
-		#$image->Annotate(pointsize=>30,fill=>$graphcolor,text=>($i*150).' ly', x=>$cx+8, y=>$cy-$rad-10);
-		#$image->Annotate(pointsize=>30,fill=>$graphcolor,text=>($i*150).' ly', x=>$cx+8, y=>$cy+$rad+35);
-		#$image->Annotate(pointsize=>30,fill=>$graphcolor,text=>($i*150).' ly', x=>$cx+$rad+8, y=>$cy-10);
-		#$image->Annotate(pointsize=>30,fill=>$graphcolor,text=>($i*150).' ly', x=>$cx-$rad+8, y=>$cy-10);
+		#$image->Annotate(pointsize=>30,fill=>$graphcolor,text=>($i*$ring_radius).' ly', x=>$cx+8, y=>$cy-$rad-10);
+		#$image->Annotate(pointsize=>30,fill=>$graphcolor,text=>($i*$ring_radius).' ly', x=>$cx+8, y=>$cy+$rad+35);
+		#$image->Annotate(pointsize=>30,fill=>$graphcolor,text=>($i*$ring_radius).' ly', x=>$cx+$rad+8, y=>$cy-10);
+		#$image->Annotate(pointsize=>30,fill=>$graphcolor,text=>($i*$ring_radius).' ly', x=>$cx-$rad+8, y=>$cy-10);
 
-		annotate_border($image,30, $graphcolor, 8, ($i*150).' ly', undef, $cx+8,$cy-$rad-10);
-		annotate_border($image,30, $graphcolor, 8, ($i*150).' ly', undef, $cx+8,$cy+$rad+32);
-		annotate_border($image,30, $graphcolor, 8, ($i*150).' ly', undef, $cx+$rad+8,$cy-10);
-		annotate_border($image,30, $graphcolor, 8, ($i*150).' ly', undef, $cx-$rad+8,$cy-10);
+		annotate_border($image,30, $graphcolor, 8, ($i*$ring_radius).' ly', undef, $cx+8,$cy-$rad-10);
+		annotate_border($image,30, $graphcolor, 8, ($i*$ring_radius).' ly', undef, $cx+8,$cy+$rad+32);
+		annotate_border($image,30, $graphcolor, 8, ($i*$ring_radius).' ly', undef, $cx+$rad+8,$cy-10);
+		annotate_border($image,30, $graphcolor, 8, ($i*$ring_radius).' ly', undef, $cx-$rad+8,$cy-10);
 	}
 
 	my $solx = floor($size_x/2);
