@@ -165,7 +165,7 @@ $image->Draw( primitive=>'rectangle', stroke=>'rgb(0,0,0)', fill=>'rgb(0,0,0)', 
 
 $image->Annotate(pointsize=>$pointsize,fill=>'white',text=>"Exploration Heatmap Time Lapse", x=>$size_y+$pointsize, y=>$pointsize*8);
 $image->Annotate(pointsize=>$pointsize,fill=>'white',text=>"Elite:Dangerous Astrometrics (edastro.com)", x=>$size_y+$pointsize, y=>$pointsize*9.5);
-$image->Annotate(pointsize=>$pointsize,fill=>'white',text=>"by CMDR Orvidius - Data from EDSM.net", x=>$size_y+$pointsize, y=>$pointsize*11);
+$image->Annotate(pointsize=>$pointsize,fill=>'white',text=>"by CMDR Orvidius - Data from EDSM + EDDN", x=>$size_y+$pointsize, y=>$pointsize*11);
 
 $image->Composite(image=>$logo, compose=>'over', gravity=>'northeast',x=>int(15*$scale_factor),y=>int(15*$scale_factor));
 
