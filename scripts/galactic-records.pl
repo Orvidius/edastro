@@ -123,6 +123,7 @@ $skipKey{SystemAllegiance} = 1;
 $skipKey{nonbodyCount} = 1;
 $skipKey{id64boxelID} = 1;
 $skipKey{id64boxelNum} = 1;
+$skipKey{id64boxelnum} = 1;
 $skipKey{id64mass} = 1;
 $skipKey{id64sectorID} = 1;
 

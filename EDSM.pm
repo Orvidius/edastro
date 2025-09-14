@@ -1115,6 +1115,7 @@ sub id64_to_name {
 }
 
 sub id64_subsector {
+	# https://web.archive.org/web/20220618134655/http://disc.thargoid.space/ID64
 	my $id64 = shift;
 	my $numeric_masscode = shift;
 	# http://disc.thargoid.space/ID64
