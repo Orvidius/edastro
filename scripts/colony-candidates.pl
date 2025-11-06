@@ -39,7 +39,7 @@ my $outfile		= 'colony-candidates.csv';
 
 ############################################################################
 
-my @rows = db_mysql('elite',"select id64,coord_x x,coord_y y,coord_z z from stations,systems where haveColonization=1 and systemId64>0 and systemId64=id64 and type is not NULL and type!='Mega ship' and type!='Fleet Carrier' and type!='GameplayPOI' and type!='PlanetaryConstructionDepot' and type !='SpaceConstructionDepot' and stations.deletionState=0 and systems.deletionState=0 and coord_x is not null and coord_y is not null and coord_z is not null");
+my @rows = db_mysql('elite',"select id64,coord_x x,coord_y y,coord_z z,colonyCandidate cc from stations,systems where haveColonization=1 and systemId64>0 and systemId64=id64 and type is not NULL and type!='Mega ship' and type!='Fleet Carrier' and type!='GameplayPOI' and type!='PlanetaryConstructionDepot' and type !='SpaceConstructionDepot' and stations.deletionState=0 and systems.deletionState=0 and coord_x is not null and coord_y is not null and coord_z is not null");
 
 print int(@rows)." stations pulled.\n";
 
@@ -109,10 +109,14 @@ while (@new && !$no_more_data) {
 						my $id64 = $$r{id64};
 						next if ($seen{$id64} || $data{$id64});
 						${$seen{$id64}} = \$one;
+
+						if ($$r{cc}) {
+							db_mysql('elite',"update systems set colonyCandidate=0,updated=updated where id64=?",[($id64)]);
+						}
 		
 						my @sys = db_mysql('elite',"select id64,coord_x x,coord_y y,coord_z z,name,mainStarType,sol_dist,planetscore,".
-							"numStars,numPlanets,numTerra,numELW,numAW,numWW,numLandables,region,FSSprogress,complete from systems where ".
-							"coord_z>=? and coord_z<=? and coord_x is not null and coord_x!=0 and coord_y is not null and coord_y!=0 ".
+							"numStars,numPlanets,numTerra,numELW,numAW,numWW,numLandables,region,FSSprogress,complete,colonyCandidate cc from systems ".
+							"where coord_z>=? and coord_z<=? and coord_x is not null and coord_x!=0 and coord_y is not null and coord_y!=0 ".
 							"and coord_z is not null and coord_z!=0 and sqrt(pow(coord_x-?,2)+pow(coord_y-?,2)+pow(coord_z-?,2))<? and ".
 							"deletionState=0 and (SystemGovernment is null or SystemGovernment=3 or SystemGovernment=2) and ".
 							"(SystemEconomy is null or SystemEconomy=5 or SystemEconomy=2)",
@@ -123,6 +127,9 @@ while (@new && !$no_more_data) {
 							my $fss = $$s{complete} ? 100 : int($$s{FSSprogress}*10000)/100;
 							print make_csv($$s{id64},$$s{name},$$s{mainStarType},$$s{sol_dist},$fss,$$s{planetscore},$$s{numStars},$$s{numPlanets},
 								$$s{numLandables},$$s{numTerra},$$s{numELW},$$s{numAW},$$s{numWW},$$s{region},$$s{x},$$s{y},$$s{z})."\r\n";
+							if (!$$s{cc}) {
+								db_mysql('elite',"update systems set colonyCandidate=1,updated=updated where id64=?",[($$s{id64})]);
+							}
 						}
 					}
 

@@ -119,7 +119,7 @@ if ((!keys(%action) && ($epochDay % 4 == 1 || $epochDay % 4 == 3)) || $action{bo
 	get_file(1,'-u','https://www.edsm.net/dump','bodies7days.json') if (!$edsm_down);
 }
 if ((!keys(%action) && $t[6] == 1) || $action{data}) {
-	get_file(1,'-u8','https://www.edsm.net/dump','codex.json',1) if (!$edsm_down);
+	get_file(1,'-u4','https://www.edsm.net/dump','codex.json',1) if (!$edsm_down);
 }
 
 my_system("cd ~bones/elite ; ./update-boxels.pl ");
@@ -195,7 +195,7 @@ if ((!keys(%action) && $epochDay % $day_interval == 0) || $action{files}) {
 	my_system("$path/thargoid-video.pl > $path/thargoid-video.pl.out >\&1");
 	my_system("$path/inhabited-video.pl > $path/inhabited-video.pl.out >\&1");
 
-	my_system(1,"cd ~bones/elite/scripts ; ./lagrange-capable-stars.pl > lagrange-capable-stars.csv ; [ -s lagrange-capable-stars.csv ] \&\& scp lagrange-capable-stars.csv www\@services:/www/edastro.com/mapcharts/files/  ");
+	#my_system(1,"cd ~bones/elite/scripts ; ./lagrange-capable-stars.pl > lagrange-capable-stars.csv ; [ -s lagrange-capable-stars.csv ] \&\& scp lagrange-capable-stars.csv www\@services:/www/edastro.com/mapcharts/files/  ");
 
 	#redirect_script("near-entry-systems.pl.pl","near-entry-systems.pl.csv");
 
@@ -251,7 +251,7 @@ if ((!keys(%action) && $epochDay % $day_interval == 0) || $action{files}) {
 	my_system(1,"cd ~bones/elite/scripts ; ./hot-gasgiants.pl > hot-gasgiants.csv ; [ -s hot-gasgiants.csv ] \&\& scp -P222 hot-gasgiants.csv www\@services:/www/edastro.com/mapcharts/files/ ");
 	my_system(1,"cd ~bones/elite/scripts ; ./hot-jupiters.pl > hot-jupiters.csv ; [ -s hot-jupiters.csv ] \&\& scp -P222 hot-jupiters.csv www\@services:/www/edastro.com/mapcharts/files/ ");
 	my_system("cd ~bones/elite/scripts ; ./unknown-stars.pl > unknown-stars.csv ; [ -s unknown-stars.csv ] \&\& scp -P222 unknown-stars.csv www\@services:/www/edastro.com/mapcharts/files/ ");
-	my_system("cd ~bones/elite/scripts ; ./body-counts.pl > body-counts.csv ; [ -s body-counts.csv ] \&\& scp -P222 body-counts.csv www\@services:/www/edastro.com/mapcharts/files/ ");
+	#my_system("cd ~bones/elite/scripts ; ./body-counts.pl > body-counts.csv ; [ -s body-counts.csv ] \&\& scp -P222 body-counts.csv www\@services:/www/edastro.com/mapcharts/files/ ");
 	my_system("cd ~bones/elite/scripts ; ./binary-planets.pl > binary-ELW.csv ; [ -s binary-ELW.csv ] \&\& scp -P222 binary-ELW.csv www\@services:/www/edastro.com/mapcharts/files/ ");
 	my_system("cd ~bones/elite/scripts ; ./neutron-stars.pl > neutron-stars.csv ; [ -s neutron-stars.csv ] \&\& scp -P222 neutron-stars.csv www\@services:/www/edastro.com/mapcharts/files/ ");
 	my_system(1,"cd ~bones/elite/scripts ; ./icy-ring-systems.pl ");

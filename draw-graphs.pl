@@ -26,7 +26,7 @@ my $allow_scp		= 1;
 my $id_add		= 10**12;
 
 my $chunk_size		= 5000;
-my $debug_stars		= 10000;
+my $debug_stars		= 20000;
 my $debug_limit		= '';
 my $debug_and		= '';
 #   $debug_limit		= "order by coord_z limit $debug_stars" if ($debug);
@@ -45,7 +45,7 @@ my $img_path		= "/home/bones/elite/images";
 $filepath .= '/test'    if ($0 =~ /\.pl\.\S+/);
 $allow_scp = 0          if ($0 =~ /\.pl\.\S+/);
 
-my $author		= "By CMDR Orvidius (edastro.com) - CC BY-NC-SA 3.0 - Data from EDSM.net";
+my $author		= "By CMDR Orvidius (edastro.com) - CC BY-NC-SA 3.0 - Data from EDDN & EDSM";
 
 my $outputgroup		= 0;
 $outputgroup = $ARGV[0] if ($ARGV[0]);
@@ -58,11 +58,12 @@ my @perdaytypes		= qw(bodiespersystem newfinds);
 my @zonetypes		= qw();
 
 
-$gfile{bodymetals}= "$filepath/bodymetals.png";
-$gfile{sectormassmetals}= "$filepath/sectormassmetals.png";
+$gfile{gasgiant_helium}= "$filepath/gasgiant_helium.png";
 
 if (!$skip_all) {
 
+$gfile{bodymetals}= "$filepath/bodymetals.png";
+$gfile{sectormassmetals}= "$filepath/sectormassmetals.png";
 $gfile{bodiespersystem}	= "$filepath/bodiespersystem.png";
 $gfile{newfinds}	= "$filepath/newfinds.png";
 $gfile{heightgraph2W}	= "$filepath/heightgraph2W.png";
@@ -125,6 +126,8 @@ my $magnitude_boost	= 25;
 my $magnitude_scale	= 55;
 my $temperature_scale	= 35000;
 my $hr_scale		= 1.6;
+
+my $gg_he_steps		= 10;
 
 my @colorkey = ("O|O Star","B|B Star","A|A Star","F|F Star","G|G Star","K|K Star","M|M Star","BD|Brown Dwarf","TT|T Tauri Star","HE|Herbig Ae/Be",
 		"C|Carbon Star","WR|Wolf-Rayet","WD|White Dwarf","NS|Neutron Star","BH|Black Hole","U|Unidentified",
@@ -216,9 +219,34 @@ my %colorclass	= ();
 @{$colorclass{GG4}}	= (220,160,80);
 @{$colorclass{GG5}}	= (225,150,50);
 
+my %gasgiantscolor	 = ();
+@{$gasgiantscolor{GG1}}  = (255,0,0);
+@{$gasgiantscolor{GG2}}  = (192,64,0);
+@{$gasgiantscolor{GG3}}  = (128,128,0);
+@{$gasgiantscolor{GG4}}  = (64,192,0);
+@{$gasgiantscolor{GG5}}  = (0,255,0);
+@{$gasgiantscolor{WG}}   = (0,0,255);
+@{$gasgiantscolor{GGWL}} = (0,255,255);
+@{$gasgiantscolor{GGAL}} = (255,255,0);
+@{$gasgiantscolor{GGHE}} = (128,0,240);
+@{$gasgiantscolor{GGHR}} = (255,0,255);
+my @gasgiantstypes = qw(GG1 GG2 GG3 GG4 GG5 WG GGWL GGAL GGHE GGHR);
+
+my %gasgiantskey = ();
+$gasgiantskey{GG1}	= 'Class 1 Gas Giant';
+$gasgiantskey{GG2}	= 'Class 2 Gas Giant';
+$gasgiantskey{GG3}	= 'Class 3 Gas Giant';
+$gasgiantskey{GG4}	= 'Class 4 Gas Giant';
+$gasgiantskey{GG5}	= 'Class 5 Gas Giant';
+$gasgiantskey{WG}	= 'Water Giant';
+$gasgiantskey{GGWL}	= 'Gas Giant w/ Water Life';
+$gasgiantskey{GGAL}	= 'Gas Giant w/ Ammonia Life';
+$gasgiantskey{GGHE}	= 'Helium Gas Giant';
+$gasgiantskey{GGHR}	= 'Helium-Rich Gas Giant';
+
 my %sectormassplanetscolor	= ();
-@{$sectormassplanetscolor{AW}}		= (255,255,0);
-@{$sectormassplanetscolor{WW}}		= (80,80,255);
+@{$sectormassplanetscolor{AW}}	= (255,255,0);
+@{$sectormassplanetscolor{WW}}	= (80,80,255);
 @{$sectormassplanetscolor{TWW}}	= (0,255,255);
 @{$sectormassplanetscolor{ELW}}	= (0,255,0);
 @{$sectormassplanetscolor{TFC}}	= (255,0,255);
@@ -246,7 +274,12 @@ my %bodymetalscolor = %sectormassmetalscolor;
 my @bodymetalstypes = qw(H He Metals);
 my %bodymetalskey   = %sectormassmetalskey;
 
+my @gg_he_planets	= qw(GG1 GG2 GG3 GG4 GG5 WG GGWL GGAL GGHE GGHR);
 
+my @gasgiant_percentages = ();
+foreach (0..$gg_he_steps) {
+	push @gasgiant_percentages, $_*(100/$gg_he_steps);
+}
 
 my $max_heat            = 9;
 my @heatcolor           = ();
@@ -282,6 +315,7 @@ my %system_seen = ();
 my %chunk_seen = ();
 my %datedata = ();
 my %bodymetals = ();
+my %gg_he = ();
 
 my %bolometric_table = ();
 my $boloclass = 'V';
@@ -524,6 +558,16 @@ sub graph_body {
 		$datedata{perday}{$b_days_ago}{planets}++ if (!$$body{star});
 	}
 
+
+	# Gas-Giant Helium distribution
+
+	if ($gfile{gasgiant_helium} && ($$body{subType} =~ /^GG/ || $$body{subType} eq 'WG') && defined($$body{he})) {
+		my $step = int($$body{he}/$gg_he_steps)*$gg_he_steps;
+		$gg_he{$step}{$$body{subType}}++;
+		$gg_he{total}{$$body{subType}}++;
+		my $val = 1000*($gg_he{$step}{$$body{subType}} / $gg_he{total}{$$body{subType}});
+		$highest_value{gasgiant_helium} = $val if ($val > $highest_value{gasgiant_helium});
+	}
 
 	# Helium and metallicity distribution
 
@@ -1252,7 +1296,7 @@ sub draw_graphs {
 
 	# Sector/System Mass/MainStar/Body Valuable Planets / Metals Distribution:
 
-	foreach my $graphtype (qw(sectorstarplanets sectormassplanets systemstarplanets systemmassplanets sectormassmetals bodymetals)) {
+	foreach my $graphtype (qw(sectorstarplanets sectormassplanets systemstarplanets systemmassplanets sectormassmetals bodymetals gasgiant_helium)) {
 		next if (!$gfile{$graphtype});
 		my $fn = $gfile{$graphtype};
 
@@ -1274,7 +1318,17 @@ sub draw_graphs {
 		}
 
 		my $scale_type = 'log';
-		$scale_type = 'linear' if ($graphtype =~ /^system/ || $graphtype =~ /metals/);
+		$scale_type = 'linear' if ($graphtype =~ /^(system|gasgiant)/ || $graphtype =~ /metals/);
+
+		if ($graphtype eq 'gasgiant_helium') {
+			$size_x = 2400;
+			$size_y = 600;
+			$startx = 10;
+			$margin = 50;
+			$bottom_add = 200;
+			$top_add = 70;
+			$left_add = 50;
+		}
 
 		if ($graphtype eq 'bodymetals') {
 			$size_x = 1920;
@@ -1347,6 +1401,7 @@ sub draw_graphs {
 		my $top = floor(log10($highest))+1;
 		$top = (floor($highest/$linear_intervals)+1)*$linear_intervals if ($scale_type eq 'linear');
 		$top = 100 if ($graphtype =~ /metals/);
+		#$top = 1000 if ($graphtype =~ /gasgiant/);
 
 		my $loop_max = $top;
 		$loop_max = floor($top/$linear_intervals) if ($scale_type eq 'linear');
@@ -1379,24 +1434,33 @@ sub draw_graphs {
 		my @list = ('A'..'H');
 		@list = @starcodelist if ($graphtype =~ /starplanets/);
 		@list = @planetcodelist if ($graphtype =~ /bodymetals/);
+		@list = @gasgiant_percentages if ($graphtype =~ /gasgiant/);
 
 		my @typelist = @sectormasstypes;
 		@typelist = @sectormassmetalstypes if ($graphtype =~ /metals/);
+		@typelist = @gasgiantstypes if ($graphtype =~ /gasgiant/);
 
 		my %colorkey = %sectormasscolor;
 		%colorkey = %bodymetalscolor if ($graphtype =~ /metals/);
+		%colorkey = %gasgiantscolor if ($graphtype =~ /gasgiant/);
 
 		my %keynames = %sectormasskey;
 		%keynames = %bodymetalskey  if ($graphtype =~ /metals/);
+		%keynames = %gasgiantskey  if ($graphtype =~ /gasgiant/);
 
 		foreach my $itemcode (@list) {
+			next if ($itemcode eq 'total');
 
 			my $x_pos = $x1 + floor((int(@typelist)+2)*$bar_width/2);
 			my $pointsize = $graphtype =~ /bodymetals/ ? 20 : 30;
 
 			my $offset = $graphtype =~ /bodymetals/ ? floor(length($itemcode)*$pointsize/3) : 10;
 
-			$image->Annotate(pointsize=>$pointsize,fill=>'white',text=>$itemcode,gravity=>'northwest',x=>$x_pos-$offset,y=>$top_add+$margin+$size_y+10);
+			my $item = $graphtype =~ /gasgiant/ ? "$itemcode-".int($itemcode + 100/$gg_he_steps - 1) : $itemcode;
+			my $add_y = 0; #$graphtype =~ /gasgiant/ ? 20 : 0;
+			my $add_x = $graphtype =~ /gasgiant/ ? -22 : 0;
+
+			$image->Annotate(pointsize=>$pointsize,fill=>'white',text=>$item,gravity=>'northwest',x=>$x_pos-$offset+$add_x,y=>$top_add+$margin+$size_y+10+$add_y);
 			$image->Draw( primitive=>'line', stroke=>'white', strokewidth=>1, points=>sprintf("%u,%u %u,%u",
 				$x1+(int(@typelist)+2)*$bar_width,$top_add+$margin+$size_y+1,$x1+(int(@typelist)+2)*$bar_width,$top_add+$margin+$size_y+10));
 #warn "$graphtype / $itemcode : typelist = ".join(',',@typelist)."\n";
@@ -1462,6 +1526,9 @@ sub draw_graphs {
 					#$num = unpack("%32b*", $system_vector{$graphtype}{$itemcode});
 					$num = int(keys %{$system_seen{$graphtype}{$itemcode}});
 					$sum = $systemplanets{$graphtype}{$itemcode}{$type};
+				} elsif ($graphtype =~ /^gasgiant/) {
+					$num = $gg_he{total}{$type} ? 1000 * ($gg_he{$itemcode}{$type} / $gg_he{total}{$type}) : 0;
+					$sum = $gg_he{total}{$type};
 				}
 				next if (!$num);
 
@@ -1557,6 +1624,12 @@ sub draw_graphs {
 					$y1 = int($top_add+$margin+$size_y)-int(log10($average)*$size_y/$top) if ($scale_type eq 'log');
 					$y1 = int($top_add+$margin+$size_y)-int($average*$size_y/$top) if ($scale_type eq 'linear');
 					my_rectangle($image,$x1,$y1,$x3,int($top_add+$margin+$size_y),1,$color,$color);
+
+				} elsif ($graphtype =~ /^gasgiant/) {
+					my $y1;
+					$y1 = int($top_add+$margin+$size_y)-int(log10($num)*$size_y/$top) if ($scale_type eq 'log');
+					$y1 = int($top_add+$margin+$size_y)-int($num*$size_y/$top) if ($scale_type eq 'linear');
+					my_rectangle($image,$x1,$y1,$x3,int($top_add+$margin+$size_y),1,$color,$color);
 				}
 			}
 
@@ -1570,6 +1643,7 @@ sub draw_graphs {
 		my $startx  = $left_add+$margin+150;
 		my $starty  = $top_add+$margin+$size_y+150;
 
+		$per_row = 5 if ($graphtype =~ /gasgiant/);
 		$spacing = 250 if ($graphtype =~ /starplanets/);
 		$spacing = 150 if ($graphtype =~ /bodymetals/);
 
@@ -1681,6 +1755,9 @@ sub draw_graphs {
 		if ($graphtype eq 'systemstarplanets') {
 			$image->Annotate(pointsize=>30,fill=>'white',text=>"Average Valuable Planets per Thousand Systems by Main Star Type",gravity=>'north',x=>0,y=>$margin-5);
 		}
+		if ($graphtype eq 'gasgiant_helium') {
+			$image->Annotate(pointsize=>30,fill=>'white',text=>"Average Gas Giants by Type per Thousand within Helium Concentration Range",gravity=>'north',x=>0,y=>$margin-5);
+		}
 
 		if ($graphtype =~ /bodymetals/) {
 			$image->Annotate(pointsize=>16,fill=>'white',text=>'Body Type',gravity=>'south',x=>-300,y=>$bottom_add/2+50);
@@ -1690,6 +1767,9 @@ sub draw_graphs {
 		}
 		if ($graphtype =~ /starplanets/) {
 			$image->Annotate(pointsize=>16,fill=>'white',text=>'Main Star Type',gravity=>'south',x=>50,y=>$bottom_add/2+75);
+		}
+		if ($graphtype =~ /gasgiant/) {
+			$image->Annotate(pointsize=>16,fill=>'white',text=>'Helium Percentage in Atmosphere',gravity=>'south',x=>50,y=>$bottom_add/2+75);
 		}
 
 		if ($graphtype =~ /bodymetals/) {
@@ -1703,6 +1783,9 @@ sub draw_graphs {
 		}
 		if ($graphtype =~ /^system/) {
 			$image->Annotate(pointsize=>16,fill=>'white',text=>"Valuable Planets per Thousand Systems",rotate=>270,gravity=>'east',x=>$margin+$size_x+70,y=>-100);
+		}
+		if ($graphtype =~ /^gasgiant/) {
+			$image->Annotate(pointsize=>16,fill=>'white',text=>"Number of Gas Giants of type per Thousand",rotate=>270,gravity=>'east',x=>$margin+$size_x+70,y=>-100);
 		}
 
 		$image->Draw( primitive=>'rectangle', stroke=>'white', fill=>'none', strokewidth=>2,
