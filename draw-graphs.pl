@@ -564,8 +564,8 @@ sub graph_body {
 	if ($gfile{gasgiant_helium} && ($$body{subType} =~ /^GG/ || $$body{subType} eq 'WG') && defined($$body{he})) {
 		my $step = int($$body{he}/$gg_he_steps)*$gg_he_steps;
 		$gg_he{$step}{$$body{subType}}++;
-		$gg_he{total}{$$body{subType}}++;
-		my $val = 1000*($gg_he{$step}{$$body{subType}} / $gg_he{total}{$$body{subType}});
+		$gg_he{total}{$step}++;
+		my $val = 1000*($gg_he{$step}{$$body{subType}} / $gg_he{total}{$step});
 		$highest_value{gasgiant_helium} = $val if ($val > $highest_value{gasgiant_helium});
 	}
 
@@ -1457,7 +1457,7 @@ sub draw_graphs {
 			my $offset = $graphtype =~ /bodymetals/ ? floor(length($itemcode)*$pointsize/3) : 10;
 
 			my $item = $graphtype =~ /gasgiant/ ? "$itemcode-".int($itemcode + 100/$gg_he_steps - 1) : $itemcode;
-			my $add_y = 0; #$graphtype =~ /gasgiant/ ? 20 : 0;
+			my $add_y = $graphtype =~ /gasgiant/ ? 20 : 0;
 			my $add_x = $graphtype =~ /gasgiant/ ? -22 : 0;
 
 			$image->Annotate(pointsize=>$pointsize,fill=>'white',text=>$item,gravity=>'northwest',x=>$x_pos-$offset+$add_x,y=>$top_add+$margin+$size_y+10+$add_y);
@@ -1527,8 +1527,8 @@ sub draw_graphs {
 					$num = int(keys %{$system_seen{$graphtype}{$itemcode}});
 					$sum = $systemplanets{$graphtype}{$itemcode}{$type};
 				} elsif ($graphtype =~ /^gasgiant/) {
-					$num = $gg_he{total}{$type} ? 1000 * ($gg_he{$itemcode}{$type} / $gg_he{total}{$type}) : 0;
-					$sum = $gg_he{total}{$type};
+					$num = $gg_he{total}{$itemcode} ? 1000 * ($gg_he{$itemcode}{$type} / $gg_he{total}{$itemcode}) : 0;
+					$sum = $gg_he{total}{$itemcode};
 				}
 				next if (!$num);
 
@@ -1756,7 +1756,7 @@ sub draw_graphs {
 			$image->Annotate(pointsize=>30,fill=>'white',text=>"Average Valuable Planets per Thousand Systems by Main Star Type",gravity=>'north',x=>0,y=>$margin-5);
 		}
 		if ($graphtype eq 'gasgiant_helium') {
-			$image->Annotate(pointsize=>30,fill=>'white',text=>"Average Gas Giants by Type per Thousand within Helium Concentration Range",gravity=>'north',x=>0,y=>$margin-5);
+			$image->Annotate(pointsize=>30,fill=>'white',text=>"Average Gas Giants per Thousand within Helium Concentration Range",gravity=>'north',x=>0,y=>$margin-5);
 		}
 
 		if ($graphtype =~ /bodymetals/) {
@@ -1785,7 +1785,7 @@ sub draw_graphs {
 			$image->Annotate(pointsize=>16,fill=>'white',text=>"Valuable Planets per Thousand Systems",rotate=>270,gravity=>'east',x=>$margin+$size_x+70,y=>-100);
 		}
 		if ($graphtype =~ /^gasgiant/) {
-			$image->Annotate(pointsize=>16,fill=>'white',text=>"Number of Gas Giants of type per Thousand",rotate=>270,gravity=>'east',x=>$margin+$size_x+70,y=>-100);
+			$image->Annotate(pointsize=>16,fill=>'white',text=>"Number of Gas Giants per Thousand within Helium Range",rotate=>270,gravity=>'east',x=>$margin+$size_x+70,y=>-100);
 		}
 
 		$image->Draw( primitive=>'rectangle', stroke=>'white', fill=>'none', strokewidth=>2,
