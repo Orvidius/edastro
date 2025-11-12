@@ -1457,7 +1457,7 @@ sub draw_graphs {
 			my $offset = $graphtype =~ /bodymetals/ ? floor(length($itemcode)*$pointsize/3) : 10;
 
 			my $item = $graphtype =~ /gasgiant/ ? "$itemcode-".int($itemcode + 100/$gg_he_steps - 1) : $itemcode;
-			my $add_y = $graphtype =~ /gasgiant/ ? 20 : 0;
+			my $add_y = $graphtype =~ /gasgiant/ ? 0 : 0;
 			my $add_x = $graphtype =~ /gasgiant/ ? -22 : 0;
 
 			$image->Annotate(pointsize=>$pointsize,fill=>'white',text=>$item,gravity=>'northwest',x=>$x_pos-$offset+$add_x,y=>$top_add+$margin+$size_y+10+$add_y);
@@ -1785,7 +1785,7 @@ sub draw_graphs {
 			$image->Annotate(pointsize=>16,fill=>'white',text=>"Valuable Planets per Thousand Systems",rotate=>270,gravity=>'east',x=>$margin+$size_x+70,y=>-100);
 		}
 		if ($graphtype =~ /^gasgiant/) {
-			$image->Annotate(pointsize=>16,fill=>'white',text=>"Number of Gas Giants per Thousand within Helium Range",rotate=>270,gravity=>'east',x=>$margin+$size_x+70,y=>-100);
+			$image->Annotate(pointsize=>16,fill=>'white',text=>"Number of Gas Giants per Thousand within Helium Range",rotate=>270,gravity=>'east',x=>$margin+$size_x+70,y=>-180);
 		}
 
 		$image->Draw( primitive=>'rectangle', stroke=>'white', fill=>'none', strokewidth=>2,
