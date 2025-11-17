@@ -4,7 +4,7 @@ use strict;
 ############################################################################
 
 use lib "/home/bones/elite";
-use EDSM qw(log10);
+use EDSM qw(log10 ssh_options scp_options);
 
 use lib "/home/bones/perl";
 use DB qw(db_mysql rows_mysql columns_mysql show_queries disconnect_all);
@@ -17,16 +17,17 @@ use POSIX ":sys_wait_h";
 
 my $debug		= 0;
 my $allow_scp		= 1;
-my $scp			= '/usr/bin/scp -P222';
-my $ssh			= '/usr/bin/ssh -p222';
+my $scp			= '/usr/bin/scp'.scp_options();
+my $ssh			= '/usr/bin/ssh'.ssh_options();
 my $remote_server       = 'www@services:/www/edastro.com/mapcharts/files';
+my $scriptname		= $0; $scriptname =~ s/^.+\s+//s; $0 =~ s/^.*\///s;
 
 my $radius		= 16; # lightyears
 my $one			= 1;
 my $use_forking		= 1;
-my $maxChildren		= 24;
+my $maxChildren		= 8;
 my $fork_verbose	= 0;
-my $chunk_size		= 10;
+my $chunk_size		= 50;
 
 my %child    = ();
 my @kids     = ();
@@ -83,8 +84,9 @@ while (@new && !$no_more_data) {
 				$kids[$childNum]	= undef;
 				$childpid[$childNum]    = undef;
 				$count++;
-				print "." if ($count % 10 == 0);
-				print " ".int($count*$chunk_size)."\n" if ($count % 1000 == 0);
+				$0 = $scriptname.' [master] '.time;
+				print "." if ($count % 2 == 0);
+				print " ".int($count*$chunk_size)."\n" if ($count % 200 == 0);
 			}
 
 			if (!$no_more_data) {
@@ -103,6 +105,9 @@ while (@new && !$no_more_data) {
 				} else {
 					# Child
 					disconnect_all();
+					$0 = sprintf("$scriptname [child] %02u",$childNum);
+
+					my @out = ();
 
 					while (@rows) {
 						my $r = shift @rows;
@@ -121,16 +126,44 @@ while (@new && !$no_more_data) {
 							"deletionState=0 and (SystemGovernment is null or SystemGovernment=3 or SystemGovernment=2) and ".
 							"(SystemEconomy is null or SystemEconomy=5 or SystemEconomy=2)",
 							[($$r{z}-$radius,$$r{z}+$radius,$$r{x},$$r{y},$$r{z},$radius)]);
+
+						my @ids = ();
+
+						foreach my $s (@sys) {
+							push @ids, $$s{id64};
+						}
+						my $idlist = "'".join("','",@ids)."'";
+
+						my %stat = ();
+						my @stations = ();
+						@stations = db_mysql('elite',"select distinct systemId64,count(*) num from stations where systemId64 in ($idlist) and ".
+								"type is not NULL and type!='Mega ship' and type!='Fleet Carrier' and type!='GameplayPOI' group by systemId64")
+								if (@ids);
+
+						foreach my $s (@stations) {
+							$stat{$$s{systemId64}} = $$s{num};
+						}
 		
 						foreach my $s (@sys) {
-							#print "$$s{id64},$$s{x},$$s{y},$$s{z}\n";
-							my $fss = $$s{complete} ? 100 : int($$s{FSSprogress}*10000)/100;
-							print make_csv($$s{id64},$$s{name},$$s{mainStarType},$$s{sol_dist},$fss,$$s{planetscore},$$s{numStars},$$s{numPlanets},
-								$$s{numLandables},$$s{numTerra},$$s{numELW},$$s{numAW},$$s{numWW},$$s{region},$$s{x},$$s{y},$$s{z})."\r\n";
-							if (!$$s{cc}) {
-								db_mysql('elite',"update systems set colonyCandidate=1,updated=updated where id64=?",[($$s{id64})]);
+
+							if (!$stat{$$s{id64}}) {
+								#print "$$s{id64},$$s{x},$$s{y},$$s{z}\n";
+								my $fss = $$s{complete} ? 100 : int($$s{FSSprogress}*10000)/100;
+								push @out, make_csv($$s{id64},$$s{name},$$s{mainStarType},$$s{sol_dist},$fss,$$s{planetscore},$$s{numStars},$$s{numPlanets},
+										$$s{numLandables},$$s{numTerra},$$s{numELW},$$s{numAW},$$s{numWW},$$s{region},$$s{x},$$s{y},$$s{z})."\r\n";
+								if (!$$s{cc}) {
+									db_mysql('elite',"update systems set colonyCandidate=1,updated=updated where id64=?",[($$s{id64})]);
+								}
+							} elsif ($$s{cc}) {
+								eval {
+									db_mysql('elite',"update systems set colonyCandidate=0,updated=updated where id64=?",[($$s{id64})]);
+								};
 							}
 						}
+					}
+
+					while (@out) {
+						print shift @out;
 					}
 
 					exit;
