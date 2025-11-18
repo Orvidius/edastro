@@ -27,7 +27,7 @@ my $one			= 1;
 my $use_forking		= 1;
 my $maxChildren		= 8;
 my $fork_verbose	= 0;
-my $chunk_size		= 50;
+my $chunk_size		= 10;
 
 my %child    = ();
 my @kids     = ();
@@ -42,7 +42,7 @@ my $outfile		= 'colony-candidates.csv';
 
 my @rows = db_mysql('elite',"select id64,coord_x x,coord_y y,coord_z z,colonyCandidate cc from stations,systems where haveColonization=1 and systemId64>0 and systemId64=id64 and type is not NULL and type!='Mega ship' and type!='Fleet Carrier' and type!='GameplayPOI' and type!='PlanetaryConstructionDepot' and type !='SpaceConstructionDepot' and stations.deletionState=0 and systems.deletionState=0 and coord_x is not null and coord_y is not null and coord_z is not null");
 
-print int(@rows)." stations pulled.\n";
+print int(@rows)." stations pulled. [".epoch2date(time)."]\n";
 
 my @new = ();
 while (@rows) {
@@ -84,9 +84,9 @@ while (@new && !$no_more_data) {
 				$kids[$childNum]	= undef;
 				$childpid[$childNum]    = undef;
 				$count++;
-				$0 = $scriptname.' [master] '.time;
-				print "." if ($count % 2 == 0);
-				print " ".int($count*$chunk_size)."\n" if ($count % 200 == 0);
+				$0 = $scriptname.' [master] ('.time.') '.($count*$chunk_size);
+				print "." if ($count % 10 == 0);
+				print " ".int($count*$chunk_size)." [".epoch2date(time)."]\n" if ($count % 1000 == 0);
 			}
 
 			if (!$no_more_data) {
@@ -105,7 +105,7 @@ while (@new && !$no_more_data) {
 				} else {
 					# Child
 					disconnect_all();
-					$0 = sprintf("$scriptname [child] %02u",$childNum);
+					$0 = sprintf("$scriptname [child] %02u - %u",$childNum,$count*$chunk_size);
 
 					my @out = ();
 
@@ -124,46 +124,19 @@ while (@new && !$no_more_data) {
 							"where coord_z>=? and coord_z<=? and coord_x is not null and coord_x!=0 and coord_y is not null and coord_y!=0 ".
 							"and coord_z is not null and coord_z!=0 and sqrt(pow(coord_x-?,2)+pow(coord_y-?,2)+pow(coord_z-?,2))<? and ".
 							"deletionState=0 and (SystemGovernment is null or SystemGovernment=3 or SystemGovernment=2) and ".
-							"(SystemEconomy is null or SystemEconomy=5 or SystemEconomy=2)",
+							"(SystemEconomy is null or SystemEconomy=5 or SystemEconomy=2) and (numStations is null or numStations=0)",
 							[($$r{z}-$radius,$$r{z}+$radius,$$r{x},$$r{y},$$r{z},$radius)]);
 
-						my @ids = ();
-
-						foreach my $s (@sys) {
-							push @ids, $$s{id64};
-						}
-						my $idlist = "'".join("','",@ids)."'";
-
-						my %stat = ();
-						my @stations = ();
-						@stations = db_mysql('elite',"select distinct systemId64,count(*) num from stations where systemId64 in ($idlist) and ".
-								"type is not NULL and type!='Mega ship' and type!='Fleet Carrier' and type!='GameplayPOI' group by systemId64")
-								if (@ids);
-
-						foreach my $s (@stations) {
-							$stat{$$s{systemId64}} = $$s{num};
-						}
-		
 						foreach my $s (@sys) {
 
-							if (!$stat{$$s{id64}}) {
-								#print "$$s{id64},$$s{x},$$s{y},$$s{z}\n";
-								my $fss = $$s{complete} ? 100 : int($$s{FSSprogress}*10000)/100;
-								push @out, make_csv($$s{id64},$$s{name},$$s{mainStarType},$$s{sol_dist},$fss,$$s{planetscore},$$s{numStars},$$s{numPlanets},
-										$$s{numLandables},$$s{numTerra},$$s{numELW},$$s{numAW},$$s{numWW},$$s{region},$$s{x},$$s{y},$$s{z})."\r\n";
-								if (!$$s{cc}) {
-									db_mysql('elite',"update systems set colonyCandidate=1,updated=updated where id64=?",[($$s{id64})]);
-								}
-							} elsif ($$s{cc}) {
-								eval {
-									db_mysql('elite',"update systems set colonyCandidate=0,updated=updated where id64=?",[($$s{id64})]);
-								};
+							#print "$$s{id64},$$s{x},$$s{y},$$s{z}\n";
+							my $fss = $$s{complete} ? 100 : int($$s{FSSprogress}*10000)/100;
+							print make_csv($$s{id64},$$s{name},$$s{mainStarType},$$s{sol_dist},$fss,$$s{planetscore},$$s{numStars},$$s{numPlanets},
+									$$s{numLandables},$$s{numTerra},$$s{numELW},$$s{numAW},$$s{numWW},$$s{region},$$s{x},$$s{y},$$s{z})."\r\n";
+							if (!$$s{cc}) {
+								db_mysql('elite',"update systems set colonyCandidate=1,updated=updated where id64=?",[($$s{id64})]);
 							}
 						}
-					}
-
-					while (@out) {
-						print shift @out;
 					}
 
 					exit;
