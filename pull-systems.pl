@@ -316,7 +316,7 @@ if ((!keys(%action) && $epochDay % $day_interval == 1) || $action{files}) {
 
 	#waitfor('trojan-planets.pl');
 
-	my_system("cd ~bones/elite/scripts ; ./shepherd-moons.pl > shepherd-moons.csv 2>shepherd-moons.out ; [ -s shepherd-moons.csv ] \&\& scp shepherd-moons.csv www\@services:/www/edastro.com/mapcharts/files/  ");
+	#my_system("cd ~bones/elite/scripts ; ./shepherd-moons.pl > shepherd-moons.csv 2>shepherd-moons.out ; [ -s shepherd-moons.csv ] \&\& scp shepherd-moons.csv www\@services:/www/edastro.com/mapcharts/files/  ");
 
 	my_system("cd ~bones/elite/scripts ; ./sector-list-H-mass.pl > sector-list-H-mass.csv ; [ -s sector-list-H-mass.csv ] \&\& scp -P222 sector-list-H-mass.csv www\@services:/www/edastro.com/mapcharts/files/ ");
 
@@ -332,8 +332,8 @@ if ($t[6] == 4) {			# Thursdays
 }
 
 if (!keys(%action) && $t[6] == 0) {
-	redirect_script("metallicity.pl","metallicity.csv");
-	my_system('cd ~bones/elite/scripts ; cp metallicity.csv metallicity-stable.csv');
+	#redirect_script("metallicity.pl","metallicity.csv");
+	#my_system('cd ~bones/elite/scripts ; cp metallicity.csv metallicity-stable.csv');
 	my_system("cd ~bones/elite/scripts ; ./systems-without-main-stars.pl > systems-without-main-stars.pl.out 2>\&1 ");
 	update_spreadsheets();
 }
