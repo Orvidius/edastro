@@ -111,6 +111,7 @@ open CSV, "<nebulae-planetary.csv";
 		my @v = parse_csv($line);
 		next if (!@v);
 
+		my ($x, $y, $z) = (undef, undef, undef);
 		my @rows = db_mysql('elite',"select coord_x,coord_y,coord_z from systems where name=? and deletionState=0",[($v[$header{system}])]);
 		foreach my $r (@rows) {
 			$x = $$r{coord_x};
@@ -160,6 +161,7 @@ open CSV, "<nebulae-real.csv";
 		my @v = parse_csv($line);
 		next if (!@v);
 
+		my ($x, $y, $z) = (undef, undef, undef);
 		my @rows = db_mysql('elite',"select coord_x,coord_y,coord_z from systems where name=? and deletionState=0",[($v[$header{system}])]);
 		foreach my $r (@rows) {
 			$x = $$r{coord_x};
@@ -207,6 +209,8 @@ open CSV, "<nebulae-procgen.csv";
 		next if (!$line);
 		my @v = parse_csv($line);
 		next if (!@v);
+
+		my ($x, $y, $z) = (undef, undef, undef);
 
 		my @rows = db_mysql('elite',"select coord_x,coord_y,coord_z from systems where name=? and deletionState=0",[($v[$header{system}])]);
 		foreach my $r (@rows) {
@@ -393,6 +397,7 @@ open CSV, "<tritium2.csv";
 
 		next if ($v[$header{type}] eq 'No' || $v[$header{type}] !~ /x[2-9]/);
 	
+		my ($x, $y, $z) = (undef, undef, undef);
 		my @rows = db_mysql('elite',"select coord_x,coord_y,coord_z from systems where name=? and deletionState=0",[($v[$header{system}])]);
 		foreach my $r (@rows) {
 			$x = $$r{coord_x};
@@ -466,6 +471,7 @@ open CSV, "<trit_highway.csv";
 		my @v = parse_csv($line);
 		next if (!@v);
 
+		my ($x, $y, $z) = (undef, undef, undef);
 		my @rows = db_mysql('elite',"select coord_x,coord_y,coord_z from systems where name=? and deletionState=0",[($v[$header{system}])]);
 		foreach my $r (@rows) {
 			$x = $$r{coord_x};
@@ -538,6 +544,7 @@ open CSV, "<canonn-challenge.csv";
 		my @v = parse_csv($line);
 		next if (!@v);
 
+		my ($x, $y, $z) = (undef, undef, undef);
 		my @rows = db_mysql('elite',"select coord_x,coord_y,coord_z from systems where name=? and deletionState=0",[($v[$header{system}])]);
 		foreach my $r (@rows) {
 			$x = $$r{coord_x};
@@ -597,6 +604,7 @@ foreach my $fn ('codex_completionist_nsp.csv','codex_completionist_horizon_bio.c
 		my @v = parse_csv($line);
 		next if (!@v);
 
+		my ($x, $y, $z) = (undef, undef, undef);
 		my @rows = db_mysql('elite',"select coord_x,coord_y,coord_z from systems where name=? and deletionState=0",[($v[$header{system}])]);
 		foreach my $r (@rows) {
 			$x = $$r{coord_x};
