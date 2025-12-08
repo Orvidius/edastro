@@ -23,7 +23,8 @@ my $filepath            = "/home/bones/www/elite";
 my $scriptpath          = "/home/bones/elite/travelmap";
 my $mainpath            = "/home/bones/elite";
 
-my $journal_path	= '/DATA/myDocuments/Saved Games/Frontier Developments/Elite Dangerous';
+#my $journal_path	= '/DATA/myDocuments/Saved Games/Frontier Developments/Elite Dangerous';
+my $journal_path	= '/mnt/EliteDangerousJournals';
 my $esc_path		= $journal_path; $esc_path =~ s/ /\\ /gs;
 
 my $scp                 = '/usr/bin/scp -P222';

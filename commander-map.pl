@@ -22,7 +22,8 @@ my $remote_server       = 'www@services:/www/orvidius.com/images/';
 my $filepath            = "/home/bones/www/elite";
 my $scriptpath          = "/home/bones/elite";
 
-my $journal_path	= '/DATA/myDocuments/Saved Games/Frontier Developments/Elite Dangerous';
+#my $journal_path	= '/DATA/myDocuments/Saved Games/Frontier Developments/Elite Dangerous';
+my $journal_path	= '/mnt/EliteDangerousJournals';
 my $esc_path		= $journal_path; $esc_path =~ s/ /\\ /gs;
 
 my $scp                 = '/usr/bin/scp -P222';
@@ -127,7 +128,7 @@ if ($cmdrID==1) {
 	}
 }
 print "JET CONES: $jetcones\n";
-$jetcones = int($jetcones/100)*100;
+#$jetcones = int($jetcones/100)*100;
 
 
 print "Pulling logs.\n";
@@ -161,6 +162,7 @@ my %discoveries = ();
 my %visited = ();
 my $distance;
 my $totaldistance;
+my $jumpdistance;
 my $refJumps = 0;
 my $last_x = 0;
 my $last_y = 0;
@@ -230,6 +232,7 @@ foreach my $r (@rows) {
 			$refJumps++;
 		}
 		$totaldistance += $dist;
+		$jumpdistance += $dist if ($$r{eventtype} eq 'FSDJump');
 	}
 		
 	if ($n >= $last_jump) {
@@ -253,6 +256,8 @@ foreach my $r (@rows) {
 	$last_z = $$r{coord_z};
 
 	$n++;
+
+	print "$date|$$r{name} > $x, $y ($$r{coord_x}, $$r{coord_z})\n" if ($verbose > 1);
 }
 print "\n";
 
@@ -269,6 +274,9 @@ close TXT;
 
 my $distance_estimate = int($totaldistance/1000)*1000;
 $totaldistance = sprintf("%.02f",$totaldistance);
+$jumpdistance  = sprintf("%.02f",$jumpdistance );
+
+print "Draw location: $x, $y\n";
 
 my $c  = 'rgb(0,180,0)';
 $galaxymap->Draw( primitive=>'circle', stroke=>$c, fill=>$c, strokewidth=>1, points=>sprintf("%u,%u %u,%u",$x,$y,$x+$strokewidth*2+2,$y));
@@ -279,7 +287,7 @@ $galaxymap->Annotate(pointsize=>$pointsize,fill=>'white',text=>"CMDR $cmdrName -
 $galaxymap->Annotate(pointsize=>$pointsize,fill=>'white',text=>commify($n)." jumps, ".commify(int(keys %visited))." total visited systems.", x=>$pointsize*0.5, y=>$size_y-($pointsize*0.5));
 $galaxymap->Annotate(pointsize=>$pointsize,fill=>'white',text=>commify(int(keys %discoveries))." systems discovered for EDSM", x=>$pointsize*0.5, y=>$size_y-($pointsize*1.8));
 $galaxymap->Annotate(pointsize=>$pointsize,fill=>'white',text=>commify(int($distance_estimate))."+ Lightyears", x=>$pointsize*0.5, y=>$size_y-($pointsize*3.1));
-$galaxymap->Annotate(pointsize=>$pointsize,fill=>'white',text=>commify(int($jetcones))."+ Jet Cone Boosts", x=>$pointsize*0.5, y=>$size_y-($pointsize*4.4)) if ($jetcones);
+$galaxymap->Annotate(pointsize=>$pointsize,fill=>'white',text=>commify(int($jetcones))." Jet Cone Boosts", x=>$pointsize*0.5, y=>$size_y-($pointsize*4.4)) if ($jetcones);
 
 $galaxymap->Resize(geometry=>int($save_x).'x'.int($save_y).'+0+0');
 
@@ -308,6 +316,7 @@ close TXT;
 
 print "Jet Cone Bosts: $jetcones+\n";
 print "Total distance: ".commify(sprintf("%.02f",$distance))." ($jumps jumps)\n";
+print " Jump distance: ".commify(sprintf("%.02f",$jumpdistance))." ($jumps jumps)\n";
 print "Total distance since $refDate: ".commify(sprintf("%.02f",$distance))." ($refJumps jumps)\n" if ($refDate);
 print commify(int(keys %visited))." unique visited systems\n";
 
