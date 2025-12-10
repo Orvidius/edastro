@@ -38,6 +38,7 @@ my %override_periods	= ();
 $override_periods{'Graea Hypue'}	= $max_periods * 15;
 $override_periods{'Flyoo Prao'}		= $max_periods * 15;
 $override_periods{'Eishoqs'}		= $max_periods * 15;
+$override_periods{'Zunia'}		= $max_periods * 10;
 
 foreach my $s (keys %override_periods) {
 	my $new = $s;
