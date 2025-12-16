@@ -136,7 +136,7 @@ my_system("cd ~bones/elite ; ./purge-navsystems-duplicates.pl");
 ##	"; ./edsmPOI.pl > edsmPOI.data ; scp edsmPOI.data www\@services:/www/edastro.com/galmap/ ");
 
 if ($t[3] == 1) {
-	my_system("cd ~bones/elite/csv-maps ; ./get-hullseals.pl ; ./csv-maps.pl hullseals.conf");
+	#my_system("cd ~bones/elite/csv-maps ; ./get-hullseals.pl ; ./csv-maps.pl hullseals.conf");
 	my_system("cd ~bones/elite/csv-maps ; ./get-fuelrats.pl ; ./csv-maps.pl fuelrats.conf");
 }
 

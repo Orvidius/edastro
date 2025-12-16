@@ -1204,6 +1204,10 @@ sub get_ship {
 
 	# Translate the ones that have non-pretty internal IDs.
 
+	$s = 'Caspian Explorer' if (uc($s) eq uc('explorer_nx'));
+	$s = 'Mandalay' if (uc($s) eq uc('mandalay'));
+	$s = 'Corsair' if (uc($s) eq uc('corsair'));
+	$s = 'Panther Clipper Mk2' if (uc($s) eq uc('panthermkii'));
 	$s = 'Apex Taxi' if (uc($s) eq uc('adder_taxi'));
 	$s = 'Anaconda' if (uc($s) eq uc('anaconda'));
 	$s = 'Sidewinder' if (uc($s) eq uc('sidewinder'));
@@ -1213,6 +1217,7 @@ sub get_ship {
 	$s = 'Hauler' if (uc($s) eq uc('hauler'));
 	$s = 'Cobra Mk.III' if (uc($s) eq uc('CobraMkIII'));
 	$s = 'Cobra Mk.IV' if (uc($s) eq uc('CobraMkIV'));
+	$s = 'Cobra Mk.V' if (uc($s) eq uc('CobraMkV'));
 	$s = 'Diamondback Explorer' if (uc($s) eq uc('DiamondBackXL'));
 	$s = 'Diamondback Scout' if (uc($s) eq uc('diamondback'));
 	$s = 'Asp Explorer' if (uc($s) eq uc('Asp'));
@@ -1237,8 +1242,10 @@ sub get_ship {
 	$s = 'Alliance Crusader' if (uc($s) eq uc('typex_2'));
 	$s = 'Type-6 Transporter' if (uc($s) eq uc('Type6'));
 	$s = 'Type-7 Transporter' if (uc($s) eq uc('Type7'));
+	$s = 'Type-8 Transporter' if (uc($s) eq uc('Type8'));
 	$s = 'Type-9 Heavy' if (uc($s) eq uc('Type9'));
 	$s = 'Type-10 Defender' if (uc($s) eq uc('type9_military'));
+	$s = 'Type-11 Prospector' if (uc($s) eq uc('lakonminer'));
 	$s = 'Keelback' if (uc($s) eq uc('independant_trader'));
 	$s = 'Krait Mk.II' if (uc($s) eq uc('krait_mkii'));
 	$s = 'Krait Phantom' if (uc($s) eq uc('krait_light'));

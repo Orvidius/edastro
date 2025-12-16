@@ -296,6 +296,7 @@ sub track_station {
 		$hash{type} = 'Orbis Starport' if ($hash{type} eq 'Orbis');
 		$hash{type} = 'Ocellus Starport' if ($hash{type} eq 'Ocellus');
 		$hash{type} = 'Asteroid base' if ($hash{type} =~ /Asteroid/i);
+		$hash{type} = 'Dodec Starport' if ($hash{type} =~ /Dodec/i);
 		$hash{type} = 'Fleet Carrier' if ($hash{type} eq 'FleetCarrier');
 		$hash{type} = 'Mega ship' if ($hash{type} eq 'MegaShip');
 
@@ -310,6 +311,11 @@ sub track_station {
 		$hash{haveColonization} = $event_services =~ /coloni[sz]ation/ ? 1 : 0;
 	
 		update_object('station',\%hash,\%event,'eddnDate',$hash{eddnDate});
+
+		if ($hash{type} =~ /(Starport|Outpost|Settlement|Planetary|Asteroid)/i) {
+			db_mysql('elite',"update systems set inhabited=?,updated=updated where id64=? and (inhabited is null or inhabited>?)",
+				[($hash{eddnDate},$hash{systemId64},$hash{eddnDate})]);
+		}
 	}
 }
 
@@ -392,6 +398,8 @@ sub track_exploration {
 				check_db_connection();
 				if (!$eddn_debug) {
 					update_object('system',\%hash,\%event,'eddn_date',$scandate);
+					log_mysql('elite',"update systems set inhabited=?,updated=updated where id64=? and (inhabited is null or inhabited>?) ".
+						"and SystemGovernment>=6",[($hash{eddn_date},$hash{id64},$hash{eddn_date})]);
 				} else {
 					#print "EVENT($scandate): ".Dumper(\%event)."\n";
 					print 'SYSTEM: '.Dumper(\%hash)."\n";
@@ -400,7 +408,8 @@ sub track_exploration {
 		} elsif ($hash{id64}) {
 			log_mysql('elite',"update systems set eddn_date=?,eddn_updated=NOW() where id64=? and deletionState=0 and eddn_date<?",
 				[($hash{eddn_date},$hash{id64},$hash{eddn_date})]);
-			
+			log_mysql('elite',"update systems set inhabited=?,updated=updated where id64=? and (inhabited is null or inhabited>?) ".
+				"and SystemGovernment>=6",[($hash{eddn_date},$hash{id64},$hash{eddn_date})]);
 		}
 		if ($hash{id64}) {
 			# Do this regardless of conditions above.

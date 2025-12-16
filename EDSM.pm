@@ -233,6 +233,10 @@ sub update_object {
 		}
 	}
 
+	if (($$href{SystemGovernment}>1 && $$href{SystemGovernment} !~ /^(1|3|5)$/) || ($$href{SystemEconomy}>1 && $$href{SystemEconomy} !~ /^(1|3|5)$/)) {
+		$$href{inhabited} = $$href{$date_field};
+	}
+
 	$$href{distanceToArrivalLS} = $$href{distanceToArrival} if ($$href{distanceToArrival} && !$$href{distanceToArrivalLS});
 
 	if ($type =~ /^(star|planet|barycenter)$/ && !$$href{bodyId64} && $$href{bodyId} && $$href{systemId64}) {
@@ -694,6 +698,11 @@ sub update_table {
 					}
 				}
 
+				if ($table eq 'systems' && $source{inhabited} && (!defined($target{inhabited} || !$target{inhabited} || $source{inhabited} lt $target{inhabited}))) {
+					$update .= ",inhabited=?";
+					push @params, $source{inhabited};
+				}
+
 				if ($table eq 'systems' && $f eq 'id64' && $source{id64}) {
 					my ($massID,$boxID,$boxnum) = id64_subsector($source{id64},1);
 					my $sectorID = id64_sectorID($source{id64});
@@ -746,7 +755,7 @@ sub update_table {
 		} else {
 			print "\tNo changes.\n" if ($edsm_verbose || $edsm_debug);
 		}
-	
+
 	} else {
 		# Do an insert
 
@@ -824,6 +833,12 @@ sub update_table {
 				push @params, $source{edsm_date};
 			} else {
 				$vals .= ",NOW()";
+			}
+
+			if ($source{inhabited}) {
+				$vals .= ",inhabited";
+				$vars .= ",?";
+				push @params, $source{inhabited};
 			}
 
 			if (defined($source{coord_x}) && defined($source{coord_y}) && defined($source{coord_z})) {
