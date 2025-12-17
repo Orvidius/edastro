@@ -399,7 +399,7 @@ sub track_exploration {
 				if (!$eddn_debug) {
 					update_object('system',\%hash,\%event,'eddn_date',$scandate);
 					log_mysql('elite',"update systems set inhabited=?,updated=updated where id64=? and (inhabited is null or inhabited>?) ".
-						"and SystemGovernment>=6",[($hash{eddn_date},$hash{id64},$hash{eddn_date})]);
+						"and SystemGovernment is not null and SystemGovernment>=6",[($hash{eddn_date},$hash{id64},$hash{eddn_date})]);
 				} else {
 					#print "EVENT($scandate): ".Dumper(\%event)."\n";
 					print 'SYSTEM: '.Dumper(\%hash)."\n";
@@ -409,7 +409,7 @@ sub track_exploration {
 			log_mysql('elite',"update systems set eddn_date=?,eddn_updated=NOW() where id64=? and deletionState=0 and eddn_date<?",
 				[($hash{eddn_date},$hash{id64},$hash{eddn_date})]);
 			log_mysql('elite',"update systems set inhabited=?,updated=updated where id64=? and (inhabited is null or inhabited>?) ".
-				"and SystemGovernment>=6",[($hash{eddn_date},$hash{id64},$hash{eddn_date})]);
+				"and SystemGovernment is not null and SystemGovernment>=6",[($hash{eddn_date},$hash{id64},$hash{eddn_date})]);
 		}
 		if ($hash{id64}) {
 			# Do this regardless of conditions above.
