@@ -91,7 +91,7 @@ sub eddn_json {
 	return if (!$event);
 
 	if ($event =~ /FSDJump|Location/i) {
-		#log_jsonl('locations',$json) if ($logging);
+		log_jsonl('locations',$json) if ($logging);
 	} elsif ($event =~ /SAASignalsFound/i || $event eq 'Scan') {
 		#log_jsonl('scans',$json) if ($logging);
 	} elsif ($event =~ /Docked/i) {

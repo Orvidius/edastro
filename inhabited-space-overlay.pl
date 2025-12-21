@@ -107,15 +107,18 @@ sub parse_system {
         return undef;
 }
 
-print "Pulling systems...\n";
+print "Pulling systems..";
 
 my @rows = db_mysql('elite',"select id64,coord_x,coord_y,coord_z from stations,systems where ".
 		"type is not NULL and type!='Mega ship' and type!='Fleet Carrier' and type!='GameplayPOI' and ".
-		"type!='PlanetaryConstructionDepot' and type!='SpaceConstructionDepot' and type!='Mega Ship' and stations.deletionState=0 and ".
+		"type!='PlanetaryConstructionDepot' and type!='SpaceConstructionDepot' and stations.deletionState=0 and ".
 		"id64=systemId64 and systems.deletionState=0");
+print "..";
+push @rows, db_mysql('elite',"select id64,coord_x,coord_y,coord_z from systems where SystemGovernment>3 or SystemEconomy>5 ".
+		"or (inhabited is not null and inhabited>\"2025-01-01 00:00:00\")");
 
 
-print "Looping systems...\n";
+print "\nLooping systems...\n";
 my @map = ();
 my %chart = ();
 

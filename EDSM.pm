@@ -836,8 +836,8 @@ sub update_table {
 			}
 
 			if ($source{inhabited}) {
-				$vals .= ",inhabited";
-				$vars .= ",?";
+				$vars .= ",inhabited";
+				$vals .= ",?";
 				push @params, $source{inhabited};
 			}
 
