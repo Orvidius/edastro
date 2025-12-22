@@ -603,7 +603,10 @@ sub update_table {
 	my %source = %$sref;
 	my %target = %$tref;
 
-	print "update_table [$edsm_debug/$edsm_verbose] $udb,$table,$key\n";
+	my @t = localtime();
+	my $date = sprintf("%04u-%02u-%02u %02u:%02u:%02u",$t[5]+1900,$t[4]+1,$t[3],$t[2],$t[1],$t[0]);
+
+	print "[$date] update_table [$edsm_debug/$edsm_verbose] $udb,$table,$key\n";
 
 	#print 'Source: '.Dumper($sref)."\n\n";
 	#print 'Target: '.Dumper($tref)."\n\n";
@@ -612,6 +615,32 @@ sub update_table {
 	#print "NON-NULL: ".join(',',keys %nonnull)."\n";
 	#print "NON-NEGATIVE: ".join(',',keys %nonnegative)."\n";
 	#print "ADD DECIMALS: ".join(',',keys %add_decimal)."\n";
+
+	if ($table eq 'stations') {
+		$source{services} =~ s/registeringcolonisation/colonisation/igs;
+		$source{services} =~ s/frontlinesolutions/FL/igs;
+		$source{services} =~ s/apexinterstellar/apex/igs;
+		$source{services} =~ s/powerplay/PP/igs;
+		$source{services} =~ s/pioneersupplies/PS/igs;
+		$source{services} =~ s/vistagenomics/VG/igs;
+		$source{services} =~ s/missionsgenerated/missions/igs;
+		$source{services} =~ s/flightcontroller/ATC/igs;
+		$source{services} =~ s/stationoperations/ops/igs;
+		$source{services} =~ s/stationMenu//igs;
+		$source{services} =~ s/bartender/bar/igs;
+		$source{services} =~ s/socialspace/social/igs;
+		$source{services} =~ s/exploration/UC/igs;
+		$source{services} =~ s/crewlounge/lounge/igs;
+		$source{services} =~ s/facilitator//igs;
+		$source{services} =~ s/voucherredemption/redemption/igs;
+		$source{services} =~ s/modulepacks//igs;
+		$source{services} =~ s/searchrescue/SR/igs;
+		$source{services} =~ s/rearm/RA/igs;
+		$source{services} =~ s/refuel/RF/igs;
+		$source{services} =~ s/repair/RP/igs;
+		$source{services} =~ s/,,+/,/igs;
+		$source{services} = substr($source{services},0,255) if (length($source{services})>255);
+	}
 
 	if ($target{$key}) {
 		# Do an update

@@ -223,8 +223,12 @@ sub master_mysql {
 
 		my $s = int(defined($sth)).'/'.int($failed);
 		my $e = $@; $e = 'EMPTY ERR' if (!$e);
+		my $p = '';
+		if (defined($arrayref) && ref($arrayref) eq 'ARRAY') {
+			$p = " ['".join("','",@$arrayref)."']";
+		}
 
-		info("[$0] FAILED MYSQL QUERY: ($db) [$s] \"$sql_show\" -- $e");
+		info("[$0] FAILED MYSQL QUERY: ($db) [$s] \"$sql_show\"$p -- $e");
 
 		if ($e =~ /Lost connection to MySQL server during query/) {
 			info("[$0] MYSQL RETRY: in 30 seconds ($db) \"$sql_show\"");
@@ -234,7 +238,7 @@ sub master_mysql {
 			return master_mysql( $columns, $dbname, $sql, $arrayref, $nolock, $disable_constraints );
 		}
 
-		die "[$0] FAILED MYSQL QUERY: ($db) [$s] $sql_show -- $e\n";
+		die "[$0] FAILED MYSQL QUERY: ($db) [$s] $sql_show$p -- $e\n";
 	}
 
 	if ($sql =~ /^\s*(SELECT|SHOW|DESCRIBE)\s/i) {
