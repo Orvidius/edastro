@@ -5,7 +5,7 @@ use strict;
 # Copyright (C) 2018, Ed Toton (CMDR Orvidius), All Rights Reserved.
 
 use lib "/home/bones/elite";
-use EDSM qw(log10);
+use EDSM qw(log10 ssh_options scp_options);
 
 use lib "/home/bones/perl";
 use DB qw(db_mysql rows_mysql columns_mysql show_queries);
@@ -28,8 +28,8 @@ $allow_scp = 0 if ($debug);
 
 #$allow_scp = 0 if ($0 =~ /\.pl\.\S+/);
 
-my $scp			 = '/usr/bin/scp -P222';
-my $ssh			 = '/usr/bin/ssh -p222';
+my $scp			 = '/usr/bin/scp'.scp_options();
+my $ssh			 = '/usr/bin/ssh'.ssh_options();
 my $remote_server       = 'www@services:/www/edastro.com/mapcharts/files';
 
 my $outer_chunk_size    = 50000;

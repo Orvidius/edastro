@@ -46,7 +46,7 @@ my $strokewidth         = 3;
 
 my $bubble_size_x	= $size_x + $edge_height;
 my $bubble_size_y	= $size_y + $edge_height;
-my $bubble_radius	= 4000;
+my $bubble_radius	= 8000;
 my $bubble_diameter	= $bubble_radius*2;
 
 my $save_x              = 3600;
@@ -164,6 +164,93 @@ $POI{"Sothis"}{r} = 60;
 $POI{"Cone Sector"}{x} = 859;
 $POI{"Cone Sector"}{z} = -2027;
 $POI{"Cone Sector"}{r} = 92;
+
+$POI{"NGC 6188 Sector"}{x} = 1704;
+$POI{"NGC 6188 Sector"}{z} = 4055;
+$POI{"NGC 6188 Sector"}{r} = 98;
+
+$POI{"Cat's Paw"}{x} = 851;
+$POI{"Cat's Paw"}{z} = 5433;
+$POI{"Cat's Paw"}{r} = 98;
+
+$POI{"Lagoon Sector"}{x} = -394;
+$POI{"Lagoon Sector"}{z} = 3556;
+$POI{"Lagoon Sector"}{r} = 595;
+
+$POI{"Trifid Sector"}{x} = -364;
+$POI{"Trifid Sector"}{z} = 5161;
+$POI{"Trifid Sector"}{r} = 99;
+
+$POI{"Omega Sector"}{x} = -1432;
+$POI{"Omega Sector"}{z} = 5309;
+$POI{"Omega Sector"}{r} = 99;
+
+$POI{"NGC 5367 Sector"}{x} = 1349;
+$POI{"NGC 5367 Sector"}{z} = 1423;
+$POI{"NGC 5367 Sector"}{r} = 94;
+
+$POI{"Seagull Sector"}{x} = 2655;
+$POI{"Seagull Sector"}{z} = -2713;
+$POI{"Seagull Sector"}{r} = 95;
+
+$POI{"Jellyfish Sector"}{x} = 790;
+$POI{"Jellyfish Sector"}{z} = -4930;
+$POI{"Jellyfish Sector"}{r} = 98;
+
+$POI{"Rosette Sector"}{x} = 2347;
+$POI{"Rosette Sector"}{z} = -4749;
+$POI{"Rosette Sector"}{r} = 98;
+
+$POI{"Monkey Head Sector"}{x} = 1132;
+$POI{"Monkey Head Sector"}{z} = -6299;
+$POI{"Monkey Head Sector"}{r} = 98;
+
+$POI{"Crab Sector"}{x} = 555;
+$POI{"Crab Sector"}{z} = -6942;
+$POI{"Crab Sector"}{r} = 92;
+
+$POI{"NGC 1931 Sector"}{x} = -745;
+$POI{"NGC 1931 Sector"}{z} = -6959;
+$POI{"NGC 1931 Sector"}{r} = 97;
+
+$POI{"NGC 7822 Sector"}{x} = -2444;
+$POI{"NGC 7822 Sector"}{z} = -1332;
+$POI{"NGC 7822 Sector"}{r} = 92;
+
+$POI{"Heart & Soul"}{x} = -5209;
+$POI{"Heart & Soul"}{z} = -5394;
+$POI{"Heart & Soul"}{r} = 209;
+
+$POI{"North America Sector"}{x} = -1893;
+$POI{"North America Sector"}{z} = 148;
+$POI{"North America Sector"}{r} = 99;
+
+$POI{"Crescent Sector"}{x} = -4836;
+$POI{"Crescent Sector"}{z} = 1249;
+$POI{"Crescent Sector"}{r} = 92;
+
+$POI{"Statue of Liberty Sector"}{x} = 5589;
+$POI{"Statue of Liberty Sector"}{z} = 2178;
+$POI{"Statue of Liberty Sector"}{r} = 97;
+
+$POI{"Bubble Sector"}{x} = -6573;
+$POI{"Bubble Sector"}{z} = -2683;
+$POI{"Bubble Sector"}{r} = 99;
+
+$POI{"Eagle Sector"}{x} = -2046;
+$POI{"Eagle Sector"}{z} = 6692;
+$POI{"Eagle Sector"}{r} = 98;
+
+$POI{"NGC 6357 Sector"}{x} = 965;
+$POI{"NGC 6357 Sector"}{z} = 8091;
+$POI{"NGC 6357 Sector"}{r} = 98;
+
+$POI{"Eta Carina Sector"}{x} = 8581;
+$POI{"Eta Carina Sector"}{z} = 2705;
+$POI{"Eta Carina Sector"}{r} = 98;
+
+
+
 
 foreach my $image ($regionmap,$galaxymap) {
 	show_result($image->Composite(image=>$compass, compose=>'over', gravity=>'southeast',x=>$pointsize/2,y=>$pointsize/2));
