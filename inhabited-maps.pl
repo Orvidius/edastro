@@ -498,6 +498,9 @@ sub get_data {
 
 	my @rows = db_mysql('elite',"select systemId64,stations.systemName,coord_x,coord_y,coord_z from stations,systems where stations.date_added<=? and ((stations.systemName is not null and stations.systemName!='') or systemId64>0) and type is not NULL and type!='Mega ship' and type!='Fleet Carrier' and type!='GameplayPOI' and type!='PlanetaryConstructionDepot' and type !='SpaceConstructionDepot' and stations.deletionState=0 and id64=systemId64",[($today)]);
 
+# This adds systems where we don't have station data, but know it's inhabited:
+#	push @rows, db_mysql('elite',"select id64 as systemId64, name as systemName,coord_x,coord_y,coord_z from systems where SystemGovernment is not null and SystemGovernment>3 and SystemEconomy is not null and SystemEconomy>5 and deletionState=0");
+
 	foreach my $r (@rows) {
 		$$r{systemName} = $$r{systemId64} if ($$r{systemId64} && !$$r{systemName});
 

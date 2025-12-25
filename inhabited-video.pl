@@ -2,6 +2,7 @@
 use strict; $|=1;
 
 use Cwd qw(getcwd abs_path realpath);
+use File::Basename;
 
 ##########################################################################
 
@@ -14,13 +15,18 @@ my $allow_scp	= 1;
 my $fps		= 4;
 my $format	= 'png';
 
-my $output	= '/home/bones/elite/inhabited-video.mp4';
+my $filename	= 'inhabited-video.mp4';
+my $output	= '/home/bones/elite/'.$filename;
 
 my $scp		= '/usr/bin/scp';
 my $rm		= '/bin/rm';
 my $ffmpeg	= '/usr/bin/ffmpeg';
 my $ln		= '/usr/bin/ln';
 my $convert	= '/usr/bin/convert';
+
+my $cdn_url	= 'https://edastro.b-cdn.net/mapcharts/';
+my $scriptpath	= "/home/bones/elite";
+my $cdn_purge	= "$scriptpath/cdn-purge.sh";
 
 ##########################################################################
 
@@ -79,6 +85,7 @@ foreach my $regioncode ('','-regions') {
 	system($syscall) if (!$debug);
 	
 	system($scp,$last_frame,$fn,'www@services:/www/edastro.com/mapcharts/') if ($allow_scp && !$debug);
+	system($cdn_purge,$cdn_url.basename($fn));
 }
 
 exit;
