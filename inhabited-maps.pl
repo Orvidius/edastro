@@ -4,6 +4,8 @@ $|=1;
 
 ############################################################################
 
+use File::Basename;
+
 use lib "/home/bones/elite";
 use EDSM qw(log10);
 
@@ -425,9 +427,9 @@ show_result($gmap->Write( filename => $f2 ));
 if (!$debug && $allow_scp) {
 	my_system("$scp $f $f1 $f2 $remote_server/");
 	if ($cdn_url) {
-		my_system("$cdn_purge $cdn_url$f");
-		my_system("$cdn_purge $cdn_url$f1");
-		my_system("$cdn_purge $cdn_url$f2");
+		my_system("$cdn_purge $cdn_url".basename($f));
+		my_system("$cdn_purge $cdn_url".basename($f1));
+		my_system("$cdn_purge $cdn_url".basename($f2));
 	}
 }
 
@@ -456,9 +458,9 @@ show_result($rmap->Write( filename => $f2 ));
 if (!$debug && $allow_scp) {
 	my_system("$scp $f $f1 $f2 $remote_server/");
 	if ($cdn_url) {
-		my_system("$cdn_purge $cdn_url$f");
-		my_system("$cdn_purge $cdn_url$f1");
-		my_system("$cdn_purge $cdn_url$f2");
+		my_system("$cdn_purge $cdn_url".basename($f));
+		my_system("$cdn_purge $cdn_url".basename($f1));
+		my_system("$cdn_purge $cdn_url".basename($f2));
 	}
 }
 

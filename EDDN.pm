@@ -6,7 +6,8 @@ use strict;
 
 use JSON;
 use Data::Dumper;
-use Time::HiRes qw( gettimeofday );
+use Time::HiRes qw( sleep gettimeofday );
+use POSIX ":sys_wait_h";
 use File::Path qw(make_path);
 use POSIX qw/floor/;
 use LWP 5.64;
@@ -32,6 +33,12 @@ my $updating_systems;
 my $queue_path;
 my $use_queue;
 my $statusURL;
+our $forking_queue;
+our $fork_verbose;
+my $amChild;
+my %child;
+my $max_children;
+my $chunk_size;
 
 BEGIN { # Export functions first because of possible circular dependancies
    use Exporter;
@@ -53,6 +60,13 @@ BEGIN { # Export functions first because of possible circular dependancies
 	$queue_path		= '/DATA/eddn/queue'; #'/home/bones/elite/eddn-data/queue';
 	$statusURL		= 'https://ed-server-status.orerve.net/';
 
+	$forking_queue		= 1;
+	$fork_verbose		= 1;
+	$amChild		= 0;
+	$max_children		= 4;
+	$chunk_size		= 500;
+	%child			= ();
+
 	$ENV{'PERL_LWP_SSL_VERIFY_HOSTNAME'} = 0;
 	$ENV{HTTPS_DEBUG} = 1;
 
@@ -61,6 +75,14 @@ BEGIN { # Export functions first because of possible circular dependancies
 	     SSL_verify_mode => 0,
 	);
 
+}
+
+sub REAPER {
+        while ((my $pid = waitpid(-1, &WNOHANG)) > 0) {
+                warn("FORK $$: Child on PID $pid terminated.\n") if ($fork_verbose);
+                delete($child{$pid});
+        }
+        $SIG{CHLD} = \&REAPER;
 }
 
 
@@ -211,6 +233,9 @@ sub process_queue {
 	my $delete_finished = shift;
 	my @dirs = ();
 
+
+	$SIG{CHLD} = \&REAPER;
+
 	opendir QUEUEDIR, $queue_path;
 	while (my $d = readdir QUEUEDIR) {
 		if ($d !~ /^\./ && -d "$queue_path/$d" && $d =~ /^\d/) {
@@ -219,38 +244,107 @@ sub process_queue {
 	}
 	closedir QUEUEDIR;
 
+	my @files = ();
+	my $failures = 0;
+
 	foreach my $d (sort @dirs) {
-		my $failures = 0;
+		my $dircount = 0;
 
 		opendir QUEUEDIR, "$queue_path/$d";
 		while (my $f = readdir QUEUEDIR) {
 			my $fn = "$queue_path/$d/$f";
 
 			if ($f !~ /^\./ && -f $fn && -e $fn) {
-				my $ok = 0;
-				print "QUEUE: $fn\n";
-
-				if (!(stat($fn))[7]) {
-					unlink $fn;
-				} else {
-
-					eval {
-						$ok = process_event_file($fn);
-					};
-					print "ERROR: $@" if ($@);
-					print ($ok ? "OK\n\n" : "FAIL\n\n") if ($verbose);
-	
-					unlink $fn if ($ok && $delete_finished);
-					$failures++ if (!$ok);
-				}
+				push @files, $fn;
+				$dircount++;
 			}
 		}
 		closedir QUEUEDIR;
 
 		eval {
-			rmdir "$queue_path/$d" if (!$failures);		# Silently fail here if directory isn't empty.
+			rmdir "$queue_path/$d" if (!$dircount);		# Silently fail here if directory isn't empty.
 		};
 	}
+
+	my $pid = 0;
+        my $do_anyway = 0;
+
+	while(@files) {
+
+
+		while (int(keys %child) >= $max_children) {
+			#sleep 1;
+			sleep 0.05;
+		}
+
+		my @file_list = splice(@files,0,$chunk_size);
+
+		if ($forking_queue) {
+			FORK: {
+				if ($pid = fork) {
+					# Parent here
+					$child{$pid}{start} = time;
+					warn("FORK $$: Child spawned on PID $pid\n") if ($fork_verbose);
+					next;
+				} elsif (defined $pid) {
+					# Child here
+					$amChild = 1;   # I AM A CHILD!!!
+					warn("FORK: $$ ready.\n") if ($fork_verbose);
+					$0 .= " [child $$]"
+				} elsif ($! =~ /No more process/) {
+					warn("FORK $$: Could not fork a child, retrying in 3 seconds\n");
+					sleep 3;
+					redo FORK;
+				} else {
+					warn("FORK $$: Could not fork a child. $! $@\n");
+					$do_anyway = 1;
+				}
+			}
+		} else {
+			$do_anyway = 1;
+		}
+
+
+		if ($amChild || $do_anyway) {
+			disconnect_all() if ($amChild); # Important to make our own DB connections as a child process.
+			$failures = 0 if ($amChild);
+
+			while (@file_list) {
+				my $fn = shift @file_list;
+
+				my $ok = 0;
+				print "QUEUE $$: $fn\n";
+		
+				if (!(stat($fn))[7]) {
+					unlink $fn;
+				} else {
+		
+					eval {
+						$ok = process_event_file($fn);
+					};
+					print "ERROR $$: $@" if ($@);
+					print ($ok ? "OK\n\n" : "FAIL\n\n") if ($verbose);
+		
+					unlink $fn if ($ok && $delete_finished);
+					$failures++ if (!$ok);
+				}
+			}
+
+			print "Child $$ error count: $failures\n" if ($amChild);
+			exit if ($amChild);
+		}
+	}
+
+	exit if ($amChild);
+
+	if ($forking_queue && int(keys %child) > 0) {
+		print "\n$$ Waiting on child processes.\n";
+        	while (int(keys %child) > 0) {
+                	#sleep 1;
+                	sleep 0.1;
+		}
+        }
+
 }
 
 ############################################################################
@@ -622,11 +716,21 @@ sub track_exploration {
 		}
 	}
 
-	if ($eventType eq "FSSSignalDiscovered" && $event{IsStation} && $event{SignalName} =~ /(.*\S+)\s+([A-Z0-9]{3}\-[A-Z0-9]{3})\s*$/) {
-		my $name = btrim($1);
-		my $callsign = btrim($2);
+	if ($eventType eq "FSSSignalDiscovered") {
 		my $timestamp = undef;
 		my $id64 = undef;
+
+		my @signals = ();
+
+		if (defined($event{signals}) && ref($event{signals}) eq 'ARRAY') {
+			@signals = @{$event{signals}};
+		}
+
+		if ($event{IsStation} && $event{SignalName} =~ /(.*\S+)\s+([A-Z0-9]{3}\-[A-Z0-9]{3})\s*$/) {
+			push @signals, { SignalName=>$event{SignalName}, SignalType=>'FleetCarrier', IsStation=>1, timestamp=>$event{timestamp} };
+		}
+
+		#print "FSSSignalDiscovered: ".int(@signals)." signals.\n";
 
 		if ($event{SystemAddress} =~ /\s*(\d+)\D*/) {
 			$id64 = $1+0;
@@ -636,37 +740,62 @@ sub track_exploration {
 			$timestamp = "$1 $2";
 		}
 
-		if ($timestamp) {
-			my @rows = db_mysql('elite',"select ID,name,systemId64,FSSdate,lastMoved from carriers where callsign=?",[($callsign)]);
-	
-			if (@rows && (!${$rows[0]}{FSSdate} || $timestamp gt ${$rows[0]}{FSSdate})) {
-				# Update only if the new FSS event date is newer than on record, or don't have one on record.
+		if ($timestamp && $id64) {
+			foreach my $signal (@signals) {
 
-				my $r = $rows[0];
+				if ($$signal{IsStation} && $$signal{SignalName} =~ /(.*\S+)\s+([A-Z0-9]{3}\-[A-Z0-9]{3})\s*$/) {
+					my $name = btrim($1);
+					my $callsign = btrim($2);
+			
+					my @rows = db_mysql('elite',"select ID,name,systemId64,FSSdate,lastMoved from carriers where callsign=?",[($callsign)]);
+	
+					if (@rows && (!${$rows[0]}{FSSdate} || $timestamp gt ${$rows[0]}{FSSdate})) {
+						# Update only if the new FSS event date is newer than on record, or don't have one on record.
+		
+						my $r = $rows[0];
+		
+						if (uc($name) ne uc($$r{name})) {
+							print "FSSSignalDiscovered: $name ($$r{name}) $callsign [$timestamp]\n";
+							log_mysql('elite',"update carriers set FSSdate=?,name=? where ID=?",[($timestamp,$name,$$r{ID})]);
+						} else {
+							print "FSSSignalDiscovered: $name $callsign [$timestamp]\n";
+							log_mysql('elite',"update carriers set FSSdate=? where ID=?",[($timestamp,$$r{ID})]);
+						}
+			
+						if ($id64 && $id64 != $$r{systemId64} && (!$$r{lastMoved} || $timestamp gt $$r{lastMoved})) {
+							my @lookup = db_mysql('elite',"select name,coord_x,coord_y,coord_z from systems where id64=? and deletionState=0",[($id64)]);
+							my ($sysname,$x,$y,$z) = (undef,undef,undef,undef);
+			
+							if (@lookup) {
+								my $s = shift @lookup;
+								$sysname = $$s{name};
+								$x = $$s{coord_x};
+								$y = $$s{coord_y};
+								$z = $$s{coord_z};
+							}
+		
+							print "FSSSignalDiscovered: $name $callsign [$timestamp] $sysname, ($id64) $x, $y, $z\n";
+							log_mysql('elite',"update carriers set systemId64=?,systemName=?,coord_x=?,coord_y=?,coord_z=? where ID=? and systemId64!=?",
+								[($id64,$sysname,$x,$y,$z,$$r{ID},$id64)]);
+						}
+					}
+				} elsif ($$signal{SignalType} eq 'Outpost' && $event{StarSystem}) {
+					my @rows = db_mysql('elite',"select count(*) num from stations where systemId64=? and type not in ".
+						"('GameplayPOI','Fleet Carrier','Mega Ship') and type not like '%carrier%' and type not like '%Construction%'",[($id64)]);
 
-				if (uc($name) ne uc($$r{name})) {
-					print "FSSSignalDiscovered: $name ($$r{name}) $callsign [$timestamp]\n";
-					log_mysql('elite',"update carriers set FSSdate=?,name=? where ID=?",[($timestamp,$name,$$r{ID})]);
-				} else {
-					print "FSSSignalDiscovered: $name $callsign [$timestamp]\n";
-					log_mysql('elite',"update carriers set FSSdate=? where ID=?",[($timestamp,$$r{ID})]);
-				}
-	
-				if ($id64 && $id64 != $$r{systemId64} && (!$$r{lastMoved} || $timestamp gt $$r{lastMoved})) {
-					my @lookup = db_mysql('elite',"select name,coord_x,coord_y,coord_z from systems where id64=? and deletionState=0",[($id64)]);
-					my ($sysname,$x,$y,$z) = (undef,undef,undef,undef);
-	
-					if (@lookup) {
-						my $s = shift @lookup;
-						$sysname = $$s{name};
-						$x = $$s{coord_x};
-						$y = $$s{coord_y};
-						$z = $$s{coord_z};
+					my $num = 999;
+					if (@rows) {
+						my $r = shift(@rows);
+						$num = $$r{num};
 					}
 
-					print "FSSSignalDiscovered: $name $callsign [$timestamp] $sysname, ($id64) $x, $y, $z\n";
-					log_mysql('elite',"update carriers set systemId64=?,systemName=?,coord_x=?,coord_y=?,coord_z=? where ID=? and systemId64!=?",
-						[($id64,$sysname,$x,$y,$z,$$r{ID},$id64)]);
+					print "FSSSignalDiscovered: Outpost check for $event{StarSystem} [$id64] / $$signal{SignalName}, stations found: $num\n";
+
+					if (!$num) {
+						print "FSSSignalDiscovered: Adding outpost: $$signal{SignalName} in $event{StarSystem} [$id64] $$signal{SignalType}\n";
+						db_mysql('elite',"insert into stations (systemId64,systemName,name,type,eddnDate,date_added,padsS,padsM) values (?,?,?,?,?,now(),3,1)",
+							[($id64,$event{StarSystem},$$signal{SignalName},$$signal{SignalType},$timestamp)]);
+					}
 				}
 			}
 		}

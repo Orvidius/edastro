@@ -48,7 +48,7 @@ if (!$is_daemon) {
 		$0 = "$progname ".time." [processing]";
 		process_queue(1,1);
 
-		for(my $i=20;$i>0;$i--) {
+		for(my $i=10;$i>0;$i--) {
 			$0 = "$progname ".time.sprintf(" [sleep=%02u]",$i);
 			sleep 1;
 		}
