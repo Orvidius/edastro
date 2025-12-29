@@ -443,7 +443,8 @@ sub track_exploration {
 					# In both, remove from nav:
 					log_mysql('elite',"delete from navsystems where id64=?",[($$sys{SystemAddress})]);
 				} elsif (@checksys) {
-					# Already in systems table, do nothing for now
+					# Already in systems table
+					log_mysql('elite',"update systems set name=? where id64=? and name!=?",[($$sys{StarSystem},$$sys{SystemAddress},$$sys{StarSystem})]) if ($$sys{StarSystem} && $$sys{SystemAddress});
 				} elsif (!@checknav && !@checksys) {
 					# Not in either
 

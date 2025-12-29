@@ -115,7 +115,7 @@ my @rows = db_mysql('elite',"select id64,coord_x,coord_y,coord_z from stations,s
 		"id64=systemId64 and systems.deletionState=0");
 print "..";
 push @rows, db_mysql('elite',"select id64,coord_x,coord_y,coord_z from systems where SystemGovernment>3 or SystemEconomy>5 ".
-		"or (inhabited is not null and inhabited>\"2025-01-01 00:00:00\")");
+		"or (inhabited is not null and inhabited>\"2025-12-22 00:00:00\")");
 
 
 print "\nLooping systems...\n";
