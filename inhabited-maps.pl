@@ -175,11 +175,11 @@ $POI{"Cat's Paw"}{x} = 851;
 $POI{"Cat's Paw"}{z} = 5433;
 $POI{"Cat's Paw"}{r} = 98;
 
-$POI{"Lagoon Sector"}{x} = -394;
-$POI{"Lagoon Sector"}{z} = 3556;
-$POI{"Lagoon Sector"}{r} = 595;
+$POI{"Lagoon Sector"}{x} = -470;
+$POI{"Lagoon Sector"}{z} = 4474;
+$POI{"Lagoon Sector"}{r} = 99;
 
-$POI{"Trifid Sector"}{x} = -364;
+$POI{"Trifid Sector"}{x} = -634;
 $POI{"Trifid Sector"}{z} = 5161;
 $POI{"Trifid Sector"}{r} = 99;
 
