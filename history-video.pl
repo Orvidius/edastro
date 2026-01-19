@@ -23,13 +23,13 @@ my $allow_scp		= 1;
 my $max_frames		= 0;
 my $use_bodies		= 1;
 
-my $doing_dw2		= 0;
-$doing_dw2 = 0 if (time > date2epoch('2019-06-14 00:00:00'));
+my $doing_dw3		= 0;
+$doing_dw3 = 0 if (time > date2epoch('2026-06-17 00:00:00'));
 
-my $dw2_start		= '2019-01-01';
-my $dw2_stop		= '2019-06-14';
-my $dw2_first		= 0;
-my $dw2_last		= 0;
+my $dw3_start		= '2026-01-11';
+my $dw3_stop		= '2026-06-17';
+my $dw3_first		= 0;
+my $dw3_last		= 0;
 
 my $decay_rate		= 0;
 $decay_rate = 0.95 if ($ARGV[0]);
@@ -203,8 +203,8 @@ sub make_video {
 	}
 
 	while ($date lt $lastdate) {
-		$dw2_first = $img_count if (!$dw2_first && ($date gt $dw2_start || $date eq $dw2_start));
-		$dw2_last = $img_count if (!$dw2_last && ($date gt $dw2_stop || $date eq $dw2_stop));
+		$dw3_first = $img_count if (!$dw3_first && ($date gt $dw3_start || $date eq $dw3_start));
+		$dw3_last = $img_count if (!$dw3_last && ($date gt $dw3_stop || $date eq $dw3_stop));
 
 		my $show_date = $date;
 		my $starttime = "$date 00:00:00";
@@ -371,9 +371,9 @@ sub make_video {
 		#last if ($debug);
 		last if ($max_frames && $img_count>$max_frames);
 	}
-	$dw2_last = $img_count-1 if (!$dw2_last);
+	$dw3_last = $img_count-1 if (!$dw3_last);
 
-	print "# DW2: [$decay_rate] $dw2_start -> $dw2_stop ($dw2_first - $dw2_last)\n" if ($doing_dw2);
+	print "# DW3: [$decay_rate] $dw3_start -> $dw3_stop ($dw3_first - $dw3_last)\n" if ($doing_dw3);
 
 	if ($img_count >= 10) {
 		my $fps = 10;
@@ -394,22 +394,22 @@ sub make_video {
 		my_system("$scp $fn $remote_server/") if (!$debug && $allow_scp);
 		my_system("$scp $last_frame $remote_frame") if (!$debug && $allow_scp);
 
-		if ($doing_dw2 && $decay_rate && $dw2_first && $dw2_last && $img_count<=$dw2_last+7) {
-			my $dw2_fn = $fn;
-			$dw2_fn =~ s/galactic-history-decay/dw2-history-decay/gs;
+		if ($doing_dw3 && $decay_rate && $dw3_first && $dw3_last && $img_count<=$dw3_last+7) {
+			my $dw3_fn = $fn;
+			$dw3_fn =~ s/galactic-history-decay/dw3-history-decay/gs;
 
-			my $framecount = 1+$dw2_last-$dw2_first;
+			my $framecount = 1+$dw3_last-$dw3_first;
 
-			my $syscall = "$ffmpeg -y -framerate 6 -start_number $dw2_first -i $datapath/img-%06d.$format -c:v libx264 -profile:v high -crf 20 -pix_fmt yuv420p $filter $dw2_fn";
+			my $syscall = "$ffmpeg -y -framerate 6 -start_number $dw3_first -i $datapath/img-%06d.$format -c:v libx264 -profile:v high -crf 20 -pix_fmt yuv420p $filter $dw3_fn";
 			print "$syscall\n";
 			system($syscall);
 
-			my $last = sprintf("%06d",$dw2_last);
+			my $last = sprintf("%06d",$dw3_last);
 
-			$remote_frame =~ s/vid-heatmap-decay/dw2-heatmap-decay/gs;
+			$remote_frame =~ s/vid-heatmap-decay/dw3-heatmap-decay/gs;
 			$last_frame =~ s/\d+/$last/gs;
 
-			my_system("$scp $dw2_fn $remote_server/") if (!$debug && $allow_scp);
+			my_system("$scp $dw3_fn $remote_server/") if (!$debug && $allow_scp);
 			my_system("$scp $last_frame $remote_frame") if (!$debug && $allow_scp);
 		}
 	}

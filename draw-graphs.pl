@@ -2221,27 +2221,6 @@ sub get_image_coords {
 
 	$in_range = 1 if ($in_range);
 
-	if ($in_range && $maptype eq 'hugeviewDW2') {
-		my $DW2_start  = date2epoch("2019-01-13 00:00:00");
-		my $DW2_finish = date2epoch("2019-06-14 00:00:00");
-		my $epoch = date2epoch($$r{date});
-
-		$in_range = 0 if ($epoch<$DW2_start or $epoch>=$DW2_finish);
-
-		my $hasStars = 0;
-		my $hasPlanets = 0;
-
-		foreach my $bodyID (keys %$sysbodyhash) {
-			my $body = $$sysbodyhash{$bodyID};
-			my $updated = $$body{updateTime};
-			my $discovered = $$body{discoveryDate};
-
-			$hasStars = 1 if ($$body{star} && ( ($updated>=$DW2_start && $updated<$DW2_finish) || ($discovered>=$DW2_start && $discovered<$DW2_finish) ));
-			$hasPlanets = 1 if (!$$body{star} && ( ($updated>=$DW2_start && $updated<$DW2_finish) || ($discovered>=$DW2_start && $discovered<$DW2_finish) ));
-		}
-		$in_range += ($hasStars*0.25) + ($hasPlanets*0.25);
-	}
-
 	return ($x,$y,$in_range);
 }
 

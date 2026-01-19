@@ -192,7 +192,7 @@ sub master_mysql {
 		return;
 	}
 
-	$dbh{$db}->{'mysql_auto_reconnect'} = $AutoReconnect;
+	#$dbh{$db}->{'mysql_auto_reconnect'} = $AutoReconnect;
 
 	my $sth    = undef;
 	my $failed = 1;

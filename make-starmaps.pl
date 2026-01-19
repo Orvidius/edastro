@@ -81,9 +81,10 @@ my %file = ();
 #$file{"classmassK-C-old"}	= "$filepath/class-K-mass-C-age_old.png" if (!$outputgroup || $outputgroup==1);
 
 
-$file{systems_heatmin2}	= "$filepath/visited-systems-heatmap-minimum2.png" if (!$outputgroup || $outputgroup==1);
+$file{hugeviewDW3}	= "$filepath/DW3-systems.png" if (!$outputgroup || $outputgroup==1);
 
-#if (!$debug && !$skip_all) {
+if (!$debug && !$skip_all) {
+$file{systems_heatmin2}	= "$filepath/visited-systems-heatmap-minimum2.png" if (!$outputgroup || $outputgroup==1);
 $file{systems_recent}	= "$filepath/systems_recent.png" if (!$outputgroup || $outputgroup==2);
 $file{averagebodies}	= "$filepath/averagebodies.png" if (!$outputgroup || $outputgroup==1);
 $file{systems_heat}	= "$filepath/visited-systems-heatmap.png" if (!$outputgroup || $outputgroup==1);
@@ -134,7 +135,7 @@ $file{wolfrayet1}	= "$filepath/wolfrayet1.png" if (!$outputgroup || $outputgroup
 $file{wolfrayet2}	= "$filepath/wolfrayet2.png" if (!$outputgroup || $outputgroup==2);
 $file{wolfrayet3}	= "$filepath/wolfrayet3.png" if (!$outputgroup || $outputgroup==2);
 $file{wolfrayet4}	= "$filepath/wolfrayet4.png" if (!$outputgroup || $outputgroup==2);
-#}
+}
 
 my %mapstyle = ();
 $mapstyle{systems_mono} = 'mono';
@@ -2615,6 +2616,27 @@ sub get_image_coords {
 
 			$hasStars = 1 if ($$body{star} && ( ($updated>=$DW2_start && $updated<$DW2_finish) || ($discovered>=$DW2_start && $discovered<$DW2_finish) ));
 			$hasPlanets = 1 if (!$$body{star} && ( ($updated>=$DW2_start && $updated<$DW2_finish) || ($discovered>=$DW2_start && $discovered<$DW2_finish) ));
+		}
+		$in_range += ($hasStars*0.25) + ($hasPlanets*0.25);
+	}
+
+	if ($in_range && $maptype eq 'hugeviewDW3') {
+		my $DW3_start  = date2epoch("2026-01-11 00:00:00");
+		my $DW3_finish = date2epoch("2026-06-17 00:00:00");
+		my $epoch = date2epoch($$r{date});
+
+		$in_range = 0 if ($epoch<$DW3_start or $epoch>=$DW3_finish);
+
+		my $hasStars = 0;
+		my $hasPlanets = 0;
+
+		foreach my $bodyID (keys %$sysbodyhash) {
+			my $body = $$sysbodyhash{$bodyID};
+			my $updated = $$body{updateTime};
+			my $discovered = $$body{discoveryDate};
+
+			$hasStars = 1 if ($$body{star} && ( ($updated>=$DW3_start && $updated<$DW3_finish) || ($discovered>=$DW3_start && $discovered<$DW3_finish) ));
+			$hasPlanets = 1 if (!$$body{star} && ( ($updated>=$DW3_start && $updated<$DW3_finish) || ($discovered>=$DW3_start && $discovered<$DW3_finish) ));
 		}
 		$in_range += ($hasStars*0.25) + ($hasPlanets*0.25);
 	}
