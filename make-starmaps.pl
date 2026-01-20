@@ -56,6 +56,7 @@ if ($debug && $debug_full) {
 }
 
 my $remote_server	= 'www@services:/www/edastro.com/mapcharts/';
+my $purgepath		= 'https://edastro.b-cdn.net/mapcharts/';
 my $filepath		= "/home/bones/www/elite";
 my $img_path		= "/home/bones/elite/images";
 my $scripts_path	= "/home/bones/elite/scripts";
@@ -2438,9 +2439,9 @@ sub push_images {
 	my_system("$convert $fn -verbose -resize $jpg_size -gamma 1.3 $jpg");
 	my_system("$convert $fn -verbose -resize 200x200 -gamma 1.3 $thumb");
 	my_system("$scp $png $jpg $thumb $remote_server") if (!$debug && $allow_scp);
-	my_system("~bones/elite/cdn-purge.sh $png");
-	my_system("~bones/elite/cdn-purge.sh $jpg");
-	my_system("~bones/elite/cdn-purge.sh $thumb");
+	my_system("~bones/elite/cdn-purge.sh $purgepath".basename($png));
+	my_system("~bones/elite/cdn-purge.sh $purgepath".basename($jpg));
+	my_system("~bones/elite/cdn-purge.sh $purgepath".basename($thumb));
 	print "\n";
 }
 

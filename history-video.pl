@@ -4,7 +4,7 @@ use strict;
 ############################################################################
 
 use lib "/home/bones/elite";
-use EDSM qw(log10);
+use EDSM qw(log10 ssh_options scp_options);
 
 use lib "/home/bones/perl";
 use DB qw(db_mysql rows_mysql columns_mysql show_queries);
@@ -58,7 +58,8 @@ my $size_x		= int($size_y*16/9);
 my $pointsize		= 20*$scale_factor;
 my $smallpointsize	= 14*$scale_factor;
 
-my $scp			= '/usr/bin/scp -P222';
+my $scp			= '/usr/bin/scp'.ssh_options();
+my $ssh			= '/usr/bin/scp'.scp_options();
 my $rm			= '/bin/rm';
 my $ffmpeg		= '/usr/bin/ffmpeg';
 my $format		= 'jpg';
