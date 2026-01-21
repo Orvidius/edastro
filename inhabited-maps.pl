@@ -7,7 +7,7 @@ $|=1;
 use File::Basename;
 
 use lib "/home/bones/elite";
-use EDSM qw(log10);
+use EDSM qw(log10 ssh_options scp_options);
 
 use lib "/home/bones/perl";
 use DB qw(db_mysql rows_mysql columns_mysql show_queries disconnect_all);
@@ -24,7 +24,7 @@ my $debug		= 0;
 my $verbose		= 0;
 my $allow_scp		= 1;
 
-my $scp			= '/usr/bin/scp -P222';
+my $scp			= '/usr/bin/scp'.scp_options();
 my $remote_server	= 'www@services:/www/edastro.com/mapcharts/';
 my $cdn_url		= 'https://edastro.b-cdn.net/mapcharts/';
 my $scriptpath		= "/home/bones/elite";

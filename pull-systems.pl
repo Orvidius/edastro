@@ -181,7 +181,7 @@ if ((!keys(%action) && $t[6] == 6) || $action{maps}) {
 	my_system(1,"cd ~bones/elite ; ./codex-maps.pl > codex-maps.pl.out 2>\&1 ");
 	my_system("cd ~bones/elite ; ./missing-coordinates-map.pl > missing-coordinates-map.pl.out 2>\&1");
 	my_system("cd ~bones/elite ; ./codex-tweaks.pl > codex-tweaks.pl.out 2>\&1 ") if (!$edsm_down);
-	my_system("cd ~bones/elite ; ./organic-maps.pl > organic-maps.pl.out 2>\&1 ");
+	#my_system("cd ~bones/elite ; ./organic-maps.pl > organic-maps.pl.out 2>\&1 ");
 }
 
 #if (!keys(%action) && $t[3] == 28) {
