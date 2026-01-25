@@ -12,7 +12,7 @@ use ATOMS qw(epoch2date date2epoch make_csv parse_csv);
 
 use Image::Magick;
 use POSIX qw(floor);
-#use File::Basename;
+use File::Basename;
 
 ############################################################################
 

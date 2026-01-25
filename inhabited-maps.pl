@@ -23,6 +23,7 @@ show_queries(0);
 my $debug		= 0;
 my $verbose		= 0;
 my $allow_scp		= 1;
+my $startports_only	= 0;
 
 my $scp			= '/usr/bin/scp'.scp_options();
 my $remote_server	= 'www@services:/www/edastro.com/mapcharts/';
@@ -61,6 +62,11 @@ my $author		= "Map by CMDR Orvidius (edastro.com) - CC BY-NC-SA 3.0 - Data via E
 
 
 ############################################################################
+
+if (@ARGV && $ARGV[0] eq '1') {
+	shift @ARGV;
+	$startports_only = '-starports';
+}
 
 die "Usage: $0 [YYYY-MM-DD [radius]]\n" if (@ARGV && $ARGV[0] !~ /^\d{4}-\d{2}-\d{2}/);
 
@@ -370,7 +376,9 @@ foreach my $image ($rmap,$gmap) {
 
 	show_result($image->Composite(image=>$logo, compose=>'over', gravity=>'northeast',x=>$pointsize/2,y=>$pointsize*2));
 
-	annotate_border($image,$pointsize,'white',10,"$title - $today - $count inhabited systems shown.",'northwest',$pointsize,$pointsize);
+	my $add = $startports_only ? ' (starports only)' : '';
+
+	annotate_border($image,$pointsize,'white',10,"$title$add - $today - $count inhabited systems shown.",'northwest',$pointsize,$pointsize);
 	annotate_border($image,$pointsize,'white',10,$author,'northeast',$pointsize,$pointsize);
 
 	annotate_border($image,$pointsize*3,'white',30,'Sol / Bubble', undef, $size_x+$edge_height+$pointsize, $pointsize*4);
@@ -379,24 +387,25 @@ foreach my $image ($rmap,$gmap) {
 
 system('/usr/bin/mkdir','-p',"$scriptpath/inhabited-history") if (!-d "$scriptpath/inhabited-history");
 
-my $fn = sprintf("%s/inhabited-history/$fileout-$date.bmp",$scriptpath);
-print timestamp()."Writing to: $fn\n";
-show_result($gmap->Write( filename => $fn ));
-my $do = "/usr/bin/convert $fn";
-my $rm = $fn;
-$fn =~ s/bmp/png/;
-my_system("$do $fn");
-unlink $rm if (-e $fn);
-
-my $fn = sprintf("%s/inhabited-history/$fileout-regions-$date.bmp",$scriptpath);
-print timestamp()."Writing to: $fn\n";
-show_result($rmap->Write( filename => $fn ));
-my $do = "/usr/bin/convert $fn";
-my $rm = $fn;
-$fn =~ s/bmp/png/;
-my_system("$do $fn");
-unlink $rm if (-e $fn);
-
+if (!$startports_only) {
+	my $fn = sprintf("%s/inhabited-history/$fileout-$date.bmp",$scriptpath);
+	print timestamp()."Writing to: $fn\n";
+	show_result($gmap->Write( filename => $fn ));
+	my $do = "/usr/bin/convert $fn";
+	my $rm = $fn;
+	$fn =~ s/bmp/png/;
+	my_system("$do $fn");
+	unlink $rm if (-e $fn);
+	
+	my $fn = sprintf("%s/inhabited-history/$fileout-regions-$date.bmp",$scriptpath);
+	print timestamp()."Writing to: $fn\n";
+	show_result($rmap->Write( filename => $fn ));
+	my $do = "/usr/bin/convert $fn";
+	my $rm = $fn;
+	$fn =~ s/bmp/png/;
+	my_system("$do $fn");
+	unlink $rm if (-e $fn);
+}
 
 
 
@@ -404,7 +413,7 @@ unlink $rm if (-e $fn);
 
 #show_result($gmap->Resize(geometry=>int($save_x).'x'.int($save_y).'+0+0'));
 
-my $f = sprintf("%s/$fileout.bmp",$filepath);
+my $f = sprintf("%s/$fileout$startports_only.bmp",$filepath);
 print timestamp()."Writing to: $f\n";
 show_result($gmap->Write( filename => $f ));
 my $do = "/usr/bin/convert $f";
@@ -413,14 +422,14 @@ my_system("$do $f");
 
 show_result($gmap->Resize(geometry=>int($save_x/3).'x'.int($save_y/3).'+0+0'));
 
-my $f1 = sprintf("%s/$fileout.jpg",$filepath);
+my $f1 = sprintf("%s/$fileout$startports_only.jpg",$filepath);
 print timestamp()."Writing to: $f1\n";
 show_result($gmap->Write( filename => $f1 ));
 
 show_result($gmap->Gamma( gamma=>1.2, channel=>"all" ));
 show_result($gmap->Resize(geometry=>int($thumb_x).'x'.int($thumb_y).'+0+0'));
 
-my $f2 = sprintf("%s/$fileout-thumb.jpg",$filepath);
+my $f2 = sprintf("%s/$fileout$startports_only-thumb.jpg",$filepath);
 print timestamp()."Writing to: $f2\n";
 show_result($gmap->Write( filename => $f2 ));
 
@@ -435,7 +444,7 @@ if (!$debug && $allow_scp) {
 
 #show_result($rmap->Resize(geometry=>int($save_x).'x'.int($save_y).'+0+0'));
 
-my $f = sprintf("%s/$fileout-regions.bmp",$filepath);
+my $f = sprintf("%s/$fileout$startports_only-regions.bmp",$filepath);
 print timestamp()."Writing to: $f\n";
 show_result($rmap->Write( filename => $f ));
 my $do = "/usr/bin/convert $f";
@@ -444,14 +453,14 @@ my_system("$do $f");
 
 show_result($rmap->Resize(geometry=>int($save_x/3).'x'.int($save_y/3).'+0+0'));
 
-my $f1 = sprintf("%s/$fileout-regions.jpg",$filepath);
+my $f1 = sprintf("%s/$fileout$startports_only-regions.jpg",$filepath);
 print timestamp()."Writing to: $f1\n";
 show_result($rmap->Write( filename => $f1 ));
 
 show_result($rmap->Gamma( gamma=>1.2, channel=>"all" ));
 show_result($rmap->Resize(geometry=>int($thumb_x).'x'.int($thumb_y).'+0+0'));
 
-my $f2 = sprintf("%s/$fileout-regions-thumb.jpg",$filepath);
+my $f2 = sprintf("%s/$fileout$startports_only-regions-thumb.jpg",$filepath);
 print timestamp()."Writing to: $f2\n";
 show_result($rmap->Write( filename => $f2 ));
 
@@ -498,7 +507,9 @@ sub get_data {
 #	my @rows = db_mysql('elite',"select systemId64,systemName,coord_x,coord_y,coord_z from inhabiteds where (callsign in ('W21-G9Z','W48-Q1Z') or ".
 #			"lastEvent>date_sub(NOW(), interval 60 day) or lastMoved>date_sub(NOW(), interval 60 day)) and ((systemName is not null and systemName!='') or systemId64>0)");
 
-	my @rows = db_mysql('elite',"select systemId64,stations.systemName,coord_x,coord_y,coord_z from stations,systems where stations.date_added<=? and ((stations.systemName is not null and stations.systemName!='') or systemId64>0) and type is not NULL and type!='Mega ship' and type!='Fleet Carrier' and type!='GameplayPOI' and type!='PlanetaryConstructionDepot' and type !='SpaceConstructionDepot' and stations.deletionState=0 and id64=systemId64",[($today)]);
+	my $lookup = $startports_only ? "type in ('Asteroid base','Coriolis Starport','Dodec Starport','Ocellus Starport','Orbis Starport')" : "type!='Mega ship' and type!='Fleet Carrier' and type!='GameplayPOI' and type!='PlanetaryConstructionDepot' and type !='SpaceConstructionDepot'";
+
+	my @rows = db_mysql('elite',"select systemId64,stations.systemName,coord_x,coord_y,coord_z from stations,systems where stations.date_added<=? and ((stations.systemName is not null and stations.systemName!='') or systemId64>0) and type is not NULL and $lookup and stations.deletionState=0 and id64=systemId64",[($today)]);
 
 # This adds systems where we don't have station data, but know it's inhabited:
 #	push @rows, db_mysql('elite',"select id64 as systemId64, name as systemName,coord_x,coord_y,coord_z from systems where SystemGovernment is not null and SystemGovernment>3 and SystemEconomy is not null and SystemEconomy>5 and deletionState=0");
